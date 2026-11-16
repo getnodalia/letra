@@ -17,3 +17,5 @@ scripts/check-release-notes.sh
 docs/release-notes/**
 packaging/macos/dmg/**
 .github/ISSUE_TEMPLATE/**
+.github/CODEOWNERS
+CONTRIBUTING.md
