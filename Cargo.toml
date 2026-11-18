@@ -4,7 +4,7 @@ members = ["crates/*", "apps/*", "xtask"]
 default-members = ["crates/*", "apps/letra", "apps/letra-cli", "xtask"]
 
 [workspace.package]
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 rust-version = "1.95"
@@ -73,7 +73,7 @@ craft-image-codecs = { git = "https://github.com/getnodalia/foundation", rev = "
 craft-tiff = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
 craft-pdf = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0", default-features = false, features = ["write"] }
 # In-app updates from this app's GitHub releases, with the update windows for egui.
-nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "3c6bbd28c68496b3084fdae29005f4ac48720fe5", features = ["egui"] }
+nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "114848a2ff1a7c29c9a5432fb12e955fbe0aeef2", features = ["egui"] }
 nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "3c6bbd28c68496b3084fdae29005f4ac48720fe5", features = ["egui"] }
 craft-wordmodel = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
 craft-docx = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }

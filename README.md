@@ -26,7 +26,7 @@
 ---
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/getnodalia/nodalia-web/main/assets/screens/letra/letra-home-dark.jpg" width="900" alt="A document open in Letra, in the dark theme">
+  <img src="https://raw.githubusercontent.com/getnodalia/nodalia-web/main/assets/screens/letra/letra-document-dark.jpg" width="900" alt="A document open in Letra, in the dark theme">
 </p>
 
 ## Overview
@@ -53,8 +53,8 @@ Windows, and works with `.docx` documents.
 > **Letra is at an early stage.** Keep a copy of documents that matter.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/getnodalia/nodalia-web/main/assets/screens/letra/letra-home-light.jpg" width="440" alt="The same document in the light theme">
-  <img src="https://raw.githubusercontent.com/getnodalia/nodalia-web/main/assets/screens/letra/letra-review-dark.jpg" width="440" alt="The Review tab: spelling, comments and track changes">
+  <img src="https://raw.githubusercontent.com/getnodalia/nodalia-web/main/assets/screens/letra/letra-document-light.jpg" width="440" alt="The same document in the light theme">
+  <img src="https://raw.githubusercontent.com/getnodalia/nodalia-web/main/assets/screens/letra/letra-preferences-dark.jpg" width="440" alt="Letra's Preferences: theme, window controls and language">
 </p>
 
 ## Download
