@@ -153,20 +153,21 @@ pub(crate) fn show(app: &mut WordApp, ctx: &egui::Context) {
 
     #[cfg(target_arch = "wasm32")]
     if app.updates_rt.manual_window_open {
-        let mut open = true;
-        egui::Window::new(tl!("Check for Updates"))
-            .open(&mut open)
+        let window = egui::Window::new(tl!("Check for Updates"))
+            .id(egui::Id::unique("manual-update-check"))
             .resizable(false)
             .collapsible(false)
-            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
-            .show(ctx, |ui| {
-                crate::rtl::root(ui, |ui| {
-                    if let Some(msg) = &app.updates_rt.status_message {
-                        ui.label(msg);
-                    }
-                })
-            });
-        if !open {
+            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0));
+        // NDL's round close control in the title bar, as the other dialogs.
+        let shown = crate::window_close::window(ctx, window).show(ctx, |ui| {
+            crate::rtl::root(ui, |ui| {
+                if let Some(msg) = &app.updates_rt.status_message {
+                    ui.label(msg);
+                }
+            })
+        });
+        let t = crate::theme::Tokens::get(ctx);
+        if shown.is_some_and(|s| crate::window_close::show(ctx, &s.response, &t)) {
             app.updates_rt.manual_window_open = false;
             app.updates_rt.status_message = None;
         }
