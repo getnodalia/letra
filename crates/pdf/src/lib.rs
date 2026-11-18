@@ -28,6 +28,7 @@ use std::collections::{HashMap, HashSet};
 use std::num::NonZeroU16;
 use std::sync::Arc;
 
+use craft_metafile::{Picture, PlacedItem};
 use craft_pdf::write::{self, Metadata, WriteError, Writer, backend as krilla};
 use krilla::annotation::{Annotation, LinkAnnotation, Target};
 use krilla::color::rgb;
@@ -52,7 +53,6 @@ use letra_layout::display::Paint;
 use letra_layout::display::{Draw, ItemDisplay, Stroke as LineStyle};
 use letra_layout::para::{ClKind, LineEnd};
 use letra_layout::{DocLayout, LayoutCache, NumeralMode, Page, Placed, layout};
-use letra_metafile::{Picture, PlacedItem};
 
 mod export;
 mod exporter;
