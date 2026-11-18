@@ -117,7 +117,15 @@ fn english_words(text: &str) -> bool {
 /// interface's own wording.
 /// What the shared update window (`nodalia-update`) draws while it checks. That crate translates
 /// its own text, in Spanish and English, so it never goes through this app's catalog.
-const SHARED_UPDATE_WINDOW: [&str; 3] = ["Checking for Updates", "Looking for the latest version…", "Close"];
+const SHARED_UPDATE_WINDOW: [&str; 4] = ["Checking for Updates", "Looking for the latest version…", "Close", "No Updates"];
+
+/// The shared window's "up to date" sentence: `Letra <version> is the latest version.`
+fn is_shared_up_to_date(plain: &str) -> bool {
+    plain
+        .strip_prefix("Letra ")
+        .and_then(|rest| rest.strip_suffix(" is the latest version."))
+        .is_some_and(|v| !v.is_empty() && v.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '+')))
+}
 
 struct Exempt<'a> {
     /// The document's text (headings in the Navigation pane, the title in the title bar).
@@ -239,7 +247,7 @@ impl<'a> Exempt<'a> {
             || matches!(plain, "Letra" | "Letra User" | "Discord" | "https://" | "auto" | "I. II. III." | "i. ii. iii." | "I, II, III, …" | "i, ii, iii, …")
             || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
             || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
-            || app.updates_rt.shared_window_open() && SHARED_UPDATE_WINDOW.contains(&plain)
+            || app.updates_rt.shared_window_open() && (SHARED_UPDATE_WINDOW.contains(&plain) || is_shared_up_to_date(plain))
     }
 }
 
