@@ -127,7 +127,7 @@ fn unmodelled_settings_survive_a_save_and_owned_ones_follow_the_model() {
 fn settings_written_by_letra_keep_no_original() {
     let doc = letra_doc::Document::new();
     let back = letra_docx::read(&letra_docx::write(&doc).unwrap()).unwrap();
-    assert!(!back.passthrough.contains_key("letra:settings.orig"), "{:?}", back.passthrough.keys());
+    assert!(!back.passthrough.contains_key("wordcraft:settings.orig"), "{:?}", back.passthrough.keys());
     assert_eq!(text(&save(&back), "word/settings.xml"), text(&save(&doc), "word/settings.xml"));
 }
 

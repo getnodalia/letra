@@ -22,6 +22,11 @@ keep = [
     "(?<=UPSTREAM_REPO: )storytold/wordcraft",
     # The translation catalog this app reads in the shared translations is named after upstream.
     "wordcraft\\.tsv",
+    # Package keys the shared DOCX reader and writer use for the parts they keep; renamed, they
+    # would be ignored and the parts lost.
+    "wordcraft:(app\\.kept|customXml\\.roots|embedded\\.parts|glossary\\.read|settings\\.orig|unmodelled\\.roots|vbaProject\\.related)\\b",
+    # The extension the shared writer gives a turned drawing canvas, read back from saved files.
+    "urn:wordcraft:canvas-xfrm",
     # Credit for work done upstream.
     "WordCraft contributors",
     "ArtCraft Team",

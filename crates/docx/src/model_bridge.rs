@@ -388,6 +388,8 @@ fn missing_pictures_to_shared(source: &letra_doc::MissingPictures) -> Result<cra
 
 /// Converts a Letra document to the shared model for serialization.
 pub fn to_shared_model(source: &letra_doc::Document) -> Result<craft_wordmodel::Document, DocxError> {
+    // The shared writer names its own default in docProps/app.xml until told otherwise.
+    craft_docx::set_application_name("Letra");
     let mut document = craft_wordmodel::Document::new();
     document.body = blocks_to_shared(&source.body)?;
     document.last_section = convert_ref(&source.last_section)?;
@@ -411,8 +413,8 @@ pub fn to_shared_model(source: &letra_doc::Document) -> Result<craft_wordmodel::
     if let Some(fit) = &source.fit_state {
         let xml = crate::fit::write(fit)?;
         document.passthrough.insert(crate::fit::PART.into(), Arc::new(xml));
-        const CUSTOM_XML_ROOTS: &str = "letra:customXml.roots";
-        const EMBEDDED_PARTS: &str = "letra:embedded.parts";
+        const CUSTOM_XML_ROOTS: &str = "wordcraft:customXml.roots";
+        const EMBEDDED_PARTS: &str = "wordcraft:embedded.parts";
 
         let manifest_entry = format!("P\t{}\tapplication/xml\n", crate::fit::PART);
         let manifest = match document.passthrough.get_mut(EMBEDDED_PARTS) {

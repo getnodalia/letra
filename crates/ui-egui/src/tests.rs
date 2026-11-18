@@ -5980,7 +5980,7 @@ fn web_save_keeps_the_opened_word_format() {
     doc.passthrough.insert("word/vbaData.xml".into(), std::sync::Arc::new(b"<wne:vbaSuppData/>".to_vec()));
     // The docx reader's list of parts the project relates to (letra_docx VBA_RELATED).
     let related = "http://schemas.microsoft.com/office/2006/relationships/wordVbaData\tword/vbaData.xml\tapplication/vnd.ms-word.vbaData+xml\n";
-    doc.passthrough.insert("letra:vbaProject.related".into(), std::sync::Arc::new(related.as_bytes().to_vec()));
+    doc.passthrough.insert("wordcraft:vbaProject.related".into(), std::sync::Arc::new(related.as_bytes().to_vec()));
     let got: std::rc::Rc<std::cell::RefCell<Vec<(String, Vec<u8>)>>> = Default::default();
     let sink = got.clone();
     let services = Services {
