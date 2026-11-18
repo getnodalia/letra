@@ -3455,7 +3455,7 @@ checksum = "7a79a3332a6609480d7d0c9eab957bca6b455b91bb84e66d19f5ff66294b85b8"
 
 [[package]]
 name = "letra"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "arboard",
  "chrono",
@@ -3494,7 +3494,7 @@ dependencies = [
 
 [[package]]
 name = "letra-cli"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "craft-zip",
  "image",
@@ -3511,11 +3511,11 @@ dependencies = [
 
 [[package]]
 name = "letra-control-key"
-version = "0.1.3"
+version = "0.1.4"
 
 [[package]]
 name = "letra-doc"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "base64 0.23.1",
  "craft-codepage",
@@ -3531,7 +3531,7 @@ dependencies = [
 
 [[package]]
 name = "letra-docbin"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "cfb",
  "craft-doc-binary",
@@ -3543,7 +3543,7 @@ dependencies = [
 
 [[package]]
 name = "letra-docx"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "base64 0.23.1",
  "cfb",
@@ -3562,7 +3562,7 @@ dependencies = [
 
 [[package]]
 name = "letra-engine"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "cfb",
  "chrono",
@@ -3598,7 +3598,7 @@ dependencies = [
 
 [[package]]
 name = "letra-fonts"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "brotli-decompressor 6.3.1",
  "harfrust 0.13.3",
@@ -3613,7 +3613,7 @@ dependencies = [
 
 [[package]]
 name = "letra-formats"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "chardetng",
  "chrono",
@@ -3643,7 +3643,7 @@ dependencies = [
 
 [[package]]
 name = "letra-geom"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "craft-image-codecs",
  "craft-tiff",
@@ -3653,7 +3653,7 @@ dependencies = [
 
 [[package]]
 name = "letra-layout"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "craft-metafile",
  "craft-proof",
@@ -3673,7 +3673,7 @@ dependencies = [
 
 [[package]]
 name = "letra-mcp"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "craft-mcp-server",
  "letra-control-key",
@@ -3686,7 +3686,7 @@ dependencies = [
 
 [[package]]
 name = "letra-pdf"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "chrono",
  "craft-metafile",
@@ -3707,7 +3707,7 @@ dependencies = [
 
 [[package]]
 name = "letra-render"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "craft-metafile",
  "image",
@@ -3721,7 +3721,7 @@ dependencies = [
 
 [[package]]
 name = "letra-ui-egui"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "accesskit_consumer",
  "cfb",
@@ -3755,7 +3755,7 @@ dependencies = [
 
 [[package]]
 name = "letra-web"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "craft-web-api",
  "craft-web-host",
@@ -3776,7 +3776,7 @@ dependencies = [
 
 [[package]]
 name = "letra-zotero"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "letra-doc",
  "letra-docx",
@@ -7725,7 +7725,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "serde_json",
 ]
