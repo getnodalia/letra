@@ -32,7 +32,7 @@ pub use ui_fallback::{
 
 /// A font from the optional nodalia-fonts build input (https://github.com/getnodalia/foundation/tree/nodalia/fonts;
 /// empty unless built with `NODALIA_FONTS_DIR`, see `build.rs`).
-pub struct CraftFont {
+pub struct NodaliaFont {
     pub family: &'static str,
     pub style: &'static str,
     /// ISO 15924 scripts the font is for, e.g. `"Jpan"`.
@@ -43,7 +43,7 @@ pub struct CraftFont {
 include!(concat!(env!("OUT_DIR"), "/nodalia_fonts.rs"));
 
 /// The nodalia-fonts faces for Japanese (`"Jpan"`), in manifest order. Empty without nodalia-fonts.
-pub fn japanese_fonts() -> impl Iterator<Item = &'static CraftFont> {
+pub fn japanese_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
     NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Jpan"))
 }
 
@@ -65,17 +65,17 @@ pub fn japanese_ui_fonts(bold: bool) -> Vec<&'static NodaliaFont> {
 
 /// The nodalia-fonts faces for Simplified Chinese (`"Hans"`), in manifest order. Empty without
 /// nodalia-fonts.
-pub fn chinese_fonts() -> impl Iterator<Item = &'static CraftFont> {
+pub fn chinese_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
     NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Hans"))
 }
 
 /// The nodalia-fonts faces for Korean (`"Kore"`), in manifest order. Empty without nodalia-fonts.
-pub fn korean_fonts() -> impl Iterator<Item = &'static CraftFont> {
+pub fn korean_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
     NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Kore"))
 }
 
 /// The nodalia-fonts Georgian (`"Geor"`) Regular face for the interface. Empty without nodalia-fonts.
-pub fn georgian_fonts() -> impl Iterator<Item = &'static CraftFont> {
+pub fn georgian_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
     NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Geor") && f.style == "Regular")
 }
 
@@ -83,7 +83,7 @@ pub fn georgian_fonts() -> impl Iterator<Item = &'static CraftFont> {
 /// Chinese, and Korean faces ordered for the selected interface language. Mixing the faces within
 /// a line would mix glyph styles, so the first face should cover the interface language. Empty
 /// without nodalia-fonts.
-pub fn ui_cjk_fonts(prefer_hans: bool) -> Vec<&'static CraftFont> {
+pub fn ui_cjk_fonts(prefer_hans: bool) -> Vec<&'static NodaliaFont> {
     ui_cjk_fonts_for(prefer_hans, false)
 }
 
@@ -104,13 +104,13 @@ pub fn ui_cjk_fonts_for(prefer_hans: bool, prefer_korean: bool) -> Vec<&'static 
 
 /// The nodalia-fonts faces for Arabic script (`"Arab"`), in manifest order: the document fallback
 /// for Arabic text. Empty without nodalia-fonts.
-pub fn arabic_fonts() -> impl Iterator<Item = &'static CraftFont> {
+pub fn arabic_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
     NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Arab"))
 }
 
 /// The nodalia-fonts faces for Arabic script (`"Arab"`), Regular styles only: the interface's
 /// fallback for an Arabic interface and for Arabic file names. Empty without nodalia-fonts.
-pub fn ui_arabic_fonts() -> Vec<&'static CraftFont> {
+pub fn ui_arabic_fonts() -> Vec<&'static NodaliaFont> {
     arabic_fonts().filter(|f| f.style == "Regular").collect()
 }
 

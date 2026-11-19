@@ -767,10 +767,12 @@ fn status_count_picker(app: &mut WordApp, ui: &mut Ui) {
     use crate::StatusCount;
     ui.horizontal(|ui| {
         let label = ui.label(tl!("Status bar count:"));
-        let combo = nodalia_ui::ComboBox::from_id_salt("status_count").selected_text(tl!(app.ui.status_count.label())).width(220.0).show_ui(ui, |ui| {
-            for c in StatusCount::ALL {
-                if ui.selectable_label(app.ui.status_count == c, tl!(c.label())).clicked() {
-                    let _ = app.run("ui.statusCount", json!({"value": c.code()}));
+        let combo =
+            nodalia_ui::ComboBox::from_id_salt("status_count").selected_text(tl!(app.ui.status_count.label())).width(220.0).show_ui(ui, |ui| {
+                for c in StatusCount::ALL {
+                    if ui.selectable_label(app.ui.status_count == c, tl!(c.label())).clicked() {
+                        let _ = app.run("ui.statusCount", json!({"value": c.code()}));
+                    }
                 }
             });
         combo.response.labelled_by(label.id);
@@ -855,13 +857,14 @@ fn scroll_speed_picker(app: &mut WordApp, ui: &mut Ui) {
     use crate::scroll::ScrollSpeed;
     ui.horizontal(|ui| {
         let label = ui.label(tl!("Mouse wheel scroll speed:"));
-        let combo = nodalia_ui::ComboBox::from_id_salt("scroll_speed").selected_text(tl!(app.ui.scroll_speed.label())).width(220.0).show_ui(ui, |ui| {
-            for s in ScrollSpeed::ALL {
-                if ui.selectable_label(app.ui.scroll_speed == s, tl!(s.label())).clicked() {
-                    let _ = app.run("ui.scrollSpeed", json!({"value": s.code()}));
+        let combo =
+            nodalia_ui::ComboBox::from_id_salt("scroll_speed").selected_text(tl!(app.ui.scroll_speed.label())).width(220.0).show_ui(ui, |ui| {
+                for s in ScrollSpeed::ALL {
+                    if ui.selectable_label(app.ui.scroll_speed == s, tl!(s.label())).clicked() {
+                        let _ = app.run("ui.scrollSpeed", json!({"value": s.code()}));
+                    }
                 }
-            }
-        });
+            });
         combo.response.labelled_by(label.id);
     });
     // Windows and browsers do not report touchpads in points.

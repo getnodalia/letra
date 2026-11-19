@@ -6,12 +6,12 @@
 
 use std::collections::BTreeMap;
 
-use nodalia_ui::panes::{Edge, PaneContent, PaneHost, PaneLabels, PaneRequest, PaneState, Place, SidePolicy};
 use egui::{Stroke, Ui, vec2};
 use letra_doc::numbering::{Counters, LevelSuffix};
 use letra_doc::section::NumFormat;
 use letra_doc::{Document, Path, Pos, StoryRef};
 use letra_engine::StylesPaneDock;
+use nodalia_ui::panes::{Edge, PaneContent, PaneHost, PaneLabels, PaneRequest, PaneState, Place, SidePolicy};
 use nodalia_ui::panes::{Edge, PaneContent, PaneHost, PaneLabels, PaneRequest, PaneState, Place, SidePolicy};
 use serde_json::{Value, json};
 

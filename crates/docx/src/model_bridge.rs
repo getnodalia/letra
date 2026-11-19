@@ -69,8 +69,8 @@ fn object_value_from_shared(
     source: nodalia_wordmodel::para::InlineObject,
     graphics: &mut GraphicCache,
 ) -> Result<letra_doc::para::InlineObject, DocxError> {
-    use nodalia_wordmodel::para::InlineObject as Source;
     use letra_doc::para::InlineObject as Target;
+    use nodalia_wordmodel::para::InlineObject as Source;
 
     match source {
         Source::Image { media, w, h, alt, float, crop, fx, ole } => Ok(Target::Image {
@@ -299,8 +299,8 @@ fn paragraph_value_to_shared(source: &letra_doc::para::Paragraph) -> Result<noda
 }
 
 fn object_value_to_shared(source: &letra_doc::para::InlineObject) -> Result<nodalia_wordmodel::para::InlineObject, DocxError> {
-    use nodalia_wordmodel::para::InlineObject as Target;
     use letra_doc::para::InlineObject as Source;
+    use nodalia_wordmodel::para::InlineObject as Target;
 
     match source {
         Source::Image { media, w, h, alt, float, crop, fx, ole } => Ok(Target::Image {
@@ -464,7 +464,13 @@ mod tests {
 
     fn chart_object(spec: nodalia_wordmodel::chart::ChartSpec) -> nodalia_wordmodel::para::InlineObject {
         let graphic = nodalia_wordmodel::graphic::Graphic { chart: Some(Arc::new(spec)), ..Default::default() };
-        nodalia_wordmodel::para::InlineObject::Graphic { w: 100.0, h: 60.0, alt: String::new(), float: Default::default(), graphic: Arc::new(graphic) }
+        nodalia_wordmodel::para::InlineObject::Graphic {
+            w: 100.0,
+            h: 60.0,
+            alt: String::new(),
+            float: Default::default(),
+            graphic: Arc::new(graphic),
+        }
     }
 
     fn charts(doc: &letra_doc::Document) -> Vec<Option<letra_doc::chart::ChartSpec>> {

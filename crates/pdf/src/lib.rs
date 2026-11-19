@@ -28,8 +28,6 @@ use std::collections::{HashMap, HashSet};
 use std::num::NonZeroU16;
 use std::sync::Arc;
 
-use nodalia_metafile::{Picture, PlacedItem};
-use nodalia_pdf::write::{self, Metadata, WriteError, Writer, backend as krilla};
 use krilla::annotation::{Annotation, LinkAnnotation, Target};
 use krilla::color::rgb;
 use krilla::destination::XyzDestination;
@@ -53,6 +51,8 @@ use letra_layout::display::Paint;
 use letra_layout::display::{Draw, ItemDisplay, Stroke as LineStyle};
 use letra_layout::para::{ClKind, LineEnd};
 use letra_layout::{DocLayout, LayoutCache, NumeralMode, Page, Placed, layout};
+use nodalia_metafile::{Picture, PlacedItem};
+use nodalia_pdf::write::{self, Metadata, WriteError, Writer, backend as krilla};
 
 mod export;
 mod exporter;

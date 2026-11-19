@@ -9,8 +9,8 @@
 
 mod model_bridge;
 
-pub use nodalia_doc_binary::DocbinError;
 pub use model_bridge::from_shared_model;
+pub use nodalia_doc_binary::DocbinError;
 
 /// Whether the input is a readable Word 97-2003 document protected by a password.
 pub fn is_encrypted(bytes: &[u8]) -> bool {

@@ -442,9 +442,10 @@ fn recipient_filter(ui: &mut Ui, fields: &[String], filter: &mut RecipientFilter
                     if i == 0 {
                         ui.label("");
                     } else {
-                        nodalia_ui::ComboBox::from_id_salt(("rf_join", i)).width(60.0).selected_text(tl!(if rule.or { "Or" } else { "And" })).show_ui(
-                            ui,
-                            |ui| {
+                        nodalia_ui::ComboBox::from_id_salt(("rf_join", i))
+                            .width(60.0)
+                            .selected_text(tl!(if rule.or { "Or" } else { "And" }))
+                            .show_ui(ui, |ui| {
                                 ui.selectable_value(&mut rule.or, false, tl!("And"));
                                 ui.selectable_value(&mut rule.or, true, tl!("Or"));
                             });

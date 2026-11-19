@@ -7,12 +7,12 @@
 
 use std::borrow::Cow;
 
+use image::{DynamicImage, ImageBuffer, ImageFormat};
 use nodalia_image_codecs::{
     ChannelLayout, CodecError, DecodeOptions, EncodeOptions, Format as CodecFormat, Image as CodecImage, Limits as CodecLimits, RasterColorType,
     SampleType, bmp_probe, decode_as_with, detect, encode as codec_encode, inspect_raster, jpeg_worst_case_coefficients, png_probe, probe_size,
     webp_probe,
 };
-use image::{DynamicImage, ImageBuffer, ImageFormat};
 
 /// Why a picture isn't decoded.
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -1067,522 +1067,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "craft-atomic"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "rustix 1.1.5",
-]
-
-[[package]]
-name = "craft-cfb"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-
-[[package]]
-name = "craft-codepage"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-
-[[package]]
-name = "craft-dds"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "rayon",
-]
-
-[[package]]
-name = "craft-doc-binary"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "chrono",
- "craft-cfb",
- "craft-codepage",
- "craft-wordmodel",
- "image",
- "log",
- "miniz_oxide 0.9.1",
- "sha1 0.11.0",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-docx"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "base64 0.23.1",
- "chrono",
- "craft-drawingml",
- "craft-math",
- "craft-offcrypto",
- "craft-opc",
- "craft-wordmodel",
- "craft-xml",
- "log",
- "quick-xml",
- "thiserror 2.0.21",
- "unicode-bidi",
- "zeroize",
-]
-
-[[package]]
-name = "craft-drawingml"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-xml",
- "kurbo",
- "log",
- "serde",
-]
-
-[[package]]
-name = "craft-flow"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-wordmodel",
- "image",
- "log",
-]
-
-[[package]]
-name = "craft-font-catalog"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "fontique",
- "harfrust 0.13.3",
- "kurbo",
- "skrifa 0.47.0",
- "thiserror 2.0.21",
- "unicode-bidi",
- "unicode-segmentation",
- "windows-registry",
-]
-
-[[package]]
-name = "craft-font-store"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "cap-primitives",
- "craft-atomic",
- "craft-font-catalog",
- "flate2",
- "log",
- "ruzstd",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "skrifa 0.47.0",
- "tar",
- "thiserror 2.0.21",
- "toml",
- "ureq",
-]
-
-[[package]]
-name = "craft-fonts-build"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-
-[[package]]
-name = "craft-html"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-codepage",
- "craft-flow",
- "craft-math",
- "craft-mime",
- "craft-wordmodel",
- "encoding_rs",
-]
-
-[[package]]
-name = "craft-i18n"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "fixed_decimal",
- "icu_decimal",
- "icu_locale_core",
- "icu_locale_fallback",
- "icu_normalizer",
- "icu_plurals",
- "icu_properties",
- "icu_provider",
- "icu_provider_adapters",
- "icu_provider_blob",
- "log",
- "objc2-foundation 0.3.2",
- "sys-locale",
- "unicode-bidi",
- "windows-registry",
- "writeable",
-]
-
-[[package]]
-name = "craft-image-codecs"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-dds",
- "craft-jpeg",
- "craft-metadata",
- "craft-tiff",
- "crc32fast",
- "exr",
- "flate2",
- "half",
- "hayro-jpeg2000",
- "image",
- "image-webp",
- "jpeg-encoder",
- "png",
- "rayon",
- "serde_json",
- "thiserror 2.0.21",
- "tiff",
- "zune-core",
- "zune-jpeg",
- "zune-jpegxl",
-]
-
-[[package]]
-name = "craft-jpeg"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-latex"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-flow",
- "craft-math",
- "craft-mime",
- "craft-wordmodel",
-]
-
-[[package]]
-name = "craft-markdown"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-flow",
- "craft-html",
- "craft-wordmodel",
-]
-
-[[package]]
-name = "craft-math"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-xml",
- "serde",
-]
-
-[[package]]
-name = "craft-mcp-server"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "serde_json",
-]
-
-[[package]]
-name = "craft-metadata"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "brotli-decompressor 6.3.1",
- "chrono",
- "craft-tiff",
- "quick-xml",
- "serde",
-]
-
-[[package]]
-name = "craft-metafile"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "encoding_rs",
- "image",
- "kurbo",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-mime"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "chardetng",
- "chrono",
- "craft-codepage",
- "encoding_rs",
-]
-
-[[package]]
-name = "craft-odf"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "aes",
- "base64 0.23.1",
- "chrono",
- "craft-flow",
- "craft-math",
- "craft-metafile",
- "craft-wordmodel",
- "craft-xml",
- "craft-zip",
- "flate2",
- "getrandom 0.3.4",
- "hmac",
- "image",
- "js-sys",
- "log",
- "sha1 0.11.0",
- "sha2 0.11.1",
- "thiserror 2.0.21",
- "zeroize",
-]
-
-[[package]]
-name = "craft-ods"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-odf",
- "craft-sheet",
- "craft-xml",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-offcrypto"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "aes",
- "base64 0.23.1",
- "craft-cfb",
- "craft-xml",
- "getrandom 0.3.4",
- "hmac",
- "sha1 0.11.0",
- "sha2 0.11.1",
- "thiserror 2.0.21",
- "zeroize",
-]
-
-[[package]]
-name = "craft-opc"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-xml",
- "craft-zip",
- "log",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-pdf"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "krilla",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-print"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-winprint-gdi",
- "log",
- "miniz_oxide 0.9.1",
- "roxmltree",
- "tempfile",
- "winprint",
- "winsafe",
-]
-
-[[package]]
-name = "craft-proof"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "log",
- "miniz_oxide 0.9.1",
- "toml",
- "unicode-normalization",
-]
-
-[[package]]
-name = "craft-rtf"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-codepage",
- "craft-flow",
- "craft-metafile",
- "craft-wordmodel",
- "encoding_rs",
- "image",
-]
-
-[[package]]
-name = "craft-sheet"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-
-[[package]]
-name = "craft-ssip"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-
-[[package]]
-name = "craft-tiff"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "serde",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-ui"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-fonts-build",
- "craft-i18n",
- "egui",
- "epaint",
- "js-sys",
- "log",
- "objc2 0.6.5",
- "objc2-app-kit 0.3.2",
- "objc2-foundation 0.3.2",
- "skrifa 0.44.0",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
-]
-
-[[package]]
-name = "craft-web-api"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "js-sys",
- "serde_json",
- "wasm-bindgen",
- "wasm-bindgen-futures",
-]
-
-[[package]]
-name = "craft-web-host"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "craft-window"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "egui",
- "objc2 0.6.5",
- "objc2-app-kit 0.3.2",
- "wayland-client",
-]
-
-[[package]]
-name = "craft-winprint-gdi"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=64e7afd4d1483512385012c340ecaaaf0f3beb7f#64e7afd4d1483512385012c340ecaaaf0f3beb7f"
-dependencies = [
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "craft-wordmodel"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "base64 0.23.1",
- "craft-math",
- "log",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "unicode-segmentation",
-]
-
-[[package]]
-name = "craft-xls"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-cfb",
- "craft-sheet",
- "md-5",
- "miniz_oxide 0.9.1",
- "sha1 0.10.7",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-xlsx"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "craft-drawingml",
- "craft-opc",
- "craft-sheet",
- "craft-xml",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-xml"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "quick-xml",
- "serde",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-zip"
-version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
-dependencies = [
- "flate2",
- "thiserror 2.0.21",
- "zip",
-]
-
-[[package]]
 name = "crc32fast"
 version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3405,7 +2889,7 @@ dependencies = [
 [[package]]
 name = "krilla"
 version = "0.8.2"
-source = "git+https://github.com/getnodalia/foundation?rev=93dac78c93a7f1fd66e2022edeb089233b1dc45a#93dac78c93a7f1fd66e2022edeb089233b1dc45a"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
 dependencies = [
  "base64 0.22.1",
  "bumpalo",
@@ -3496,7 +2980,6 @@ dependencies = [
 name = "letra-cli"
 version = "0.1.6"
 dependencies = [
- "craft-zip",
  "image",
  "letra-doc",
  "letra-engine",
@@ -3505,6 +2988,7 @@ dependencies = [
  "letra-mcp",
  "letra-render",
  "letra-zotero",
+ "nodalia-zip",
  "serde_json",
  "sys-locale",
 ]
@@ -3518,10 +3002,10 @@ name = "letra-doc"
 version = "0.1.6"
 dependencies = [
  "base64 0.23.1",
- "craft-codepage",
- "craft-zip",
  "letra-geom",
  "log",
+ "nodalia-codepage",
+ "nodalia-zip",
  "proptest",
  "serde",
  "serde_json",
@@ -3534,9 +3018,9 @@ name = "letra-docbin"
 version = "0.1.6"
 dependencies = [
  "cfb",
- "craft-doc-binary",
- "craft-wordmodel",
  "letra-doc",
+ "nodalia-doc-binary",
+ "nodalia-wordmodel",
  "serde",
  "serde_json",
 ]
@@ -3547,14 +3031,14 @@ version = "0.1.6"
 dependencies = [
  "base64 0.23.1",
  "cfb",
- "craft-docx",
- "craft-wordmodel",
- "craft-xml",
- "craft-zip",
  "image",
  "letra-doc",
  "letra-geom",
  "log",
+ "nodalia-docx",
+ "nodalia-wordmodel",
+ "nodalia-xml",
+ "nodalia-zip",
  "proptest",
  "serde",
  "serde_json",
@@ -3566,12 +3050,6 @@ version = "0.1.6"
 dependencies = [
  "cfb",
  "chrono",
- "craft-font-catalog",
- "craft-font-store",
- "craft-mime",
- "craft-proof",
- "craft-ssip",
- "craft-zip",
  "encoding_rs",
  "getrandom 0.3.4",
  "image",
@@ -3589,7 +3067,10 @@ dependencies = [
  "log",
  "nodalia-font-catalog",
  "nodalia-font-store",
+ "nodalia-mime",
  "nodalia-proof",
+ "nodalia-ssip",
+ "nodalia-zip",
  "regex",
  "regex-automata",
  "rustix 1.1.5",
@@ -3620,27 +3101,27 @@ version = "0.1.6"
 dependencies = [
  "chardetng",
  "chrono",
- "craft-flow",
- "craft-html",
- "craft-image-codecs",
- "craft-latex",
- "craft-markdown",
- "craft-math",
- "craft-metafile",
- "craft-mime",
- "craft-odf",
- "craft-ods",
- "craft-rtf",
- "craft-sheet",
- "craft-wordmodel",
- "craft-xls",
- "craft-xlsx",
- "craft-zip",
  "encoding_rs",
  "letra-doc",
  "letra-docx",
  "letra-geom",
  "log",
+ "nodalia-flow",
+ "nodalia-html",
+ "nodalia-image-codecs",
+ "nodalia-latex",
+ "nodalia-markdown",
+ "nodalia-math",
+ "nodalia-metafile",
+ "nodalia-mime",
+ "nodalia-odf",
+ "nodalia-ods",
+ "nodalia-rtf",
+ "nodalia-sheet",
+ "nodalia-wordmodel",
+ "nodalia-xls",
+ "nodalia-xlsx",
+ "nodalia-zip",
  "proptest",
 ]
 
@@ -3648,9 +3129,9 @@ dependencies = [
 name = "letra-geom"
 version = "0.1.6"
 dependencies = [
- "craft-image-codecs",
- "craft-tiff",
  "image",
+ "nodalia-image-codecs",
+ "nodalia-tiff",
  "serde",
 ]
 
@@ -3658,8 +3139,6 @@ dependencies = [
 name = "letra-layout"
 version = "0.1.6"
 dependencies = [
- "craft-metafile",
- "craft-proof",
  "image",
  "js-sys",
  "kurbo",
@@ -3667,6 +3146,7 @@ dependencies = [
  "letra-fonts",
  "letra-geom",
  "log",
+ "nodalia-metafile",
  "nodalia-proof",
  "serde",
  "serde_json",
@@ -3679,12 +3159,12 @@ dependencies = [
 name = "letra-mcp"
 version = "0.1.6"
 dependencies = [
- "craft-mcp-server",
  "letra-control-key",
  "letra-doc",
  "letra-engine",
  "letra-render",
  "log",
+ "nodalia-mcp-server",
  "serde_json",
 ]
 
@@ -3693,8 +3173,6 @@ name = "letra-pdf"
 version = "0.1.6"
 dependencies = [
  "chrono",
- "craft-metafile",
- "craft-pdf",
  "hayro-cmap",
  "hayro-interpret",
  "hayro-syntax",
@@ -3706,6 +3184,7 @@ dependencies = [
  "letra-geom",
  "letra-layout",
  "log",
+ "nodalia-metafile",
  "nodalia-pdf",
  "thiserror 2.0.21",
 ]
@@ -3714,13 +3193,13 @@ dependencies = [
 name = "letra-render"
 version = "0.1.6"
 dependencies = [
- "craft-metafile",
  "image",
  "letra-doc",
  "letra-fonts",
  "letra-geom",
  "letra-layout",
  "log",
+ "nodalia-metafile",
  "vello_cpu",
 ]
 
@@ -3731,10 +3210,6 @@ dependencies = [
  "accesskit_consumer",
  "cfb",
  "chrono",
- "craft-i18n",
- "craft-ui",
- "craft-window",
- "craft-zip",
  "egui",
  "egui_extras",
  "egui_kittest",
@@ -3753,6 +3228,7 @@ dependencies = [
  "nodalia-ui",
  "nodalia-update",
  "nodalia-window",
+ "nodalia-zip",
  "serde",
  "serde_json",
  "sys-locale",
@@ -4080,6 +3556,395 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodalia-atomic"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "rustix 1.1.5",
+]
+
+[[package]]
+name = "nodalia-cfb"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+
+[[package]]
+name = "nodalia-codepage"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+
+[[package]]
+name = "nodalia-dds"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "rayon",
+]
+
+[[package]]
+name = "nodalia-doc-binary"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "chrono",
+ "image",
+ "log",
+ "miniz_oxide 0.9.1",
+ "nodalia-cfb",
+ "nodalia-codepage",
+ "nodalia-wordmodel",
+ "sha1 0.11.0",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-docx"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "base64 0.23.1",
+ "chrono",
+ "log",
+ "nodalia-drawingml",
+ "nodalia-math",
+ "nodalia-offcrypto",
+ "nodalia-opc",
+ "nodalia-wordmodel",
+ "nodalia-xml",
+ "quick-xml",
+ "thiserror 2.0.21",
+ "unicode-bidi",
+ "zeroize",
+]
+
+[[package]]
+name = "nodalia-drawingml"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "kurbo",
+ "log",
+ "nodalia-xml",
+ "serde",
+]
+
+[[package]]
+name = "nodalia-flow"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "image",
+ "log",
+ "nodalia-wordmodel",
+]
+
+[[package]]
+name = "nodalia-font-catalog"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "fontique",
+ "harfrust 0.13.3",
+ "kurbo",
+ "skrifa 0.47.0",
+ "thiserror 2.0.21",
+ "unicode-bidi",
+ "unicode-segmentation",
+ "windows-registry",
+]
+
+[[package]]
+name = "nodalia-font-store"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "cap-primitives",
+ "flate2",
+ "log",
+ "nodalia-atomic",
+ "nodalia-font-catalog",
+ "ruzstd",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "skrifa 0.47.0",
+ "tar",
+ "thiserror 2.0.21",
+ "toml",
+ "ureq",
+]
+
+[[package]]
+name = "nodalia-fonts-build"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+
+[[package]]
+name = "nodalia-html"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "encoding_rs",
+ "nodalia-codepage",
+ "nodalia-flow",
+ "nodalia-math",
+ "nodalia-mime",
+ "nodalia-wordmodel",
+]
+
+[[package]]
+name = "nodalia-i18n"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "fixed_decimal",
+ "icu_decimal",
+ "icu_locale_core",
+ "icu_locale_fallback",
+ "icu_normalizer",
+ "icu_plurals",
+ "icu_properties",
+ "icu_provider",
+ "icu_provider_adapters",
+ "icu_provider_blob",
+ "log",
+ "objc2-foundation 0.3.2",
+ "sys-locale",
+ "unicode-bidi",
+ "windows-registry",
+ "writeable",
+]
+
+[[package]]
+name = "nodalia-image-codecs"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "crc32fast",
+ "exr",
+ "flate2",
+ "half",
+ "hayro-jpeg2000",
+ "image",
+ "image-webp",
+ "jpeg-encoder",
+ "nodalia-dds",
+ "nodalia-jpeg",
+ "nodalia-metadata",
+ "nodalia-tiff",
+ "png",
+ "rayon",
+ "serde_json",
+ "thiserror 2.0.21",
+ "tiff",
+ "zune-core",
+ "zune-jpeg",
+ "zune-jpegxl",
+]
+
+[[package]]
+name = "nodalia-jpeg"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-latex"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "nodalia-flow",
+ "nodalia-math",
+ "nodalia-mime",
+ "nodalia-wordmodel",
+]
+
+[[package]]
+name = "nodalia-markdown"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "nodalia-flow",
+ "nodalia-html",
+ "nodalia-wordmodel",
+]
+
+[[package]]
+name = "nodalia-math"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "nodalia-xml",
+ "serde",
+]
+
+[[package]]
+name = "nodalia-mcp-server"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
+name = "nodalia-metadata"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "brotli-decompressor 6.3.1",
+ "chrono",
+ "nodalia-tiff",
+ "quick-xml",
+ "serde",
+]
+
+[[package]]
+name = "nodalia-metafile"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "encoding_rs",
+ "image",
+ "kurbo",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-mime"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "chardetng",
+ "chrono",
+ "encoding_rs",
+ "nodalia-codepage",
+]
+
+[[package]]
+name = "nodalia-odf"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "aes",
+ "base64 0.23.1",
+ "chrono",
+ "flate2",
+ "getrandom 0.3.4",
+ "hmac",
+ "image",
+ "js-sys",
+ "log",
+ "nodalia-flow",
+ "nodalia-math",
+ "nodalia-metafile",
+ "nodalia-wordmodel",
+ "nodalia-xml",
+ "nodalia-zip",
+ "sha1 0.11.0",
+ "sha2 0.11.1",
+ "thiserror 2.0.21",
+ "zeroize",
+]
+
+[[package]]
+name = "nodalia-ods"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "nodalia-odf",
+ "nodalia-sheet",
+ "nodalia-xml",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-offcrypto"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "aes",
+ "base64 0.23.1",
+ "getrandom 0.3.4",
+ "hmac",
+ "nodalia-cfb",
+ "nodalia-xml",
+ "sha1 0.11.0",
+ "sha2 0.11.1",
+ "thiserror 2.0.21",
+ "zeroize",
+]
+
+[[package]]
+name = "nodalia-opc"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "log",
+ "nodalia-xml",
+ "nodalia-zip",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-pdf"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "krilla",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-print"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "log",
+ "miniz_oxide 0.9.1",
+ "nodalia-winprint-gdi",
+ "roxmltree",
+ "tempfile",
+ "winprint",
+ "winsafe",
+]
+
+[[package]]
+name = "nodalia-proof"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "log",
+ "miniz_oxide 0.9.1",
+ "toml",
+ "unicode-normalization",
+]
+
+[[package]]
+name = "nodalia-rtf"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "encoding_rs",
+ "image",
+ "nodalia-codepage",
+ "nodalia-flow",
+ "nodalia-metafile",
+ "nodalia-wordmodel",
+]
+
+[[package]]
+name = "nodalia-sheet"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+
+[[package]]
+name = "nodalia-ssip"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+
+[[package]]
 name = "nodalia-theme"
 version = "0.1.0-alpha.1"
 source = "git+https://github.com/danielmigueltejedor/nodalia-design?rev=44bfd0a37e6bd2837c473b4e5607b70e8d169e61#44bfd0a37e6bd2837c473b4e5607b70e8d169e61"
@@ -4088,9 +3953,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodalia-tiff"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "serde",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "nodalia-ui"
 version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=65a463571dd29bc67bee88b9c096b96888c2c3c3#65a463571dd29bc67bee88b9c096b96888c2c3c3"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
 dependencies = [
  "egui",
  "epaint",
@@ -4121,7 +3995,7 @@ dependencies = [
 [[package]]
 name = "nodalia-web-api"
 version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=a5ba368c1313d208fe927b5bbdf06bddf38b1b2f#a5ba368c1313d208fe927b5bbdf06bddf38b1b2f"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
 dependencies = [
  "js-sys",
  "serde_json",
@@ -4132,7 +4006,7 @@ dependencies = [
 [[package]]
 name = "nodalia-web-host"
 version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=a5ba368c1313d208fe927b5bbdf06bddf38b1b2f#a5ba368c1313d208fe927b5bbdf06bddf38b1b2f"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
 dependencies = [
  "wasm-bindgen",
  "web-sys",
@@ -4141,7 +4015,7 @@ dependencies = [
 [[package]]
 name = "nodalia-window"
 version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=65a463571dd29bc67bee88b9c096b96888c2c3c3#65a463571dd29bc67bee88b9c096b96888c2c3c3"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
 dependencies = [
  "egui",
  "objc2 0.6.5",
@@ -4152,9 +4026,68 @@ dependencies = [
 [[package]]
 name = "nodalia-winprint-gdi"
 version = "0.1.0"
-source = "git+https://github.com/getnodalia/foundation?rev=8e8ec83e6ec0c4cb2ef3eed43fead348a50a3d6b#8e8ec83e6ec0c4cb2ef3eed43fead348a50a3d6b"
+source = "git+https://github.com/getnodalia/foundation?rev=5a9c69b611f181d50655758b6eb1fb49fb3737e8#5a9c69b611f181d50655758b6eb1fb49fb3737e8"
 dependencies = [
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "nodalia-wordmodel"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "base64 0.23.1",
+ "log",
+ "nodalia-math",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "unicode-segmentation",
+]
+
+[[package]]
+name = "nodalia-xls"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "md-5",
+ "miniz_oxide 0.9.1",
+ "nodalia-cfb",
+ "nodalia-sheet",
+ "sha1 0.10.7",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-xlsx"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "nodalia-drawingml",
+ "nodalia-opc",
+ "nodalia-sheet",
+ "nodalia-xml",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-xml"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "quick-xml",
+ "serde",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "nodalia-zip"
+version = "0.1.0"
+source = "git+https://github.com/getnodalia/foundation?rev=a5b5ee89657540c6d0f45505bc2e188e6b0706bc#a5b5ee89657540c6d0f45505bc2e188e6b0706bc"
+dependencies = [
+ "flate2",
+ "thiserror 2.0.21",
+ "zip",
 ]
 
 [[package]]
@@ -7572,7 +7505,7 @@ dependencies = [
 [[package]]
 name = "winprint"
 version = "0.2.1"
-source = "git+https://github.com/getnodalia/foundation?rev=8ae097ef941b432b0e7671b1ec3a506800e65e57#8ae097ef941b432b0e7671b1ec3a506800e65e57"
+source = "git+https://github.com/getnodalia/foundation?rev=3cfce9594f720c499514c9d8a7a96c98af187f2d#3cfce9594f720c499514c9d8a7a96c98af187f2d"
 dependencies = [
  "flate2",
  "fmt-derive",

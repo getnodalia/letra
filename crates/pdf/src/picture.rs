@@ -4,9 +4,9 @@ use super::{
     Arc, Fill, FillRule, Image, LineCap, LineJoin, NormalizedF32, Path, PathBuilder, Picture, PlacedItem, Rect, Size, Stroke, StrokeDash, Surface,
     Transform, krilla, rgb,
 };
-use nodalia_metafile::Item;
 use kurbo::Shape as _;
 use letra_doc::picfx::PicFx;
+use nodalia_metafile::Item;
 
 /// Largest picture side we embed (pixels).
 const MAX_IMAGE_SIDE: u32 = 30_000;

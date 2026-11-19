@@ -12,7 +12,7 @@ use std::path::PathBuf;
 fn main() {
     println!("cargo::rerun-if-env-changed=NODALIA_FONTS_DIR");
     println!("cargo::rerun-if-env-changed=NODALIA_FONTS_REQUIRED");
-    let mut src = String::from("pub static NODALIA_FONTS: &[CraftFont] = &[\n");
+    let mut src = String::from("pub static NODALIA_FONTS: &[NodaliaFont] = &[\n");
     if let Some(dir) = std::env::var_os("NODALIA_FONTS_DIR").map(PathBuf::from) {
         match nodalia_fonts(&dir) {
             Ok((entries, covered)) => {
@@ -43,7 +43,7 @@ fn main() {
 /// interface languages' (Japanese, Simplified Chinese).
 const REQUIRED_SCRIPTS: &[&str] = &["Jpan", "Hans"];
 
-/// One `CraftFont { .. }` initialiser per manifest line, and the scripts the embedded fonts cover.
+/// One `NodaliaFont { .. }` initialiser per manifest line, and the scripts the embedded fonts cover.
 fn nodalia_fonts(dir: &std::path::Path) -> Result<(String, Vec<String>), String> {
     let manifest = dir.join("fonts/manifest.txt");
     println!("cargo::rerun-if-changed={}", manifest.display());

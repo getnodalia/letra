@@ -2,8 +2,8 @@
 
 use std::sync::Arc;
 
-use nodalia_mime::{Body, Part};
 use letra_doc::{Document, SectionProps};
+use nodalia_mime::{Body, Part};
 
 /// Picture bytes one page may load, counting every `img` that names a part.
 const PICTURE_BUDGET: usize = 1 << 30;

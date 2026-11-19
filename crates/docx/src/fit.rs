@@ -4,8 +4,8 @@
 //! never be mistaken for a user's data. It is not a document property, so it stays out of
 //! `docProps/custom.xml`.
 
-use nodalia_docx::DocxError;
 use letra_doc::FitState;
+use nodalia_docx::DocxError;
 
 /// The part this crate writes and reads back.
 pub(crate) const PART: &str = "customxml/letrafit.xml";

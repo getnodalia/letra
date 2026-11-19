@@ -865,7 +865,7 @@ fn system_cjk_font(hans: bool, korean: bool) -> Option<&'static letra_fonts::Sys
 /// language's own characters (an empty list: [`letra_fonts::system_cjk_ui_font_for`] probes
 /// one, `の` for a Japanese or other interface), or failing that a Korean font.
 #[cfg(not(target_arch = "wasm32"))]
-pub(crate) fn system_cjk_needed(catalogs: &[&str], names: &str, embedded: &[&letra_fonts::CraftFont]) -> Option<Vec<char>> {
+pub(crate) fn system_cjk_needed(catalogs: &[&str], names: &str, embedded: &[&letra_fonts::NodaliaFont]) -> Option<Vec<char>> {
     let needed = letra_fonts::ui_uncovered_cjk(catalogs, embedded);
     if !needed.is_empty() {
         return Some(needed);

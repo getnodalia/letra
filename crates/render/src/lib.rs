@@ -4,7 +4,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, Weak};
 
-use nodalia_metafile::{Item, Picture, PlacedItem, Seg};
 use letra_doc::Document;
 use letra_doc::para::ShapeKind;
 use letra_doc::props::Rgb;
@@ -12,6 +11,7 @@ use letra_fonts::FontDb;
 use letra_layout::Page;
 use letra_layout::display::Paint;
 use letra_layout::display::{DisplayOptions, Draw, Stroke, page_layers};
+use nodalia_metafile::{Item, Picture, PlacedItem, Seg};
 use vello_cpu::kurbo::{self, Affine, BezPath, Shape};
 use vello_cpu::peniko;
 use vello_cpu::{Pixmap, RenderContext, Resources};

@@ -407,7 +407,7 @@ mod tests {
     #[test]
     fn needs_system_cjk_when_an_embedded_face_lacks_an_interface_character() {
         // A face without CJK glyphs stands in for a nodalia-fonts face that lacks some (#486).
-        let latin = CraftFont { family: "Source Sans 3", style: "Regular", scripts: &["Hans"], bytes: crate::bundled()[0] };
+        let latin = NodaliaFont { family: "Source Sans 3", style: "Regular", scripts: &["Hans"], bytes: crate::bundled()[0] };
         assert_eq!(ui_uncovered_cjk(&["选项 Options", "選項：选项"], &[&latin]), ['选', '選', '項', '项', '：']);
         assert!(ui_needs_system_cjk(&["简体中文"], &[]));
         assert!(ui_needs_system_cjk(&["Save", "开"], &[&latin]));

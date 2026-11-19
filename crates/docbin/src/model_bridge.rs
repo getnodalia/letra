@@ -53,8 +53,8 @@ fn paragraph_value(source: nodalia_wordmodel::para::Paragraph) -> Result<letra_d
 }
 
 fn object_value(source: nodalia_wordmodel::para::InlineObject) -> Result<letra_doc::para::InlineObject, DocbinError> {
-    use nodalia_wordmodel::para::InlineObject as Source;
     use letra_doc::para::InlineObject as Target;
+    use nodalia_wordmodel::para::InlineObject as Source;
 
     match source {
         Source::Group { w, h, float, ch_w, ch_h, children, canvas } => Ok(Target::Group {
