@@ -34,7 +34,6 @@ use std::rc::Rc;
 
 use letra_ui_egui::{Inbox, Services, WordApp};
 use nodalia_web_host::web::{FileData, Host, Message};
-use nodalia_web_host::web::{FileData, Host, Message};
 
 /// The app id in the host messages (`letra:ready`).
 const APP: &str = "letra";

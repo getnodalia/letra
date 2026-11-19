@@ -12,8 +12,6 @@ use std::sync::mpsc::{Receiver, TryRecvError, channel};
 
 use letra_ui_egui::ControlRequest;
 use nodalia_web_api::methods::Methods;
-use nodalia_web_api::methods::Methods;
-use nodalia_web_api::page::{PageApi, Request};
 use nodalia_web_api::page::{PageApi, Request};
 use serde_json::{Value, json};
 use wasm_bindgen_futures::JsFuture;
