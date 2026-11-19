@@ -245,9 +245,9 @@ const MAC_LIGHT: f32 = 12.0;
 const MAC_LIGHT_PITCH: f32 = 20.0;
 const MAC_LIGHTS_LEFT: f32 = 10.0;
 /// Where title-bar content starts to the right of the traffic lights (the title bar here, the
-/// Backstage back button, #222): the end of the three lights plus the same gap the lights keep
-/// from the top of the window.
-pub const MAC_CONTENT_LEFT: f32 = MAC_LIGHTS_LEFT + 2.0 * MAC_LIGHT_PITCH + MAC_LIGHT + (MAC_TITLE_BAR - MAC_LIGHT) / 2.0;
+/// Backstage back button, #222): nodalia-design's room for the lights, so the first control keeps
+/// its distance from the green one in every Nodalia app.
+pub const MAC_CONTENT_LEFT: f32 = nodalia_theme::titlebar::MAC_LIGHTS;
 
 /// The macOS title bar as laid out around the traffic lights: its height and where content starts
 /// after the lights. The app measures the real buttons (they grew in macOS 26); until then, or if it
