@@ -1,4 +1,5 @@
-//! Built-in sample documents and templates (original text, generated in code).
+//! Built-in sample documents and templates (original text, generated in code), written in English
+//! or in Spanish: a document opened from a Spanish interface arrives in Spanish.
 
 use letra_doc::para::InlineObject;
 use letra_doc::props::{Align, Border, BorderStyle, Borders, CharProps, NumRef, Rgb, TabAlign, TabLeader, TabStop, TextColor};
@@ -26,40 +27,192 @@ fn italic() -> CharProps {
     CharProps { italic: Some(true), ..Default::default() }
 }
 
+/// The language a built-in document is written in.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Lang {
+    #[default]
+    En,
+    Es,
+}
+
+impl Lang {
+    /// `"es"`, `"es-ES"` and `"es_MX.UTF-8"` are Spanish; anything else is English.
+    pub fn parse(code: &str) -> Lang {
+        let code = code.trim().to_ascii_lowercase();
+        if code == "es" || code.starts_with("es-") || code.starts_with("es_") { Lang::Es } else { Lang::En }
+    }
+
+    /// `en` or `es`, by language.
+    pub fn pick(self, en: &'static str, es: &'static str) -> &'static str {
+        match self {
+            Lang::En => en,
+            Lang::Es => es,
+        }
+    }
+
+    /// Today's date written out in full: `July 4, 2026` or `4 de julio de 2026`.
+    pub fn long_date(self) -> String {
+        const MONTHS: [&str; 12] =
+            ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+        match self {
+            Lang::En => crate::cmd::insert::format_date("MMMM d, yyyy"),
+            Lang::Es => {
+                let (y, m, d, _, _) = crate::cmd::local_now();
+                let month = MONTHS.get((m as usize).saturating_sub(1)).copied().unwrap_or("enero");
+                format!("{d} de {month} de {y}")
+            }
+        }
+    }
+}
+
+/// A built-in template: the id `file.new` takes and its name in each language.
+pub struct Template {
+    pub id: &'static str,
+    pub en: &'static str,
+    pub es: &'static str,
+}
+
+impl Template {
+    /// Its name in `lang`.
+    pub fn name(&self, lang: Lang) -> &'static str {
+        lang.pick(self.en, self.es)
+    }
+}
+
+/// The built-in templates in gallery order. The first is the blank document.
+pub const TEMPLATES: [Template; 10] = [
+    Template { id: "blank", en: "Blank document", es: "Documento en blanco" },
+    Template { id: "sample", en: "Studio handbook (sample)", es: "Manual del taller (ejemplo)" },
+    Template { id: "letter", en: "Letter", es: "Carta" },
+    Template { id: "resume", en: "Résumé", es: "Currículum" },
+    Template { id: "cover-letter", en: "Cover letter", es: "Carta de presentación" },
+    Template { id: "report", en: "Report", es: "Informe" },
+    Template { id: "minutes", en: "Meeting minutes", es: "Acta de reunión" },
+    Template { id: "essay", en: "Essay", es: "Ensayo" },
+    Template { id: "invoice", en: "Invoice", es: "Factura" },
+    Template { id: "newsletter", en: "Newsletter", es: "Boletín" },
+];
+
+/// The document a template id names, in `lang`. `blank` and unknown ids are not built here.
+pub fn build(id: &str, lang: Lang) -> Option<Document> {
+    Some(match id {
+        "sample" => sample_document_in(lang),
+        "letter" => letter_in(lang),
+        "cover-letter" => cover_letter(lang),
+        "resume" => resume_in(lang),
+        "report" => report_in(lang),
+        "minutes" => minutes(lang),
+        "essay" => essay(lang),
+        "invoice" => invoice(lang),
+        "newsletter" => newsletter(lang),
+        _ => return None,
+    })
+}
+
+/// A table of text cells with a header row; the body cells from column `right_from` on are
+/// right-aligned (numbers).
+fn text_table(rows: &[&[&str]], widths: f32, right_from: usize) -> Table {
+    let cols = rows.iter().map(|r| r.len()).max().unwrap_or(1).max(1);
+    let mut t = Table::new(rows.len().max(1), cols, widths);
+    t.props.style = Some("GridTable4AccentBlue".into());
+    for (r, row) in rows.iter().enumerate() {
+        for (c, txt) in row.iter().enumerate() {
+            if let Some(cell) = t.rows.get_mut(r).and_then(|x| x.cells.get_mut(c)) {
+                let mut p = para(txt);
+                if r > 0 && c >= right_from {
+                    p.props.align = Some(Align::Right);
+                }
+                cell.blocks = vec![para_block(p)];
+            }
+        }
+    }
+    if let Some(r) = t.rows.first_mut() {
+        r.props.header = true;
+    }
+    t
+}
+
+/// A bulleted paragraph.
+fn bullet(text: &str, list: u32) -> Block {
+    let mut p = para(text).styled("ListParagraph");
+    p.props.numbering = Some(NumRef { num: list, level: 0 });
+    Block::Para(p)
+}
+
+/// The document body from blocks.
+fn body(d: &mut Document, blocks: Vec<Block>) {
+    d.body = blocks.into_iter().map(std::sync::Arc::new).collect();
+}
+
 /// The showcase document: a short studio handbook with headings, lists, a table, a quote,
 /// a footer with page numbers.
 pub fn sample_document() -> Document {
+    sample_document_in(Lang::En)
+}
+
+/// [`sample_document`] in `lang`.
+pub fn sample_document_in(lang: Lang) -> Document {
     let mut d = Document::new();
-    d.core.title = "The Open Studio Handbook".into();
+    d.core.title = lang.pick("The Open Studio Handbook", "El manual del taller abierto").into();
     d.core.creator = "Letra".into();
     let mut b: Vec<Block> = Vec::new();
-    b.push(Block::Para(styled("The Open Studio Handbook", "Title")));
-    b.push(Block::Para(styled("How a small community of makers shares space, tools and time", "Subtitle")));
-    let mut intro = para("Every Thursday evening the old print shop on Alder Street fills with people who make things. ");
-    add(&mut intro, "Painters", bold());
-    add(&mut intro, " set up by the north windows, ", CharProps::default());
-    add(&mut intro, "letterpress", italic());
+    b.push(Block::Para(styled(lang.pick("The Open Studio Handbook", "El manual del taller abierto"), "Title")));
+    b.push(Block::Para(styled(
+        lang.pick(
+            "How a small community of makers shares space, tools and time",
+            "Cómo una pequeña comunidad de creadores comparte espacio, herramientas y tiempo",
+        ),
+        "Subtitle",
+    )));
+    let mut intro = para(lang.pick(
+        "Every Thursday evening the old print shop on Alder Street fills with people who make things. ",
+        "Todos los jueves por la tarde, la vieja imprenta de la calle del Aliso se llena de gente que hace cosas. ",
+    ));
+    add(&mut intro, lang.pick("Painters", "Los pintores"), bold());
+    add(&mut intro, lang.pick(" set up by the north windows, ", " se instalan junto a las ventanas del norte, "), CharProps::default());
+    add(&mut intro, lang.pick("letterpress", "los aficionados a la tipografía"), italic());
     add(
         &mut intro,
-        " regulars claim the back room, and somebody always brings bread. This handbook collects what we have learned about running a shared studio: the routines that keep it pleasant, the tools we pool, and the small agreements that let thirty strangers become a crew.",
+        lang.pick(
+            " regulars claim the back room, and somebody always brings bread. This handbook collects what we have learned about running a shared studio: the routines that keep it pleasant, the tools we pool, and the small agreements that let thirty strangers become a crew.",
+            " reclaman la sala del fondo y siempre alguien trae pan. Este manual recoge lo que hemos aprendido sobre cómo llevar un taller compartido: las rutinas que lo mantienen agradable, las herramientas que ponemos en común y los pequeños acuerdos que convierten a treinta desconocidos en un equipo.",
+        ),
         CharProps::default(),
     );
     b.push(Block::Para(intro));
-    b.push(Block::Para(styled("Why share a studio?", "Heading1")));
-    b.push(Block::Para(para("Rent is the obvious reason, but it is not the best one. A shared room puts your work next to work you would never have seen otherwise. A ceramicist explains glaze chemistry to a comic artist; a photographer borrows a weaver's loom for a still life. The cross-talk is the point.")));
-    let mut quote = styled("A studio is a place where unfinished things are welcome.", "Quote");
+    b.push(Block::Para(styled(lang.pick("Why share a studio?", "¿Por qué compartir un taller?"), "Heading1")));
+    b.push(Block::Para(para(lang.pick("Rent is the obvious reason, but it is not the best one. A shared room puts your work next to work you would never have seen otherwise. A ceramicist explains glaze chemistry to a comic artist; a photographer borrows a weaver's loom for a still life. The cross-talk is the point.", "El alquiler es la razón evidente, pero no la mejor. Una sala compartida pone tu trabajo junto a trabajos que de otro modo nunca habrías visto. Una ceramista le explica la química de los esmaltes a un dibujante de cómic; una fotógrafa le pide prestado el telar a un tejedor para un bodegón. Ese intercambio es lo que importa."))));
+    let mut quote = styled(
+        lang.pick("A studio is a place where unfinished things are welcome.", "Un taller es un lugar donde las cosas sin terminar son bienvenidas."),
+        "Quote",
+    );
     quote.props.space_before = Some(12.0);
     b.push(Block::Para(quote));
-    b.push(Block::Para(styled("What we agree on", "Heading2")));
+    b.push(Block::Para(styled(lang.pick("What we agree on", "En lo que estamos de acuerdo"), "Heading2")));
     let mut num = (*d.numbering).clone();
     let bullets = num.add_list(ListKind::Bullet);
     let steps = num.add_list(ListKind::Numbered);
     d.numbering = Arc::new(num);
     for (lead, rest) in [
-        ("Clean as you go. ", "Leave a table the way you would like to find it."),
-        ("Label what is yours. ", "Unlabelled supplies on the commons shelf are fair game."),
-        ("Ask before you borrow. ", "Even from the shelf, a quick note helps everyone keep track."),
-        ("Quiet hours ", "run from 9 to 11 on weekday mornings."),
+        (
+            lang.pick("Clean as you go. ", "Limpia sobre la marcha. "),
+            lang.pick("Leave a table the way you would like to find it.", "Deja la mesa como te gustaría encontrarla."),
+        ),
+        (
+            lang.pick("Label what is yours. ", "Etiqueta lo tuyo. "),
+            lang.pick("Unlabelled supplies on the commons shelf are fair game.", "El material sin etiqueta del estante común es de todos."),
+        ),
+        (
+            lang.pick("Ask before you borrow. ", "Pregunta antes de coger prestado. "),
+            lang.pick(
+                "Even from the shelf, a quick note helps everyone keep track.",
+                "Incluso del estante, una nota rápida ayuda a llevar la cuenta.",
+            ),
+        ),
+        (
+            lang.pick("Quiet hours ", "El horario de silencio "),
+            lang.pick("run from 9 to 11 on weekday mornings.", "va de 9 a 11 los días laborables por la mañana."),
+        ),
     ] {
         let mut p = Paragraph::new().styled("ListParagraph");
         add(&mut p, lead, bold());
@@ -67,15 +220,27 @@ pub fn sample_document() -> Document {
         p.props.numbering = Some(NumRef { num: bullets, level: 0 });
         b.push(Block::Para(p));
     }
-    b.push(Block::Para(styled("Shared equipment", "Heading2")));
-    b.push(Block::Para(para("The table below lists what the membership owns together and who keeps each item in working order.")));
-    let rows = [
-        ["Equipment", "Location", "Steward", "Booking"],
-        ["Etching press", "Back room", "Mara O.", "Sign-up sheet"],
-        ["Kiln (cone 10)", "Yard shed", "Theo P.", "48 h notice"],
-        ["Large-format printer", "Office", "Ines R.", "Calendar"],
-        ["Light table", "North windows", "Anyone", "First come"],
-    ];
+    b.push(Block::Para(styled(lang.pick("Shared equipment", "Equipo compartido"), "Heading2")));
+    b.push(Block::Para(para(lang.pick(
+        "The table below lists what the membership owns together and who keeps each item in working order.",
+        "La tabla siguiente enumera lo que los miembros tienen en común y quién mantiene cada pieza en buen estado.",
+    ))));
+    let rows = match lang {
+        Lang::En => [
+            ["Equipment", "Location", "Steward", "Booking"],
+            ["Etching press", "Back room", "Mara O.", "Sign-up sheet"],
+            ["Kiln (cone 10)", "Yard shed", "Theo P.", "48 h notice"],
+            ["Large-format printer", "Office", "Ines R.", "Calendar"],
+            ["Light table", "North windows", "Anyone", "First come"],
+        ],
+        Lang::Es => [
+            ["Equipo", "Lugar", "Responsable", "Reserva"],
+            ["Prensa de grabado", "Sala del fondo", "Mara O.", "Hoja de turnos"],
+            ["Horno (cono 10)", "Cobertizo del patio", "Theo P.", "48 h de aviso"],
+            ["Impresora de gran formato", "Oficina", "Inés R.", "Calendario"],
+            ["Mesa de luz", "Ventanas del norte", "Cualquiera", "Por orden de llegada"],
+        ],
+    };
     let mut t = Table::new(rows.len(), 4, 468.0);
     t.props.style = Some("GridTable4AccentBlue".into());
     for (r, row) in rows.iter().enumerate() {
@@ -89,33 +254,43 @@ pub fn sample_document() -> Document {
         r.props.header = true;
     }
     b.push(Block::Table(t));
-    b.push(Block::Para(styled("Opening the studio", "Heading2")));
+    b.push(Block::Para(styled(lang.pick("Opening the studio", "Abrir el taller"), "Heading2")));
     for s in [
-        "Switch on the main breaker by the door.",
-        "Open both skylights unless it is raining.",
-        "Start the kettle. This step is not optional.",
-        "Check the booking sheet for the kiln and press.",
+        lang.pick("Switch on the main breaker by the door.", "Sube el interruptor general junto a la puerta."),
+        lang.pick("Open both skylights unless it is raining.", "Abre los dos tragaluces, salvo que llueva."),
+        lang.pick("Start the kettle. This step is not optional.", "Pon el hervidor. Este paso no es opcional."),
+        lang.pick("Check the booking sheet for the kiln and press.", "Mira la hoja de reservas del horno y la prensa."),
     ] {
         let mut p = para(s).styled("ListParagraph");
         p.props.numbering = Some(NumRef { num: steps, level: 0 });
         b.push(Block::Para(p));
     }
-    b.push(Block::Para(styled("Membership", "Heading1")));
-    let mut m = para("Membership is ");
-    add(&mut m, "pay what you can", CharProps { bold: Some(true), color: Some(TextColor::Rgb(Rgb(0x15, 0x60, 0x82))), ..Default::default() });
+    b.push(Block::Para(styled(lang.pick("Membership", "Hacerse miembro"), "Heading1")));
+    let mut m = para(lang.pick("Membership is ", "La cuota es "));
     add(
         &mut m,
-        ", reviewed every season. New members shadow a regular for their first two visits, and everyone takes one cleaning shift a month. If you have never made anything before, you are exactly who we hoped would show up.",
+        lang.pick("pay what you can", "la que puedas"),
+        CharProps { bold: Some(true), color: Some(TextColor::Rgb(Rgb(0x15, 0x60, 0x82))), ..Default::default() },
+    );
+    add(
+        &mut m,
+        lang.pick(
+            ", reviewed every season. New members shadow a regular for their first two visits, and everyone takes one cleaning shift a month. If you have never made anything before, you are exactly who we hoped would show up.",
+            ", y se revisa cada temporada. Quien se une acompaña a un veterano en sus dos primeras visitas, y todos hacemos un turno de limpieza al mes. Si nunca has hecho nada, eres justo a quien esperábamos.",
+        ),
         CharProps::default(),
     );
     b.push(Block::Para(m));
-    let mut h = para("Questions go to the front desk, or to the notice board by the sink. ");
+    let mut h = para(lang.pick(
+        "Questions go to the front desk, or to the notice board by the sink. ",
+        "Las dudas, en el mostrador o en el tablón junto al fregadero. ",
+    ));
     add(
         &mut h,
-        "Visit the community board",
+        lang.pick("Visit the community board", "Visita el tablón de la comunidad"),
         CharProps { style: Some("Hyperlink".into()), link: Some("https://getnodalia.com/".into()), ..Default::default() },
     );
-    add(&mut h, " for events.", CharProps::default());
+    add(&mut h, lang.pick(" for events.", " para ver los eventos."), CharProps::default());
     b.push(Block::Para(h));
     d.body = b.into_iter().map(std::sync::Arc::new).collect();
     // Footer: centred page number.
@@ -128,7 +303,7 @@ pub fn sample_document() -> Document {
     );
     let fid = d.add_part(PartKind::Footer, vec![para_block(f)]);
     d.last_section.footers.default = Some(fid);
-    let mut hd = styled("The Open Studio Handbook\t\tSpring edition", "Header");
+    let mut hd = styled(lang.pick("The Open Studio Handbook\t\tSpring edition", "El manual del taller abierto\t\tEdición de primavera"), "Header");
     hd.props.borders = Some(Borders {
         bottom: Some(Border { style: BorderStyle::Single, width: 0.5, color: Some(Rgb(0xBF, 0xBF, 0xBF)), space: 4.0 }),
         ..Default::default()
@@ -140,40 +315,99 @@ pub fn sample_document() -> Document {
 
 /// A block-style letter.
 pub fn letter() -> Document {
+    letter_in(Lang::En)
+}
+
+/// [`letter`] in `lang`.
+pub fn letter_in(lang: Lang) -> Document {
     let mut d = Document::new();
     let lines: Vec<Paragraph> = vec![
-        styled("Your Name", "Title"),
-        para("123 Your Street · City, ST 00000 · you@example.com"),
+        styled(lang.pick("Your Name", "Tu nombre"), "Title"),
+        para(lang.pick("123 Your Street · City, ST 00000 · you@example.com", "Calle Tu Dirección, 123 · Ciudad, 00000 · tu@ejemplo.com")),
         para(""),
-        para(&crate::cmd::insert::format_date("MMMM d, yyyy")),
+        para(&lang.long_date()),
         para(""),
-        para("Recipient Name"),
-        para("Title, Company"),
-        para("Street Address"),
+        para(lang.pick("Recipient Name", "Nombre del destinatario")),
+        para(lang.pick("Title, Company", "Cargo, empresa")),
+        para(lang.pick("Street Address", "Dirección")),
         para(""),
-        para("Dear Recipient,"),
-        para(
+        para(lang.pick("Dear Recipient,", "Estimado destinatario:")),
+        para(lang.pick(
             "Start with a sentence that says why you are writing. Keep paragraphs short and specific, and close with what you would like to happen next.",
-        ),
-        para("Thank you for your time."),
-        para("Sincerely,"),
+            "Empieza con una frase que diga por qué escribes. Mantén los párrafos cortos y concretos, y termina con lo que te gustaría que pasara a continuación.",
+        )),
+        para(lang.pick("Thank you for your time.", "Gracias por tu tiempo.")),
+        para(lang.pick("Sincerely,", "Un cordial saludo,")),
         para(""),
-        para("Your Name"),
+        para(lang.pick("Your Name", "Tu nombre")),
     ];
     d.body = lines.into_iter().map(para_block).collect();
     d
 }
 
+/// A cover letter to go with a résumé: who you are, why this job, what you bring.
+pub fn cover_letter(lang: Lang) -> Document {
+    let mut d = Document::new();
+    let mut b = vec![
+        Block::Para(styled(lang.pick("Alex Rivera", "Alejandra Rivera"), "Title")),
+        Block::Para(para(
+            lang.pick("Illustrator · alex@example.com · portfolio.example.com", "Ilustradora · alejandra@ejemplo.com · portafolio.ejemplo.com"),
+        )),
+        Block::Para(para("")),
+        Block::Para(para(&lang.long_date())),
+        Block::Para(para("")),
+        Block::Para(para(lang.pick("Hiring team, Harbor Books", "Equipo de selección, Editorial Puerto"))),
+        Block::Para(para("")),
+        Block::Para(para(lang.pick("Dear hiring team,", "Estimado equipo de selección:"))),
+    ];
+    for text in match lang {
+        Lang::En => [
+            "I am writing about the art director role. Your last three covers made me want to draw again, and I would like to do that work with you.",
+            "For five years I have illustrated books for readers of every age: picture books drawn in gouache, a field guide in ink, and a cover series that sold out its first printing. I like a brief with a clear problem and room to solve it.",
+            "I would be glad to talk about how I would approach your spring list. Thank you for reading, and for the care your books are made with.",
+        ],
+        Lang::Es => [
+            "Te escribo por el puesto de dirección de arte. Tus tres últimas portadas me dieron ganas de volver a dibujar, y me gustaría hacer ese trabajo contigo.",
+            "Durante cinco años he ilustrado libros para lectores de todas las edades: álbumes ilustrados en gouache, una guía de campo en tinta y una serie de cubiertas que agotó su primera tirada. Me gusta un encargo con un problema claro y espacio para resolverlo.",
+            "Me encantaría hablar de cómo abordaría vuestro catálogo de primavera. Gracias por leerme, y por el cuidado con el que hacéis vuestros libros.",
+        ],
+    } {
+        b.push(Block::Para(para(text)));
+    }
+    b.push(Block::Para(para(lang.pick("Sincerely,", "Un cordial saludo,"))));
+    b.push(Block::Para(para("")));
+    b.push(Block::Para(para(lang.pick("Alex Rivera", "Alejandra Rivera"))));
+    body(&mut d, b);
+    d
+}
+
 /// A one-page résumé.
 pub fn resume() -> Document {
+    resume_in(Lang::En)
+}
+
+/// [`resume`] in `lang`.
+pub fn resume_in(lang: Lang) -> Document {
     let mut d = Document::new();
-    let mut b: Vec<Block> =
-        vec![Block::Para(styled("Alex Rivera", "Title")), Block::Para(para("Illustrator · alex@example.com · portfolio.example.com"))];
-    for (head, items) in [
-        ("Experience", vec![("Lead Illustrator, Harbor Books", "2021 – present"), ("Freelance Illustrator", "2016 – 2021")]),
-        ("Education", vec![("BFA Illustration, Coastal College of Art", "2016")]),
-        ("Skills", vec![("Ink, gouache, digital painting, book layout, lettering", "")]),
-    ] {
+    let mut b: Vec<Block> = vec![
+        Block::Para(styled(lang.pick("Alex Rivera", "Alejandra Rivera"), "Title")),
+        Block::Para(para(
+            lang.pick("Illustrator · alex@example.com · portfolio.example.com", "Ilustradora · alejandra@ejemplo.com · portafolio.ejemplo.com"),
+        )),
+    ];
+    let sections: [(&str, Vec<(&str, &str)>); 3] = match lang {
+        Lang::En => [
+            ("Experience", vec![("Lead Illustrator, Harbor Books", "2021 – present"), ("Freelance Illustrator", "2016 – 2021")]),
+            ("Education", vec![("BFA Illustration, Coastal College of Art", "2016")]),
+            ("Skills", vec![("Ink, gouache, digital painting, book layout, lettering", "")]),
+        ],
+        Lang::Es => [
+            ("Experiencia", vec![("Ilustradora principal, Editorial Puerto", "2021 – actualidad"), ("Ilustradora autónoma", "2016 – 2021")]),
+            ("Formación", vec![("Grado en Ilustración, Escuela de Arte de la Costa", "2016")]),
+            ("Habilidades", vec![("Tinta, gouache, pintura digital, maquetación de libros, rotulación", "")]),
+        ],
+    };
+    for (head, items) in sections {
         b.push(Block::Para(styled(head, "Heading1")));
         for (what, when) in items {
             let mut p = para(what);
@@ -184,27 +418,241 @@ pub fn resume() -> Document {
             b.push(Block::Para(p));
         }
     }
-    d.body = b.into_iter().map(std::sync::Arc::new).collect();
+    body(&mut d, b);
     d
 }
 
 /// A report with a cover heading and sections.
 pub fn report() -> Document {
+    report_in(Lang::En)
+}
+
+/// [`report`] in `lang`.
+pub fn report_in(lang: Lang) -> Document {
     let mut d = Document::new();
-    let b: Vec<Block> = vec![
-        Block::Para(styled("Report Title", "Title")),
-        Block::Para(styled("Subtitle or date", "Subtitle")),
-        Block::Para(styled("Summary", "Heading1")),
-        Block::Para(para("Summarise the findings in two or three sentences.")),
-        Block::Para(styled("Background", "Heading1")),
-        Block::Para(para("Describe the context and the question the report answers.")),
-        Block::Para(styled("Findings", "Heading1")),
-        Block::Para(styled("First finding", "Heading2")),
-        Block::Para(para("Explain the evidence.")),
-        Block::Para(styled("Recommendations", "Heading1")),
-        Block::Para(para("List what should happen next.")),
+    let b: Vec<Block> =
+        vec![
+            Block::Para(styled(lang.pick("Report Title", "Título del informe"), "Title")),
+            Block::Para(styled(lang.pick("Subtitle or date", "Subtítulo o fecha"), "Subtitle")),
+            Block::Para(styled(lang.pick("Summary", "Resumen"), "Heading1")),
+            Block::Para(para(lang.pick("Summarise the findings in two or three sentences.", "Resume los hallazgos en dos o tres frases."))),
+            Block::Para(styled(lang.pick("Background", "Contexto"), "Heading1")),
+            Block::Para(para(lang.pick(
+                "Describe the context and the question the report answers.",
+                "Describe el contexto y la pregunta a la que responde el informe.",
+            ))),
+            Block::Para(styled(lang.pick("Findings", "Hallazgos"), "Heading1")),
+            Block::Para(styled(lang.pick("First finding", "Primer hallazgo"), "Heading2")),
+            Block::Para(para(lang.pick("Explain the evidence.", "Explica las pruebas."))),
+            Block::Para(styled(lang.pick("Recommendations", "Recomendaciones"), "Heading1")),
+            Block::Para(para(lang.pick("List what should happen next.", "Enumera lo que debería ocurrir a continuación."))),
+        ];
+    body(&mut d, b);
+    d
+}
+
+/// Minutes of a meeting: who was there, what was decided and who does what by when.
+pub fn minutes(lang: Lang) -> Document {
+    let mut d = Document::new();
+    d.core.title = lang.pick("Meeting minutes", "Acta de reunión").into();
+    let mut num = (*d.numbering).clone();
+    let bullets = num.add_list(ListKind::Bullet);
+    d.numbering = Arc::new(num);
+    let (attendees, decisions, actions) = match lang {
+        Lang::En => (
+            ["Present: Mara, Theo, Inés", "Apologies: Samir"],
+            ["The spring open day moves to the second Saturday.", "The kiln booking sheet becomes a shared calendar."],
+            [
+                ["Action", "Owner", "Due"],
+                ["Send the new open-day date to members", "Mara", "Friday"],
+                ["Set up the shared kiln calendar", "Theo", "Next meeting"],
+                ["Price a second light table", "Inés", "Next meeting"],
+            ],
+        ),
+        Lang::Es => (
+            ["Presentes: Mara, Theo, Inés", "Excusa: Samir"],
+            [
+                "La jornada de puertas abiertas de primavera pasa al segundo sábado.",
+                "La hoja de reservas del horno se convierte en un calendario compartido.",
+            ],
+            [
+                ["Acción", "Responsable", "Fecha"],
+                ["Enviar a los miembros la nueva fecha de la jornada", "Mara", "Viernes"],
+                ["Crear el calendario compartido del horno", "Theo", "Próxima reunión"],
+                ["Pedir precio de una segunda mesa de luz", "Inés", "Próxima reunión"],
+            ],
+        ),
+    };
+    let mut b = vec![
+        Block::Para(styled(lang.pick("Meeting minutes", "Acta de reunión"), "Title")),
+        Block::Para(styled(&format!("{} · {}", lang.pick("Open Studio committee", "Comité del taller abierto"), lang.long_date()), "Subtitle")),
+        Block::Para(styled(lang.pick("Attendance", "Asistencia"), "Heading1")),
     ];
-    d.body = b.into_iter().map(std::sync::Arc::new).collect();
+    for line in attendees {
+        b.push(bullet(line, bullets));
+    }
+    b.push(Block::Para(styled(lang.pick("Agenda and notes", "Orden del día y notas"), "Heading1")));
+    b.push(Block::Para(styled(lang.pick("1. Spring open day", "1. Jornada de primavera"), "Heading2")));
+    b.push(Block::Para(para(lang.pick(
+        "Notes on what was said. Keep to what someone would need if they missed the meeting.",
+        "Notas de lo que se dijo. Limítate a lo que necesitaría saber quien no pudo venir.",
+    ))));
+    b.push(Block::Para(styled(lang.pick("Decisions", "Decisiones"), "Heading1")));
+    for line in decisions {
+        b.push(bullet(line, bullets));
+    }
+    b.push(Block::Para(styled(lang.pick("Actions", "Acciones"), "Heading1")));
+    let rows: Vec<&[&str]> = actions.iter().map(|r| r.as_slice()).collect();
+    b.push(Block::Table(text_table(&rows, 468.0, usize::MAX)));
+    b.push(Block::Para(para("")));
+    b.push(Block::Para(para(
+        lang.pick("Next meeting: first Thursday of the month, 7 pm.", "Próxima reunión: el primer jueves del mes, a las 19:00."),
+    )));
+    body(&mut d, b);
+    d
+}
+
+/// A school or college essay: title block, a thesis, three sections and a conclusion.
+pub fn essay(lang: Lang) -> Document {
+    let mut d = Document::new();
+    d.core.title = lang.pick("Why the lighthouse stayed lit", "Por qué el faro siguió encendido").into();
+    let mut b = vec![
+        Block::Para(styled(lang.pick("Why the lighthouse stayed lit", "Por qué el faro siguió encendido"), "Title")),
+        Block::Para(styled(lang.pick("Your name · Course · Date", "Tu nombre · Asignatura · Fecha"), "Subtitle")),
+    ];
+    let parts: [(&str, &str); 5] = match lang {
+        Lang::En => [
+            (
+                "Introduction",
+                "Say what the essay argues in a sentence or two. A reader should know by the end of this paragraph what you will try to show, and why it is not obvious.",
+            ),
+            (
+                "First argument",
+                "Make one point per paragraph. Begin with the claim, give the evidence, and say in a sentence why it matters to the thesis.",
+            ),
+            (
+                "Second argument",
+                "Look at the strongest objection to your claim, and answer it fairly. An essay that never meets a counter-argument has not tested itself.",
+            ),
+            ("Third argument", "Bring in something from outside the main text: a place, a date, a number. It anchors the argument in the world."),
+            ("Conclusion", "Return to the question without repeating yourself. Say what has changed now that the reader has followed the argument."),
+        ],
+        Lang::Es => [
+            (
+                "Introducción",
+                "Di en una o dos frases lo que sostiene el ensayo. Al terminar este párrafo, quien lea debería saber qué vas a intentar demostrar y por qué no es evidente.",
+            ),
+            (
+                "Primer argumento",
+                "Una idea por párrafo. Empieza por la afirmación, da la prueba y explica en una frase por qué importa para la tesis.",
+            ),
+            (
+                "Segundo argumento",
+                "Mira la objeción más fuerte a tu afirmación y respóndela con justicia. Un ensayo que nunca se enfrenta a un contraargumento no se ha puesto a prueba.",
+            ),
+            ("Tercer argumento", "Trae algo de fuera del texto principal: un lugar, una fecha, una cifra. Ancla el argumento en el mundo."),
+            ("Conclusión", "Vuelve a la pregunta sin repetirte. Di qué ha cambiado ahora que quien lee ha seguido el argumento."),
+        ],
+    };
+    for (head, text) in parts {
+        b.push(Block::Para(styled(head, "Heading1")));
+        let mut p = para(text);
+        p.props.indent_first = Some(36.0);
+        b.push(Block::Para(p));
+    }
+    body(&mut d, b);
+    d
+}
+
+/// A simple invoice: from, to, a line-item table with a total, and payment terms.
+pub fn invoice(lang: Lang) -> Document {
+    let mut d = Document::new();
+    d.core.title = lang.pick("Invoice", "Factura").into();
+    let rows: [[&str; 4]; 5] = match lang {
+        Lang::En => [
+            ["Description", "Quantity", "Unit price", "Amount"],
+            ["Cover illustration", "1", "400.00", "400.00"],
+            ["Six chapter openers", "6", "80.00", "480.00"],
+            ["Revisions", "2 h", "45.00", "90.00"],
+            ["Total", "", "", "970.00"],
+        ],
+        Lang::Es => [
+            ["Concepto", "Cantidad", "Precio unitario", "Importe"],
+            ["Ilustración de portada", "1", "400,00", "400,00"],
+            ["Seis capitulares", "6", "80,00", "480,00"],
+            ["Revisiones", "2 h", "45,00", "90,00"],
+            ["Total", "", "", "970,00"],
+        ],
+    };
+    let slices: Vec<&[&str]> = rows.iter().map(|r| r.as_slice()).collect();
+    let table = text_table(&slices, 468.0, 1);
+    let b = vec![
+        Block::Para(styled(lang.pick("Invoice", "Factura"), "Title")),
+        Block::Para(styled(&format!("{} 2026-014 · {}", lang.pick("No.", "N.º"), lang.long_date()), "Subtitle")),
+        Block::Para(styled(lang.pick("From", "De"), "Heading2")),
+        Block::Para(para(lang.pick("Alex Rivera · 123 Your Street · City 00000", "Alejandra Rivera · Calle Tu Dirección, 123 · Ciudad 00000"))),
+        Block::Para(styled(lang.pick("To", "Para"), "Heading2")),
+        Block::Para(para(lang.pick("Harbor Books · 8 Quay Road · Port Town 00000", "Editorial Puerto · Calle del Muelle, 8 · Villamar 00000"))),
+        Block::Para(para("")),
+        Block::Table(table),
+        Block::Para(para("")),
+        Block::Para(styled(lang.pick("Payment", "Pago"), "Heading2")),
+        Block::Para(para(lang.pick(
+            "Payable within 30 days by bank transfer. Please quote the invoice number.",
+            "A pagar en 30 días por transferencia bancaria. Indica el número de factura en el concepto.",
+        ))),
+        Block::Para(para(lang.pick("Thank you for your business.", "Gracias por confiar en mi trabajo."))),
+    ];
+    body(&mut d, b);
+    d
+}
+
+/// A one-page newsletter: a masthead, a lead story and two short items.
+pub fn newsletter(lang: Lang) -> Document {
+    let mut d = Document::new();
+    d.core.title = lang.pick("The Alder Street Bulletin", "El Boletín de la calle del Aliso").into();
+    let mut num = (*d.numbering).clone();
+    let bullets = num.add_list(ListKind::Bullet);
+    d.numbering = Arc::new(num);
+    let mut b = vec![
+        Block::Para(styled(lang.pick("The Alder Street Bulletin", "El Boletín de la calle del Aliso"), "Title")),
+        Block::Para(styled(&format!("{} · {}", lang.pick("Spring edition", "Edición de primavera"), lang.long_date()), "Subtitle")),
+    ];
+    let (lead_head, lead, news_head, news, close_head, close) = match lang {
+        Lang::En => (
+            "The press is back",
+            "After three months in repair, the etching press is running again. Mara spent the winter finding a roller that fit, and the first proof off it is pinned by the door. Book your slot on the shared calendar.",
+            "Also this month",
+            [
+                "Open day on the second Saturday, 11 to 4.",
+                "New members shadow a regular for two visits.",
+                "The kiln needs a steward from May: ask Theo.",
+            ],
+            "From the notice board",
+            "Someone left a very good umbrella. It is by the sink, and it is not ours.",
+        ),
+        Lang::Es => (
+            "La prensa ha vuelto",
+            "Tras tres meses en reparación, la prensa de grabado vuelve a funcionar. Mara pasó el invierno buscando un rodillo que encajara, y la primera prueba está clavada junto a la puerta. Reserva tu turno en el calendario compartido.",
+            "También este mes",
+            [
+                "Jornada de puertas abiertas el segundo sábado, de 11 a 16.",
+                "Quien se une acompaña a un veterano dos visitas.",
+                "El horno necesita responsable desde mayo: pregunta a Theo.",
+            ],
+            "Del tablón de anuncios",
+            "Alguien dejó un paraguas muy bueno. Está junto al fregadero y no es nuestro.",
+        ),
+    };
+    b.push(Block::Para(styled(lead_head, "Heading1")));
+    b.push(Block::Para(para(lead)));
+    b.push(Block::Para(styled(news_head, "Heading1")));
+    for item in news {
+        b.push(bullet(item, bullets));
+    }
+    b.push(Block::Para(styled(close_head, "Heading2")));
+    b.push(Block::Para(para(close)));
+    body(&mut d, b);
     d
 }
 
@@ -219,6 +667,35 @@ mod tests {
             assert!(d.word_count() > 5);
             let l = letra_layout::layout(&d, &mut letra_layout::LayoutCache::new(), &Default::default());
             assert!(!l.pages.is_empty());
+        }
+    }
+
+    #[test]
+    fn every_template_builds_in_both_languages_and_lays_out() {
+        for t in &TEMPLATES {
+            if t.id == "blank" {
+                assert!(build(t.id, Lang::En).is_none());
+                continue;
+            }
+            for lang in [Lang::En, Lang::Es] {
+                let d = build(t.id, lang).unwrap_or_else(|| panic!("{} has no builder", t.id));
+                assert!(d.word_count() > 8, "{} {lang:?}", t.id);
+                let l = letra_layout::layout(&d, &mut letra_layout::LayoutCache::new(), &Default::default());
+                assert!(!l.pages.is_empty(), "{} {lang:?}", t.id);
+            }
+            assert_ne!(t.en, t.es, "{}: no Spanish name", t.id);
+        }
+    }
+
+    #[test]
+    fn the_spanish_documents_are_spanish() {
+        assert_eq!(Lang::parse("es-MX"), Lang::Es);
+        assert_eq!(Lang::parse("en-GB"), Lang::En);
+        for id in ["sample", "letter", "cover-letter", "resume", "report", "minutes", "essay", "invoice", "newsletter"] {
+            let en = build(id, Lang::En).unwrap();
+            let es = build(id, Lang::Es).unwrap();
+            assert_eq!(en.body.len(), es.body.len(), "{id}: same shape");
+            assert_ne!(en.plain_text(letra_doc::StoryRef::Body), es.plain_text(letra_doc::StoryRef::Body), "{id}: the Spanish copy is translated");
         }
     }
 }
