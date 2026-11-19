@@ -1406,7 +1406,7 @@ fn rtl_template_titles_are_right_aligned() {
     for s in &new_out.shapes {
         collect_shapes(&s.shape, &mut new_rects, &mut new_texts);
     }
-    for (label, _) in super::TEMPLATES {
+    for (label, _) in super::templates() {
         let caption = crate::i18n::tc("template", label);
         if let Some((_, new_pos, new_width)) = new_texts.iter().find(|(t, _, _)| t == caption) {
             let right = new_pos.x + new_width;
