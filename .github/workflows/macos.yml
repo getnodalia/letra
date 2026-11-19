@@ -2,20 +2,8 @@ name: macOS
 
 # Letra's app and DMG on a standard macOS runner, like the other Nodalia apps. The shared release
 # workflow builds macOS on a larger runner, which a Free organisation never gets, so this is where
-# the macOS build comes from: an artifact on every run, and the release asset when a release is
-# published.
+# the macOS build comes from: the release asset when a release is published.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    paths:
-      - "apps/**"
-      - "crates/**"
-      - "assets/**"
-      - "packaging/macos/**"
-      - "packaging/env.sh"
-      - "Cargo.lock"
-      - ".github/workflows/macos.yml"
   release:
     types: [published]
   workflow_dispatch:
