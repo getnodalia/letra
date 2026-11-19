@@ -6,7 +6,7 @@ fn lang(code: &str) -> Lang {
     Lang::from_code(code).unwrap_or_else(|| panic!("{code} registered"))
 }
 
-/// Skips a test that needs the embedded catalogs when none were embedded (`CRAFT_I18N_DIR`
+/// Skips a test that needs the embedded catalogs when none were embedded (`NODALIA_I18N_DIR`
 /// unset): the interface is then English only.
 macro_rules! needs_catalogs {
     () => {
@@ -20,7 +20,7 @@ macro_rules! needs_catalogs {
 /// cover Letra's own wording. (The shared catalog holds every app's; the CJK checks read it too.)
 fn translations(code: &str) -> Vec<String> {
     let code = lang(code).code();
-    CRAFT_I18N
+    NODALIA_I18N
         .iter()
         .filter(|(c, ..)| *c == code)
         .flat_map(|(_, _, app)| app.lines())
@@ -399,10 +399,10 @@ fn cjk_catalogs_are_covered_by_the_embedded_interface_faces() {
     // #486: every CJK character of the Chinese, Japanese and Korean catalogs and language names
     // has a glyph in the interface font chain built from the embedded faces alone, in every
     // interface weight; `?` and boxes showed where the Japanese face was the only CJK one. Needs
-    // a craft-fonts build (CRAFT_FONTS_DIR); without one there is nothing embedded to check, and
+    // a nodalia-fonts build (NODALIA_FONTS_DIR); without one there is nothing embedded to check, and
     // the interface reads an installed CJK font instead.
     if letra_fonts::ui_cjk_fonts(false).is_empty() {
-        eprintln!("skipped: built without craft-fonts (CRAFT_FONTS_DIR)");
+        eprintln!("skipped: built without nodalia-fonts (NODALIA_FONTS_DIR)");
         return;
     }
     needs_catalogs!();
@@ -1222,12 +1222,12 @@ fn a_context_lookup_never_borrows_the_plain_translation() {
     assert_eq!(get("spacing", "Open"), None);
 }
 
-/// Letra offers exactly the languages in `LANGUAGES` when craft-i18n is embedded, and English
+/// Letra offers exactly the languages in `LANGUAGES` when nodalia-i18n is embedded, and English
 /// alone when it isn't: a missing catalog never fails, it shows English.
 #[test]
 fn the_languages_offered_are_the_embedded_ones_of_the_list() {
     let all: Vec<&str> = Lang::all().map(Lang::code).collect();
-    if CRAFT_I18N.is_empty() {
+    if NODALIA_I18N.is_empty() {
         assert_eq!(all, ["en"]);
         assert_eq!(Lang::from_code("fr"), None);
         assert_eq!(Lang::from_pref("fr"), Lang::EN, "a saved language without a catalog shows English");
@@ -1236,24 +1236,24 @@ fn the_languages_offered_are_the_embedded_ones_of_the_list() {
         return;
     }
     let listed: Vec<&str> = LANGUAGES.iter().map(|l| l.code).collect();
-    assert_eq!(all, listed, "every language Letra lists has its catalog in craft-i18n");
+    assert_eq!(all, listed, "every language Letra lists has its catalog in nodalia-i18n");
     assert!(Lang::from_code("pseudo").is_none(), "the pseudo locale is never a setting");
 }
 
-/// The flatpak manifest builds with the craft-i18n commit `craft-i18n.rev` pins (CI and releases
+/// The flatpak manifest builds with the nodalia-i18n commit `nodalia-i18n.rev` pins (CI and releases
 /// read the file; the manifest has to name it itself).
 #[test]
 fn the_flatpak_manifest_pins_the_craft_i18n_rev() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let rev = std::fs::read_to_string(root.join("craft-i18n.rev")).unwrap();
+    let rev = std::fs::read_to_string(root.join("nodalia-i18n.rev")).unwrap();
     let rev = rev.trim();
-    assert!(rev.len() == 40 && rev.bytes().all(|b| b.is_ascii_hexdigit()), "craft-i18n.rev holds one full SHA: {rev:?}");
+    assert!(rev.len() == 40 && rev.bytes().all(|b| b.is_ascii_hexdigit()), "nodalia-i18n.rev holds one full SHA: {rev:?}");
     let manifest = std::fs::read_to_string(root.join("packaging/linux/flatpak/dev.danielmiguelt.Letra.yml")).unwrap();
-    let source = manifest.split("url: https://github.com/getnodalia/foundation").nth(1).expect("a craft-i18n git source");
+    let source = manifest.split("url: https://github.com/getnodalia/foundation").nth(1).expect("a nodalia-i18n git source");
     let source = source.split("- type:").next().unwrap_or(source);
-    let commit = source.lines().find_map(|l| l.trim().strip_prefix("commit:")).expect("the craft-i18n source pins a commit");
+    let commit = source.lines().find_map(|l| l.trim().strip_prefix("commit:")).expect("the nodalia-i18n source pins a commit");
     assert_eq!(commit.trim().trim_matches(['\'', '"']), rev);
-    assert!(manifest.contains("CRAFT_I18N_DIR: /run/build/letra/craft-i18n"), "the build embeds the catalogs");
+    assert!(manifest.contains("NODALIA_I18N_DIR: /run/build/letra/nodalia-i18n"), "the build embeds the catalogs");
 }
 
 /// A right-to-left test language whose catalog is `source`, selected as the current language.

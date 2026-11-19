@@ -7,20 +7,20 @@ fn docx(body: &str, styles: &str) -> Vec<u8> {
         r#"<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>{body}<w:sectPr/></w:body></w:document>"#
     );
     let styles = format!(r#"<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">{styles}</w:styles>"#);
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, xml) in [
         ("_rels/.rels", root.to_string()),
         ("word/document.xml", document),
         ("word/_rels/document.xml.rels", rels.to_string()),
         ("word/styles.xml", styles),
     ] {
-        zip.add(name, xml.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, xml.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }
 
 fn part(bytes: &[u8], name: &str) -> String {
-    let mut zip = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(zip.read(name, 16 << 20).unwrap().unwrap()).unwrap()
 }

@@ -9,10 +9,10 @@ description = "Letra DOCX (OOXML WordprocessingML) reader and writer"
 workspace = true
 
 [dependencies]
-craft-docx = { workspace = true }
-craft-wordmodel = { workspace = true }
+nodalia-docx = { workspace = true }
+nodalia-wordmodel = { workspace = true }
 letra-doc = { workspace = true }
-craft-xml = { workspace = true }
+nodalia-xml = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
@@ -24,4 +24,4 @@ cfb = { workspace = true }
 log = { workspace = true }
 proptest = { workspace = true }
 image = { workspace = true }
-craft-zip = { workspace = true }
+nodalia-zip = { workspace = true }

@@ -22,7 +22,7 @@ where
     serde_json::from_slice(&bytes).map_err(|error| DocbinError::Malformed(format!("shared model conversion: {error}")))
 }
 
-fn blocks(source: craft_wordmodel::Blocks) -> Result<letra_doc::Blocks, DocbinError> {
+fn blocks(source: nodalia_wordmodel::Blocks) -> Result<letra_doc::Blocks, DocbinError> {
     source
         .into_iter()
         .map(|block| {
@@ -32,15 +32,15 @@ fn blocks(source: craft_wordmodel::Blocks) -> Result<letra_doc::Blocks, DocbinEr
         .collect()
 }
 
-fn block_value(source: craft_wordmodel::Block) -> Result<letra_doc::Block, DocbinError> {
+fn block_value(source: nodalia_wordmodel::Block) -> Result<letra_doc::Block, DocbinError> {
     match source {
-        craft_wordmodel::Block::Para(paragraph) => paragraph_value(paragraph).map(letra_doc::Block::Para),
-        craft_wordmodel::Block::Table(table) => table_value(table).map(letra_doc::Block::Table),
+        nodalia_wordmodel::Block::Para(paragraph) => paragraph_value(paragraph).map(letra_doc::Block::Para),
+        nodalia_wordmodel::Block::Table(table) => table_value(table).map(letra_doc::Block::Table),
     }
 }
 
-fn paragraph_value(source: craft_wordmodel::para::Paragraph) -> Result<letra_doc::para::Paragraph, DocbinError> {
-    let craft_wordmodel::para::Paragraph { text, runs, props, mark, objects, section, .. } = source;
+fn paragraph_value(source: nodalia_wordmodel::para::Paragraph) -> Result<letra_doc::para::Paragraph, DocbinError> {
+    let nodalia_wordmodel::para::Paragraph { text, runs, props, mark, objects, section, .. } = source;
     let mut paragraph = letra_doc::para::Paragraph::new();
     paragraph.text = text;
     paragraph.runs =
@@ -52,8 +52,8 @@ fn paragraph_value(source: craft_wordmodel::para::Paragraph) -> Result<letra_doc
     Ok(paragraph)
 }
 
-fn object_value(source: craft_wordmodel::para::InlineObject) -> Result<letra_doc::para::InlineObject, DocbinError> {
-    use craft_wordmodel::para::InlineObject as Source;
+fn object_value(source: nodalia_wordmodel::para::InlineObject) -> Result<letra_doc::para::InlineObject, DocbinError> {
+    use nodalia_wordmodel::para::InlineObject as Source;
     use letra_doc::para::InlineObject as Target;
 
     match source {
@@ -70,11 +70,11 @@ fn object_value(source: craft_wordmodel::para::InlineObject) -> Result<letra_doc
     }
 }
 
-fn group_child_value(source: craft_wordmodel::para::GroupChild) -> Result<letra_doc::para::GroupChild, DocbinError> {
+fn group_child_value(source: nodalia_wordmodel::para::GroupChild) -> Result<letra_doc::para::GroupChild, DocbinError> {
     Ok(letra_doc::para::GroupChild { x: source.x, y: source.y, obj: object_value(source.obj)? })
 }
 
-fn table_value(source: craft_wordmodel::table::Table) -> Result<letra_doc::table::Table, DocbinError> {
+fn table_value(source: nodalia_wordmodel::table::Table) -> Result<letra_doc::table::Table, DocbinError> {
     Ok(letra_doc::table::Table {
         props: convert(source.props)?,
         grid: source.grid,
@@ -83,7 +83,7 @@ fn table_value(source: craft_wordmodel::table::Table) -> Result<letra_doc::table
     })
 }
 
-fn row_value(source: craft_wordmodel::table::Row) -> Result<letra_doc::table::Row, DocbinError> {
+fn row_value(source: nodalia_wordmodel::table::Row) -> Result<letra_doc::table::Row, DocbinError> {
     Ok(letra_doc::table::Row {
         props: convert(source.props)?,
         cells: source.cells.into_iter().map(cell_value).collect::<Result<_, _>>()?,
@@ -91,15 +91,15 @@ fn row_value(source: craft_wordmodel::table::Row) -> Result<letra_doc::table::Ro
     })
 }
 
-fn cell_value(source: craft_wordmodel::table::Cell) -> Result<letra_doc::table::Cell, DocbinError> {
+fn cell_value(source: nodalia_wordmodel::table::Cell) -> Result<letra_doc::table::Cell, DocbinError> {
     Ok(letra_doc::table::Cell { props: convert(source.props)?, blocks: blocks(source.blocks)?, controls: convert(source.controls)? })
 }
 
-fn part_value(source: craft_wordmodel::Part) -> Result<letra_doc::Part, DocbinError> {
+fn part_value(source: nodalia_wordmodel::Part) -> Result<letra_doc::Part, DocbinError> {
     Ok(letra_doc::Part { kind: convert(source.kind)?, blocks: blocks(source.blocks)?, body: convert(source.body)? })
 }
 
-fn glossary_value(source: craft_wordmodel::BuildingBlock) -> Result<letra_doc::BuildingBlock, DocbinError> {
+fn glossary_value(source: nodalia_wordmodel::BuildingBlock) -> Result<letra_doc::BuildingBlock, DocbinError> {
     Ok(letra_doc::BuildingBlock {
         name: source.name,
         gallery: source.gallery,
@@ -118,8 +118,8 @@ fn glossary_value(source: craft_wordmodel::BuildingBlock) -> Result<letra_doc::B
 /// The DOC reader leaves Letra-only transient fit state, editor fragments, and style change
 /// annotations at their defaults; the persistent document fields are transferred here. Body and
 /// table-cell stories are mapped one paragraph at a time, while shared media buffers are moved.
-pub fn from_shared_model(source: craft_wordmodel::Document) -> Result<letra_doc::Document, DocbinError> {
-    let craft_wordmodel::Document {
+pub fn from_shared_model(source: nodalia_wordmodel::Document) -> Result<letra_doc::Document, DocbinError> {
+    let nodalia_wordmodel::Document {
         body,
         last_section,
         parts,
@@ -165,19 +165,19 @@ mod tests {
 
     #[test]
     fn bridges_nested_stories_and_moves_media_without_copying() {
-        let mut source = craft_wordmodel::Document::new();
+        let mut source = nodalia_wordmodel::Document::new();
         let long_text = "x".repeat(4 << 20);
-        let mut body_para = craft_wordmodel::para::Paragraph::with_text(&long_text, Default::default());
-        body_para.objects.push(craft_wordmodel::para::InlineObject::Group {
+        let mut body_para = nodalia_wordmodel::para::Paragraph::with_text(&long_text, Default::default());
+        body_para.objects.push(nodalia_wordmodel::para::InlineObject::Group {
             w: 32.0,
             h: 24.0,
             float: Default::default(),
             ch_w: 64.0,
             ch_h: 48.0,
-            children: vec![craft_wordmodel::para::GroupChild {
+            children: vec![nodalia_wordmodel::para::GroupChild {
                 x: 4.0,
                 y: 6.0,
-                obj: craft_wordmodel::para::InlineObject::Field {
+                obj: nodalia_wordmodel::para::InlineObject::Field {
                     instr: "PAGE".into(),
                     result: "7".into(),
                     locked: true,
@@ -188,17 +188,17 @@ mod tests {
             }],
             canvas: None,
         });
-        let cell = craft_wordmodel::table::Cell::with_text("nested cell");
-        let table = craft_wordmodel::table::Table {
-            rows: vec![craft_wordmodel::table::Row { cells: vec![cell], ..Default::default() }],
+        let cell = nodalia_wordmodel::table::Cell::with_text("nested cell");
+        let table = nodalia_wordmodel::table::Table {
+            rows: vec![nodalia_wordmodel::table::Row { cells: vec![cell], ..Default::default() }],
             ..Default::default()
         };
-        source.body = vec![Arc::new(craft_wordmodel::Block::Para(body_para)), Arc::new(craft_wordmodel::Block::Table(table))];
+        source.body = vec![Arc::new(nodalia_wordmodel::Block::Para(body_para)), Arc::new(nodalia_wordmodel::Block::Table(table))];
         source.parts.insert(
             12,
-            craft_wordmodel::Part {
-                kind: craft_wordmodel::PartKind::TextBox,
-                blocks: vec![craft_wordmodel::para_block(craft_wordmodel::para::Paragraph::with_text("part story", Default::default()))],
+            nodalia_wordmodel::Part {
+                kind: nodalia_wordmodel::PartKind::TextBox,
+                blocks: vec![nodalia_wordmodel::para_block(nodalia_wordmodel::para::Paragraph::with_text("part story", Default::default()))],
                 ..Default::default()
             },
         );

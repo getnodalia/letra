@@ -6,9 +6,9 @@ use letra_doc::para::InlineObject;
 use letra_doc::{Align, Block, CharProps, Document, Paragraph, Table, para_block};
 
 use crate::{export, import};
-use craft_flow::{self as model, FBlock, Kind};
+use nodalia_flow::{self as model, FBlock, Kind};
 
-/// A small PNG made with `craft-image-codecs`.
+/// A small PNG made with `nodalia-image-codecs`.
 fn png() -> Vec<u8> {
     let mut rgba = Vec::with_capacity(8 * 4 * 4);
     for _y in 0..4 {
@@ -16,8 +16,8 @@ fn png() -> Vec<u8> {
             rgba.extend_from_slice(&[(x * 30) as u8, 80, 160, 255]);
         }
     }
-    let img = craft_image_codecs::Image::from_u8(8, 4, craft_image_codecs::ChannelLayout::Rgba, rgba).unwrap();
-    craft_image_codecs::encode(&img, craft_image_codecs::Format::Png, &craft_image_codecs::EncodeOptions::default()).unwrap()
+    let img = nodalia_image_codecs::Image::from_u8(8, 4, nodalia_image_codecs::ChannelLayout::Rgba, rgba).unwrap();
+    nodalia_image_codecs::encode(&img, nodalia_image_codecs::Format::Png, &nodalia_image_codecs::EncodeOptions::default()).unwrap()
 }
 
 /// Headings, formatted runs, a link, nested lists, a table, a quote, code and a picture.
@@ -157,7 +157,7 @@ fn check_round_trip(ext: &str, rich: bool) {
     assert_eq!(find_para(&b, "Second Level").map(|p| p.kind), Some(Kind::Heading(2)), "{ext}");
     assert_eq!(find_para(&b, "A wise quote").map(|p| p.kind), Some(Kind::Quote), "{ext}");
     if ext != "md" {
-        assert_eq!(find_para(&b, "Centered text").and_then(|p| p.align), Some(craft_wordmodel::Align::Center), "{ext}");
+        assert_eq!(find_para(&b, "Centered text").and_then(|p| p.align), Some(nodalia_wordmodel::Align::Center), "{ext}");
     }
     let fb = find_para(&b, "first bullet").and_then(|p| p.list).expect("list");
     assert!(!fb.ordered && fb.level == 0, "{ext}");
@@ -606,8 +606,8 @@ fn garbage_never_panics() {
         let _ = import("odt", &odt);
     }
     // A zip that is not an ODF text document.
-    let mut z = craft_zip::Writer::new();
-    z.add("mimetype", b"application/zip", craft_zip::Compression::Stored).unwrap();
+    let mut z = nodalia_zip::Writer::new();
+    z.add("mimetype", b"application/zip", nodalia_zip::Compression::Stored).unwrap();
     let bytes = z.finish().unwrap();
     assert!(import("odt", &bytes).unwrap().is_err());
 }
@@ -1145,7 +1145,7 @@ fn run_link_and_font_copies_are_budgeted() {
     }
     model::begin_import();
     let (doc, warned) = crate::test_log::warnings(|| model::to_doc(&model::Flow { blocks: vec![FBlock::Para(p)], ..Default::default() }));
-    let paras: Vec<_> = doc.body.iter().filter_map(|b| if let craft_wordmodel::Block::Para(p) = &**b { Some(p) } else { None }).collect();
+    let paras: Vec<_> = doc.body.iter().filter_map(|b| if let nodalia_wordmodel::Block::Para(p) = &**b { Some(p) } else { None }).collect();
     assert_eq!(paras.iter().map(|p| p.text.len()).sum::<usize>(), 20_000, "all text kept");
     let runs: Vec<_> = paras.iter().flat_map(|p| p.runs.iter()).collect();
     let kept: usize = runs.iter().filter_map(|r| r.props.link.as_ref()).map(String::len).sum();

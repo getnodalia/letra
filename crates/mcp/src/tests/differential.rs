@@ -371,7 +371,7 @@ fn a_missing_required_argument_is_refused_where_the_tool_defaulted_it() {
 /// schemas list what the tools accept, so no call that worked now fails.
 #[test]
 fn every_documented_call_passes_the_argument_check() {
-    use craft_mcp_server::check_arguments;
+    use nodalia_mcp_server::check_arguments;
     let defs = crate::tools::tool_definitions();
     let defs = defs.as_array().unwrap();
     for (name, args) in [

@@ -1,6 +1,6 @@
 //! Language packs (CP4.3): spelling dictionaries and hyphenation patterns for languages beyond
 //! the embedded English, one pack per locale, downloaded and verified by the font store
-//! (craft-libs `craft-font-store`, item kind `language-pack`) and read by `craft-proof` from the
+//! (nodalia-libs `nodalia-font-store`, item kind `language-pack`) and read by `nodalia-proof` from the
 //! store's `language-packs/` folder.
 //!
 //! The commands (`proof.packs`, `proof.installPack`, `proof.removePack`), Options › Language,
@@ -40,7 +40,7 @@ pub struct Pack {
     pub locale: String,
     /// The language's own name (`Nederlands`).
     pub name: String,
-    /// The craft-i18n commit the pack was built from.
+    /// The nodalia-i18n commit the pack was built from.
     pub version: String,
     /// The archive.
     pub url: String,
@@ -71,7 +71,7 @@ pub struct Installed {
 /// Stops a download. On the desktop it is the font store's own flag, which a download watches
 /// even while the server sends nothing.
 #[derive(Clone, Debug, Default)]
-pub struct Cancel(#[cfg(not(target_arch = "wasm32"))] pub(crate) craft_font_store::Cancel, #[cfg(target_arch = "wasm32")] Arc<AtomicBool>);
+pub struct Cancel(#[cfg(not(target_arch = "wasm32"))] pub(crate) nodalia_font_store::Cancel, #[cfg(target_arch = "wasm32")] Arc<AtomicBool>);
 
 impl Cancel {
     pub fn new() -> Self {
@@ -116,7 +116,7 @@ pub trait Backend: Send + Sync {
     fn installed(&self) -> Vec<Installed> {
         installed_from_proof()
     }
-    /// The test index in use instead of the pinned one (`CRAFT_LANGUAGE_PACK_INDEX`), if any.
+    /// The test index in use instead of the pinned one (`NODALIA_LANGUAGE_PACK_INDEX`), if any.
     fn index_override(&self) -> Option<String> {
         None
     }
@@ -152,7 +152,7 @@ pub fn set_backend(backend: Option<Arc<dyn Backend>>) {
 
 /// Use the suite's font store for packs (`<font store>/language-packs`), as the person in the app
 /// (`user`: an Install click may turn downloading on) or as an agent (the CLI, headless MCP: it
-/// never can). The pack index is the pinned one, or `CRAFT_LANGUAGE_PACK_INDEX` (a URL or a path,
+/// never can). The pack index is the pinned one, or `NODALIA_LANGUAGE_PACK_INDEX` (a URL or a path,
 /// for testing packs before they are published), which the font store reads itself. Returns
 /// whether there is a store folder.
 #[cfg(not(target_arch = "wasm32"))]
@@ -181,7 +181,7 @@ fn installed_from_proof() -> Vec<Installed> {
     letra_proof::packs::installed().into_iter().map(|p| Installed { locale: p.locale, name: p.name, licence: p.licence, path: p.path }).collect()
 }
 
-/// The test source packs come from instead of the pinned index (`CRAFT_LANGUAGE_PACK_INDEX`):
+/// The test source packs come from instead of the pinned index (`NODALIA_LANGUAGE_PACK_INDEX`):
 /// Options › Language says so.
 pub fn index_override() -> Option<String> {
     backend().and_then(|b| b.index_override())
@@ -583,7 +583,7 @@ pub const SCOWL_TITLE: &str = "English spelling dictionaries (SCOWL)";
 /// The pack locale for a document language tag: the whole tag (`pt-pt`), else each shorter
 /// prefix of it (`sr-latn` for `sr-Latn-RS`, `nl` for `nl-NL`), the first the index has. A
 /// variant after the region is also tried without the region, before the region alone
-/// (`ca-ES-valencia` is the `ca-valencia` pack's), as craft-proof looks its dictionary up. `None`
+/// (`ca-ES-valencia` is the `ca-valencia` pack's), as nodalia-proof looks its dictionary up. `None`
 /// for English and tags with no pack.
 pub fn pack_for_tag<'a>(tag: &str, packs: &'a [Pack]) -> Option<&'a Pack> {
     pack_candidates(tag).iter().find_map(|c| packs.iter().find(|p| &p.locale == c))
@@ -656,7 +656,7 @@ pub fn document_languages(s: &Session) -> Vec<String> {
     out
 }
 
-/// Whether proofing reads a pack for text in `tag`: every language craft-proof can name, its own
+/// Whether proofing reads a pack for text in `tag`: every language nodalia-proof can name, its own
 /// (Polish…) and any other (`ProofLang::Pack`, read from the pack alone); not `und`, `zxx` or a
 /// malformed tag. The one place the bar's language rule lives.
 pub fn proofable(tag: &str) -> bool {
@@ -664,8 +664,8 @@ pub fn proofable(tag: &str) -> bool {
 }
 
 /// The Hunspell dictionary `tag`'s language needs and doesn't have, for the status bar's
-/// "(no dictionary)": craft-proof's [`letra_proof::missing_dictionary`], except for a
-/// language craft-proof has no rules of its own for (`ProofLang::Pack`: Japanese, Chinese,
+/// "(no dictionary)": nodalia-proof's [`letra_proof::missing_dictionary`], except for a
+/// language nodalia-proof has no rules of its own for (`ProofLang::Pack`: Japanese, Chinese,
 /// Thai…) when no pack for it is available either, as no Hunspell dictionary may exist at all.
 pub fn missing_dictionary(tag: Option<&str>) -> Option<&'static str> {
     let name = letra_proof::missing_dictionary(tag)?;
@@ -1104,9 +1104,9 @@ impl Backend for FixedBackend {
 #[cfg(test)]
 mod tests {
     /// CP4.4 (`cargo xtask language`): a build embeds English Language data and nothing it
-    /// wasn't asked to. A Language build names the locales it embeds in `CRAFT_PROOF_EMBED`
+    /// wasn't asked to. A Language build names the locales it embeds in `NODALIA_PROOF_EMBED`
     /// (`en` alone: English only); the default embeds the carry-over locales too, until Language
-    /// packs are published and pinned (craft-proof's `DEFAULT_EMBED`; TODO(CP4.4): English only
+    /// packs are published and pinned (nodalia-proof's `DEFAULT_EMBED`; TODO(CP4.4): English only
     /// then).
     /// About › Language data shows SCOWL's notices (the Ispell BSD licence among them) whenever
     /// English spells from the embedded SCOWL data.
@@ -1149,7 +1149,7 @@ mod tests {
     #[test]
     fn the_default_build_embeds_only_english() {
         const CARRY_OVER: [&str; 5] = ["de", "pl", "pt", "it", "ru"];
-        let named: Vec<String> = std::env::var("CRAFT_PROOF_EMBED")
+        let named: Vec<String> = std::env::var("NODALIA_PROOF_EMBED")
             .unwrap_or_default()
             .split(',')
             .map(|l| l.trim().to_ascii_lowercase())

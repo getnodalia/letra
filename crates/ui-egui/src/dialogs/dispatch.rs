@@ -304,7 +304,7 @@ fn paragraph_dialog(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                     let align_label = ui.label(tl!("Alignment:"));
                     let shown =
                         if mixed.contains("align") { "" } else { ALIGNS.iter().find(|(v, _)| v == align).map_or(align.as_str(), |(_, l)| tl!(l)) };
-                    let combo = craft_ui::ComboBox::from_id_salt("para_align").selected_text(shown).show_ui(ui, |ui| {
+                    let combo = nodalia_ui::ComboBox::from_id_salt("para_align").selected_text(shown).show_ui(ui, |ui| {
                         for (v, l) in ALIGNS {
                             if ui.selectable_value(align, v.to_string(), tl!(l)).clicked() {
                                 mixed.remove("align");
@@ -946,7 +946,7 @@ fn phonetic_dialog(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             let align_label = r.cell(|ui| ui.label(tl!("Alignment:")));
             r.cell(|ui| {
                 let shown = ALIGNS.iter().find(|(k, _)| k == align).map_or("Center", |(_, l)| l);
-                let combo = craft_ui::ComboBox::from_id_salt("phonetic_align").selected_text(tl!(shown)).show_ui(ui, |ui| {
+                let combo = nodalia_ui::ComboBox::from_id_salt("phonetic_align").selected_text(tl!(shown)).show_ui(ui, |ui| {
                     for (k, l) in ALIGNS {
                         ui.selectable_value(align, k.to_string(), tl!(l));
                     }
@@ -1595,7 +1595,7 @@ fn merge_rule_dialog(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool {
                 if fields.is_empty() {
                     ui.text_edit_singleline(field);
                 } else {
-                    craft_ui::ComboBox::from_id_salt("merge_rule_field").selected_text(field.as_str()).width(200.0).show_ui(ui, |ui| {
+                    nodalia_ui::ComboBox::from_id_salt("merge_rule_field").selected_text(field.as_str()).width(200.0).show_ui(ui, |ui| {
                         for f in fields.iter() {
                             ui.selectable_value(field, f.clone(), f);
                         }

@@ -8,15 +8,15 @@ fn docx(body: &str) -> Vec<u8> {
     let doc = format!(
         r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>{body}</w:body></w:document>"#
     );
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in [("_rels/.rels", root.as_bytes()), ("word/document.xml", doc.as_bytes())] {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
 
 fn docx_with_styles(body: &str, styles: &str) -> Vec<u8> {
-    let mut bytes = craft_zip::Writer::new();
+    let mut bytes = nodalia_zip::Writer::new();
     let root = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
     let document_rels = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>"#;
     let doc = format!(
@@ -28,13 +28,13 @@ fn docx_with_styles(body: &str, styles: &str) -> Vec<u8> {
         ("word/document.xml", doc.as_bytes()),
         ("word/styles.xml", styles.as_bytes()),
     ] {
-        bytes.add(name, value, craft_zip::Compression::Deflated).unwrap();
+        bytes.add(name, value, nodalia_zip::Compression::Deflated).unwrap();
     }
     bytes.finish().unwrap()
 }
 
 fn document_xml(bytes: &[u8]) -> String {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }
@@ -118,7 +118,7 @@ fn paragraph_style_text_direction_is_preserved_and_direct_value_overrides_it() {
     assert!(xml.contains(r#"<w:pStyle w:val="Vertical"/><w:textDirection w:val="lrTb"/>"#), "direct horizontal is explicit: {xml}");
     assert_eq!(xml.matches("w:textDirection").count(), 1, "only the direct paragraph writes a direction: {xml}");
     let _z_bytes = letra_docx::write(&d).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let styles_xml = String::from_utf8(z.read("word/styles.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(styles_xml.contains(r#"<w:textDirection w:val="tbRl"/>"#), "style value survives: {styles_xml}");
 }

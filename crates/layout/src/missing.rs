@@ -151,7 +151,7 @@ pub fn watermark_run(wm: &letra_doc::Watermark, max_chars: usize) -> Option<(let
 /// in the face its font name resolves to (no fallback face), so a character that face lacks shapes
 /// to glyph id 0. Strict export checks these same glyphs, so the check and the exporters can't
 /// drift.
-pub fn metafile_text_run(t: &craft_metafile::Text) -> (letra_fonts::FaceRef, Vec<ShapedGlyph>) {
+pub fn metafile_text_run(t: &nodalia_metafile::Text) -> (letra_fonts::FaceRef, Vec<ShapedGlyph>) {
     let family = t.font.family.trim();
     let family = if family.is_empty() { METAFILE_DEFAULT_FONT } else { family };
     let face = letra_fonts::word::resolve(family, t.font.weight >= 600, t.font.italic).face;
@@ -166,7 +166,7 @@ const METAFILE_DEFAULT_HEIGHT: f64 = 16.0;
 
 /// A metafile text run laid out with a font's metrics: the em size (text units), the baseline's y
 /// and each glyph's (x, y), alignment included, in the run's text space (see
-/// `craft_metafile::Text::transform`).
+/// `nodalia_metafile::Text::transform`).
 pub struct MetafileTextLayout {
     pub em: f64,
     pub baseline: f64,
@@ -183,7 +183,7 @@ pub struct MetafileTextLayout {
 /// descent) when positive. The per-character advances `dx` place each cluster when there is one
 /// per character. None when the size is not finite and positive.
 pub fn layout_metafile_text(
-    t: &craft_metafile::Text,
+    t: &nodalia_metafile::Text,
     upem: f64,
     ascent: f64,
     descent: f64,
@@ -231,14 +231,14 @@ pub fn layout_metafile_text(
     }
     let width = dx.as_ref().and_then(|c| c.last().copied()).unwrap_or(pen);
     let hoff = match t.h_align {
-        craft_metafile::HAlign::Left => 0.0,
-        craft_metafile::HAlign::Center => -width / 2.0,
-        craft_metafile::HAlign::Right => -width,
+        nodalia_metafile::HAlign::Left => 0.0,
+        nodalia_metafile::HAlign::Center => -width / 2.0,
+        nodalia_metafile::HAlign::Right => -width,
     };
     let baseline = match t.v_align {
-        craft_metafile::VAlign::Top => ascent * k,
-        craft_metafile::VAlign::Baseline => 0.0,
-        craft_metafile::VAlign::Bottom => -descent * k,
+        nodalia_metafile::VAlign::Top => ascent * k,
+        nodalia_metafile::VAlign::Baseline => 0.0,
+        nodalia_metafile::VAlign::Bottom => -descent * k,
     };
     let glyphs = out.into_iter().map(|(x, y)| (x + hoff, y + baseline)).collect();
     let cell = [hoff + lo, baseline - ascent * k, hoff + hi, baseline + descent * k];
@@ -353,16 +353,16 @@ impl Found {
 
 /// The text runs of a metafile picture that the exporters draw (a run whose layout fails is not).
 fn meta_runs(bytes: &[u8]) -> Vec<MetaRun> {
-    if !craft_metafile::is_metafile(bytes) {
+    if !nodalia_metafile::is_metafile(bytes) {
         return Vec::new();
     }
-    let Ok(pic) = craft_metafile::parse(bytes) else { return Vec::new() };
+    let Ok(pic) = nodalia_metafile::parse(bytes) else { return Vec::new() };
     if !pic.has_size() {
         return Vec::new();
     }
     let mut out = Vec::new();
     for item in &pic.items {
-        let craft_metafile::Item::Text(t) = item else { continue };
+        let nodalia_metafile::Item::Text(t) = item else { continue };
         let (face, shaped) = metafile_text_run(t);
         let glyphs: Vec<_> = shaped.iter().map(|g| (g.cluster, f64::from(g.x_advance), f64::from(g.x_offset), f64::from(g.y_offset))).collect();
         if layout_metafile_text(t, face.upem, face.ascent, face.descent, &glyphs).is_none() {

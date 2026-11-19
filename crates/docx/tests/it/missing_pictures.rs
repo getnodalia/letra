@@ -31,9 +31,9 @@ fn package(body: &str, doc_rels: &str, header: Option<(&str, &str)>, extra: &[(&
     );
     let drels = format!(r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">{doc_rels}{hdr_rel}</Relationships>"#);
     let types = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="bin" ContentType="application/octet-stream"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     let mut put = |name: &str, bytes: &[u8]| {
-        zip.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     };
     put("[Content_Types].xml", types.as_bytes());
     put("_rels/.rels", rels.as_bytes());

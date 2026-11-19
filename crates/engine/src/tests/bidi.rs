@@ -275,7 +275,7 @@ fn typing_kurdish_in_new_document_advances_caret_smoothly() {
 fn saved_runs(s: &Session) -> Vec<(bool, String)> {
     let bytes = crate::io::save_bytes("x.docx", &s.doc).unwrap();
     let xml = String::from_utf8(
-        craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 })
+        nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 })
             .unwrap()
             .read("word/document.xml", 16 << 20)
             .unwrap()

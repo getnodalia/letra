@@ -1,3 +1,3 @@
-//! Re-exports of `craft-flow` helpers used by `letra-engine` and crate tests.
+//! Re-exports of `nodalia-flow` helpers used by `letra-engine` and crate tests.
 
-pub use craft_flow::*;
+pub use nodalia_flow::*;

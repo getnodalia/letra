@@ -8,9 +8,9 @@ fn docx(body: &str) -> Vec<u8> {
     let doc = format!(
         r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>{body}</w:body></w:document>"#
     );
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, xml) in [("_rels/.rels", root.to_string()), ("word/document.xml", doc)] {
-        zw.add(name, xml.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, xml.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
@@ -36,7 +36,7 @@ fn emphasis_marks_are_read_and_saved() {
     let want = [EmphasisMark::Dot, EmphasisMark::Comma, EmphasisMark::Circle, EmphasisMark::UnderDot, EmphasisMark::None].map(Some);
     assert_eq!(marks(&d), want);
     let saved = letra_docx::write(&d).unwrap();
-    let mut z = craft_zip::Archive::open(&saved, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&saved, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     // In its place: after w:cs, before w:lang.
     assert!(xml.contains(r#"<w:cs/><w:em w:val="underDot"/><w:lang"#), "{xml}");

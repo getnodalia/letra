@@ -225,9 +225,9 @@ fn recipients_from_a_workbook_ask_for_the_sheet_when_there_are_several() {
         row(&["Ada", "London", "A"]),
         row(&["Alan", "Wilmslow", "B"]),
     );
-    let mut z = craft_zip::Writer::new();
-    z.add("mimetype", b"application/vnd.oasis.opendocument.spreadsheet", craft_zip::Compression::Stored).unwrap();
-    z.add("content.xml", content.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+    let mut z = nodalia_zip::Writer::new();
+    z.add("mimetype", b"application/vnd.oasis.opendocument.spreadsheet", nodalia_zip::Compression::Stored).unwrap();
+    z.add("content.xml", content.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     let data = super::super::insert::base64_encode(&z.finish().unwrap());
     let mut s = Session::new(Document::new());
     // Two sheets and none chosen: the names come back and nothing loads.

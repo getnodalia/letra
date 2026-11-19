@@ -1,9 +1,9 @@
-//! Bounded conversion between craft-wordmodel and Letra's document model.
+//! Bounded conversion between nodalia-wordmodel and Letra's document model.
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use craft_docx::DocxError;
+use nodalia_docx::DocxError;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
@@ -32,7 +32,7 @@ where
 
 type GraphicCache = HashMap<usize, Arc<letra_doc::graphic::Graphic>>;
 
-fn blocks_from_shared(source: craft_wordmodel::Blocks, graphics: &mut GraphicCache) -> Result<letra_doc::Blocks, DocxError> {
+fn blocks_from_shared(source: nodalia_wordmodel::Blocks, graphics: &mut GraphicCache) -> Result<letra_doc::Blocks, DocxError> {
     source
         .into_iter()
         .map(|block| {
@@ -42,18 +42,18 @@ fn blocks_from_shared(source: craft_wordmodel::Blocks, graphics: &mut GraphicCac
         .collect()
 }
 
-fn block_value_from_shared(source: craft_wordmodel::Block, graphics: &mut GraphicCache) -> Result<letra_doc::Block, DocxError> {
+fn block_value_from_shared(source: nodalia_wordmodel::Block, graphics: &mut GraphicCache) -> Result<letra_doc::Block, DocxError> {
     match source {
-        craft_wordmodel::Block::Para(paragraph) => paragraph_value_from_shared(paragraph, graphics).map(letra_doc::Block::Para),
-        craft_wordmodel::Block::Table(table) => table_value_from_shared(table, graphics).map(letra_doc::Block::Table),
+        nodalia_wordmodel::Block::Para(paragraph) => paragraph_value_from_shared(paragraph, graphics).map(letra_doc::Block::Para),
+        nodalia_wordmodel::Block::Table(table) => table_value_from_shared(table, graphics).map(letra_doc::Block::Table),
     }
 }
 
 fn paragraph_value_from_shared(
-    source: craft_wordmodel::para::Paragraph,
+    source: nodalia_wordmodel::para::Paragraph,
     graphics: &mut GraphicCache,
 ) -> Result<letra_doc::para::Paragraph, DocxError> {
-    let craft_wordmodel::para::Paragraph { text, runs, props, mark, objects, section, .. } = source;
+    let nodalia_wordmodel::para::Paragraph { text, runs, props, mark, objects, section, .. } = source;
     let mut paragraph = letra_doc::para::Paragraph::new();
     paragraph.text = text;
     paragraph.runs =
@@ -66,10 +66,10 @@ fn paragraph_value_from_shared(
 }
 
 fn object_value_from_shared(
-    source: craft_wordmodel::para::InlineObject,
+    source: nodalia_wordmodel::para::InlineObject,
     graphics: &mut GraphicCache,
 ) -> Result<letra_doc::para::InlineObject, DocxError> {
-    use craft_wordmodel::para::InlineObject as Source;
+    use nodalia_wordmodel::para::InlineObject as Source;
     use letra_doc::para::InlineObject as Target;
 
     match source {
@@ -96,9 +96,9 @@ fn object_value_from_shared(
         }
         // This model has no picture frame shape: DrawingML's `frame` preset is read as a
         // rectangle, without the frame's border width.
-        mut shape @ Source::Shape { kind: craft_wordmodel::para::ShapeKind::Frame, .. } => {
+        mut shape @ Source::Shape { kind: nodalia_wordmodel::para::ShapeKind::Frame, .. } => {
             if let Source::Shape { kind, extra, .. } = &mut shape {
-                *kind = craft_wordmodel::para::ShapeKind::Rectangle;
+                *kind = nodalia_wordmodel::para::ShapeKind::Rectangle;
                 extra.corner = None;
             }
             convert(shape)
@@ -117,13 +117,13 @@ fn object_value_from_shared(
 }
 
 fn group_child_value_from_shared(
-    source: craft_wordmodel::para::GroupChild,
+    source: nodalia_wordmodel::para::GroupChild,
     graphics: &mut GraphicCache,
 ) -> Result<letra_doc::para::GroupChild, DocxError> {
     Ok(letra_doc::para::GroupChild { x: source.x, y: source.y, obj: object_value_from_shared(source.obj, graphics)? })
 }
 
-fn table_value_from_shared(source: craft_wordmodel::table::Table, graphics: &mut GraphicCache) -> Result<letra_doc::table::Table, DocxError> {
+fn table_value_from_shared(source: nodalia_wordmodel::table::Table, graphics: &mut GraphicCache) -> Result<letra_doc::table::Table, DocxError> {
     Ok(letra_doc::table::Table {
         props: convert(source.props)?,
         grid: source.grid,
@@ -132,7 +132,7 @@ fn table_value_from_shared(source: craft_wordmodel::table::Table, graphics: &mut
     })
 }
 
-fn row_value_from_shared(source: craft_wordmodel::table::Row, graphics: &mut GraphicCache) -> Result<letra_doc::table::Row, DocxError> {
+fn row_value_from_shared(source: nodalia_wordmodel::table::Row, graphics: &mut GraphicCache) -> Result<letra_doc::table::Row, DocxError> {
     Ok(letra_doc::table::Row {
         props: convert(source.props)?,
         cells: source.cells.into_iter().map(|c| cell_value_from_shared(c, graphics)).collect::<Result<_, _>>()?,
@@ -140,7 +140,7 @@ fn row_value_from_shared(source: craft_wordmodel::table::Row, graphics: &mut Gra
     })
 }
 
-fn cell_value_from_shared(source: craft_wordmodel::table::Cell, graphics: &mut GraphicCache) -> Result<letra_doc::table::Cell, DocxError> {
+fn cell_value_from_shared(source: nodalia_wordmodel::table::Cell, graphics: &mut GraphicCache) -> Result<letra_doc::table::Cell, DocxError> {
     Ok(letra_doc::table::Cell {
         props: convert(source.props)?,
         blocks: blocks_from_shared(source.blocks, graphics)?,
@@ -148,11 +148,11 @@ fn cell_value_from_shared(source: craft_wordmodel::table::Cell, graphics: &mut G
     })
 }
 
-fn part_value_from_shared(source: craft_wordmodel::Part, graphics: &mut GraphicCache) -> Result<letra_doc::Part, DocxError> {
+fn part_value_from_shared(source: nodalia_wordmodel::Part, graphics: &mut GraphicCache) -> Result<letra_doc::Part, DocxError> {
     Ok(letra_doc::Part { kind: convert(source.kind)?, blocks: blocks_from_shared(source.blocks, graphics)?, body: convert(source.body)? })
 }
 
-fn glossary_value_from_shared(source: craft_wordmodel::BuildingBlock, graphics: &mut GraphicCache) -> Result<letra_doc::BuildingBlock, DocxError> {
+fn glossary_value_from_shared(source: nodalia_wordmodel::BuildingBlock, graphics: &mut GraphicCache) -> Result<letra_doc::BuildingBlock, DocxError> {
     Ok(letra_doc::BuildingBlock {
         name: source.name,
         gallery: source.gallery,
@@ -166,7 +166,7 @@ fn glossary_value_from_shared(source: craft_wordmodel::BuildingBlock, graphics: 
     })
 }
 
-fn missing_pictures_from_shared(source: craft_wordmodel::MissingPictures) -> Result<letra_doc::MissingPictures, DocxError> {
+fn missing_pictures_from_shared(source: nodalia_wordmodel::MissingPictures) -> Result<letra_doc::MissingPictures, DocxError> {
     let mut target = letra_doc::MissingPictures::default();
     target.truncated = source.truncated;
     target.total = source.total;
@@ -180,7 +180,7 @@ fn missing_pictures_from_shared(source: craft_wordmodel::MissingPictures) -> Res
 }
 
 /// Converts the shared reader's model without copying the full document or its embedded media.
-pub fn from_shared_model(mut source: craft_wordmodel::Document) -> Result<letra_doc::Document, DocxError> {
+pub fn from_shared_model(mut source: nodalia_wordmodel::Document) -> Result<letra_doc::Document, DocxError> {
     let mut fit_state = None;
     let fit_key = source.passthrough.keys().find(|k| k.eq_ignore_ascii_case(crate::fit::PART)).cloned();
     if let Some(key) = fit_key
@@ -191,7 +191,7 @@ pub fn from_shared_model(mut source: craft_wordmodel::Document) -> Result<letra_
         source.passthrough.remove(&key);
     }
 
-    let craft_wordmodel::Document {
+    let nodalia_wordmodel::Document {
         body,
         last_section,
         parts,
@@ -239,14 +239,14 @@ pub fn from_shared_model(mut source: craft_wordmodel::Document) -> Result<letra_
 // To Shared Model (from Letra Document)
 // ---------------------------------------------------------------------------
 
-fn blocks_to_shared(source: &letra_doc::Blocks) -> Result<craft_wordmodel::Blocks, DocxError> {
+fn blocks_to_shared(source: &letra_doc::Blocks) -> Result<nodalia_wordmodel::Blocks, DocxError> {
     source.iter().map(|block| block_value_to_shared(block).map(Arc::new)).collect()
 }
 
-fn block_value_to_shared(source: &letra_doc::Block) -> Result<craft_wordmodel::Block, DocxError> {
+fn block_value_to_shared(source: &letra_doc::Block) -> Result<nodalia_wordmodel::Block, DocxError> {
     match source {
-        letra_doc::Block::Para(paragraph) => paragraph_value_to_shared(paragraph).map(craft_wordmodel::Block::Para),
-        letra_doc::Block::Table(table) => table_value_to_shared(table).map(craft_wordmodel::Block::Table),
+        letra_doc::Block::Para(paragraph) => paragraph_value_to_shared(paragraph).map(nodalia_wordmodel::Block::Para),
+        letra_doc::Block::Table(table) => table_value_to_shared(table).map(nodalia_wordmodel::Block::Table),
     }
 }
 
@@ -283,13 +283,13 @@ fn sanitize_char_props(mut props: letra_doc::CharProps) -> letra_doc::CharProps 
     props
 }
 
-fn paragraph_value_to_shared(source: &letra_doc::para::Paragraph) -> Result<craft_wordmodel::para::Paragraph, DocxError> {
-    let mut paragraph = craft_wordmodel::para::Paragraph::new();
+fn paragraph_value_to_shared(source: &letra_doc::para::Paragraph) -> Result<nodalia_wordmodel::para::Paragraph, DocxError> {
+    let mut paragraph = nodalia_wordmodel::para::Paragraph::new();
     paragraph.text = source.text.clone();
     paragraph.runs = source
         .runs
         .iter()
-        .map(|run| Ok(craft_wordmodel::para::Run { len: run.len, props: convert(sanitize_char_props(run.props.clone()))? }))
+        .map(|run| Ok(nodalia_wordmodel::para::Run { len: run.len, props: convert(sanitize_char_props(run.props.clone()))? }))
         .collect::<Result<_, DocxError>>()?;
     paragraph.props = convert(sanitize_para_props(source.props.clone()))?;
     paragraph.mark = convert(sanitize_char_props(source.mark.clone()))?;
@@ -298,8 +298,8 @@ fn paragraph_value_to_shared(source: &letra_doc::para::Paragraph) -> Result<craf
     Ok(paragraph)
 }
 
-fn object_value_to_shared(source: &letra_doc::para::InlineObject) -> Result<craft_wordmodel::para::InlineObject, DocxError> {
-    use craft_wordmodel::para::InlineObject as Target;
+fn object_value_to_shared(source: &letra_doc::para::InlineObject) -> Result<nodalia_wordmodel::para::InlineObject, DocxError> {
+    use nodalia_wordmodel::para::InlineObject as Target;
     use letra_doc::para::InlineObject as Source;
 
     match source {
@@ -326,12 +326,12 @@ fn object_value_to_shared(source: &letra_doc::para::InlineObject) -> Result<craf
     }
 }
 
-fn group_child_value_to_shared(source: &letra_doc::para::GroupChild) -> Result<craft_wordmodel::para::GroupChild, DocxError> {
-    Ok(craft_wordmodel::para::GroupChild { x: source.x, y: source.y, obj: object_value_to_shared(&source.obj)? })
+fn group_child_value_to_shared(source: &letra_doc::para::GroupChild) -> Result<nodalia_wordmodel::para::GroupChild, DocxError> {
+    Ok(nodalia_wordmodel::para::GroupChild { x: source.x, y: source.y, obj: object_value_to_shared(&source.obj)? })
 }
 
-fn table_value_to_shared(source: &letra_doc::table::Table) -> Result<craft_wordmodel::table::Table, DocxError> {
-    Ok(craft_wordmodel::table::Table {
+fn table_value_to_shared(source: &letra_doc::table::Table) -> Result<nodalia_wordmodel::table::Table, DocxError> {
+    Ok(nodalia_wordmodel::table::Table {
         props: convert_ref(&source.props)?,
         grid: source.grid.clone(),
         rows: source.rows.iter().map(row_value_to_shared).collect::<Result<_, _>>()?,
@@ -339,28 +339,28 @@ fn table_value_to_shared(source: &letra_doc::table::Table) -> Result<craft_wordm
     })
 }
 
-fn row_value_to_shared(source: &letra_doc::table::Row) -> Result<craft_wordmodel::table::Row, DocxError> {
-    Ok(craft_wordmodel::table::Row {
+fn row_value_to_shared(source: &letra_doc::table::Row) -> Result<nodalia_wordmodel::table::Row, DocxError> {
+    Ok(nodalia_wordmodel::table::Row {
         props: convert_ref(&source.props)?,
         cells: source.cells.iter().map(cell_value_to_shared).collect::<Result<_, _>>()?,
         controls: convert_ref(&source.controls)?,
     })
 }
 
-fn cell_value_to_shared(source: &letra_doc::table::Cell) -> Result<craft_wordmodel::table::Cell, DocxError> {
-    Ok(craft_wordmodel::table::Cell {
+fn cell_value_to_shared(source: &letra_doc::table::Cell) -> Result<nodalia_wordmodel::table::Cell, DocxError> {
+    Ok(nodalia_wordmodel::table::Cell {
         props: convert_ref(&source.props)?,
         blocks: blocks_to_shared(&source.blocks)?,
         controls: convert_ref(&source.controls)?,
     })
 }
 
-fn part_value_to_shared(source: &letra_doc::Part) -> Result<craft_wordmodel::Part, DocxError> {
-    Ok(craft_wordmodel::Part { kind: convert_ref(&source.kind)?, blocks: blocks_to_shared(&source.blocks)?, body: convert_ref(&source.body)? })
+fn part_value_to_shared(source: &letra_doc::Part) -> Result<nodalia_wordmodel::Part, DocxError> {
+    Ok(nodalia_wordmodel::Part { kind: convert_ref(&source.kind)?, blocks: blocks_to_shared(&source.blocks)?, body: convert_ref(&source.body)? })
 }
 
-fn glossary_value_to_shared(source: &letra_doc::BuildingBlock) -> Result<craft_wordmodel::BuildingBlock, DocxError> {
-    Ok(craft_wordmodel::BuildingBlock {
+fn glossary_value_to_shared(source: &letra_doc::BuildingBlock) -> Result<nodalia_wordmodel::BuildingBlock, DocxError> {
+    Ok(nodalia_wordmodel::BuildingBlock {
         name: source.name.clone(),
         gallery: source.gallery.clone(),
         category: source.category.clone(),
@@ -373,8 +373,8 @@ fn glossary_value_to_shared(source: &letra_doc::BuildingBlock) -> Result<craft_w
     })
 }
 
-fn missing_pictures_to_shared(source: &letra_doc::MissingPictures) -> Result<craft_wordmodel::MissingPictures, DocxError> {
-    let mut target = craft_wordmodel::MissingPictures::default();
+fn missing_pictures_to_shared(source: &letra_doc::MissingPictures) -> Result<nodalia_wordmodel::MissingPictures, DocxError> {
+    let mut target = nodalia_wordmodel::MissingPictures::default();
     target.truncated = source.truncated;
     target.total = source.total;
     target.main = source.main.clone();
@@ -387,10 +387,10 @@ fn missing_pictures_to_shared(source: &letra_doc::MissingPictures) -> Result<cra
 }
 
 /// Converts a Letra document to the shared model for serialization.
-pub fn to_shared_model(source: &letra_doc::Document) -> Result<craft_wordmodel::Document, DocxError> {
+pub fn to_shared_model(source: &letra_doc::Document) -> Result<nodalia_wordmodel::Document, DocxError> {
     // The shared writer names its own default in docProps/app.xml until told otherwise.
-    craft_docx::set_application_name("Letra");
-    let mut document = craft_wordmodel::Document::new();
+    nodalia_docx::set_application_name("Letra");
+    let mut document = nodalia_wordmodel::Document::new();
     document.body = blocks_to_shared(&source.body)?;
     document.last_section = convert_ref(&source.last_section)?;
     document.parts = source.parts.iter().map(|(&id, part)| Ok((id, part_value_to_shared(part)?))).collect::<Result<_, DocxError>>()?;
@@ -450,11 +450,11 @@ pub fn to_shared_model(source: &letra_doc::Document) -> Result<craft_wordmodel::
 mod tests {
     use super::*;
 
-    fn doc_with(objects: Vec<craft_wordmodel::para::InlineObject>) -> craft_wordmodel::Document {
-        let mut source = craft_wordmodel::Document::new();
-        let mut para = craft_wordmodel::para::Paragraph::new();
+    fn doc_with(objects: Vec<nodalia_wordmodel::para::InlineObject>) -> nodalia_wordmodel::Document {
+        let mut source = nodalia_wordmodel::Document::new();
+        let mut para = nodalia_wordmodel::para::Paragraph::new();
         para.objects = objects;
-        source.body = vec![Arc::new(craft_wordmodel::Block::Para(para))];
+        source.body = vec![Arc::new(nodalia_wordmodel::Block::Para(para))];
         source
     }
 
@@ -462,9 +462,9 @@ mod tests {
         doc.body.first().and_then(|b| b.as_para()).map(|p| p.objects.clone()).unwrap_or_default()
     }
 
-    fn chart_object(spec: craft_wordmodel::chart::ChartSpec) -> craft_wordmodel::para::InlineObject {
-        let graphic = craft_wordmodel::graphic::Graphic { chart: Some(Arc::new(spec)), ..Default::default() };
-        craft_wordmodel::para::InlineObject::Graphic { w: 100.0, h: 60.0, alt: String::new(), float: Default::default(), graphic: Arc::new(graphic) }
+    fn chart_object(spec: nodalia_wordmodel::chart::ChartSpec) -> nodalia_wordmodel::para::InlineObject {
+        let graphic = nodalia_wordmodel::graphic::Graphic { chart: Some(Arc::new(spec)), ..Default::default() };
+        nodalia_wordmodel::para::InlineObject::Graphic { w: 100.0, h: 60.0, alt: String::new(), float: Default::default(), graphic: Arc::new(graphic) }
     }
 
     fn charts(doc: &letra_doc::Document) -> Vec<Option<letra_doc::chart::ChartSpec>> {
@@ -480,7 +480,7 @@ mod tests {
     /// A picture frame shape opens as a rectangle instead of failing the whole document.
     #[test]
     fn a_frame_shape_reads_as_a_rectangle() {
-        let shape = |kind| craft_wordmodel::para::InlineObject::Shape {
+        let shape = |kind| nodalia_wordmodel::para::InlineObject::Shape {
             kind,
             w: 40.0,
             h: 30.0,
@@ -491,9 +491,9 @@ mod tests {
             story: None,
             freeform: None,
             effects: Default::default(),
-            extra: craft_wordmodel::connector::ShapeExtra { corner: Some(2604), ..Default::default() },
+            extra: nodalia_wordmodel::connector::ShapeExtra { corner: Some(2604), ..Default::default() },
         };
-        let doc = from_shared_model(doc_with(vec![shape(craft_wordmodel::para::ShapeKind::Frame)])).expect("from_shared_model");
+        let doc = from_shared_model(doc_with(vec![shape(nodalia_wordmodel::para::ShapeKind::Frame)])).expect("from_shared_model");
         let found = objects(&doc);
         let [letra_doc::para::InlineObject::Shape { kind, w, extra, .. }] = found.as_slice() else { panic!("{found:?}") };
         assert_eq!((*kind, *w, extra.corner), (letra_doc::para::ShapeKind::Rectangle, 40.0, None));
@@ -503,9 +503,9 @@ mod tests {
     /// saving writes the chart part the reader read.
     #[test]
     fn chart_formatting_survives_the_bridge() {
-        use craft_wordmodel::chart::{ChartSpec, ChartType};
+        use nodalia_wordmodel::chart::{ChartSpec, ChartType};
         let mut formatted = ChartSpec::sample(ChartType::Line);
-        formatted.series[0].fill = Some(craft_wordmodel::props::Rgb(0x12, 0x34, 0x56));
+        formatted.series[0].fill = Some(nodalia_wordmodel::props::Rgb(0x12, 0x34, 0x56));
         formatted.series[0].line_w = Some(2.5);
         formatted.series[1].smooth = true;
         formatted.series[1].markers = Some(true);
@@ -528,7 +528,7 @@ mod tests {
                 p.objects
                     .iter()
                     .filter_map(|o| match o {
-                        craft_wordmodel::para::InlineObject::Graphic { graphic, .. } => graphic.chart.as_deref().cloned(),
+                        nodalia_wordmodel::para::InlineObject::Graphic { graphic, .. } => graphic.chart.as_deref().cloned(),
                         _ => None,
                     })
                     .collect()
@@ -545,30 +545,30 @@ mod tests {
         assert!(!local.series.is_empty() && local.series.iter().all(|s| s.no_line));
         assert_eq!(
             crate::chart_xml(&local),
-            craft_docx::chart_xml(&craft_wordmodel::chart::ChartSpec::sample(craft_wordmodel::chart::ChartType::Scatter)).into_bytes()
+            nodalia_docx::chart_xml(&nodalia_wordmodel::chart::ChartSpec::sample(nodalia_wordmodel::chart::ChartType::Scatter)).into_bytes()
         );
         for kind in letra_doc::chart::ChartType::ALL {
             let local = letra_doc::chart::ChartSpec::sample(kind);
-            let shared: craft_wordmodel::chart::ChartSpec = convert_ref(&local).expect("convert");
-            assert_eq!(shared, craft_wordmodel::chart::ChartSpec::sample(shared.kind), "{kind:?}");
+            let shared: nodalia_wordmodel::chart::ChartSpec = convert_ref(&local).expect("convert");
+            assert_eq!(shared, nodalia_wordmodel::chart::ChartSpec::sample(shared.kind), "{kind:?}");
         }
     }
 
     #[test]
     fn bridges_nested_stories_and_moves_media_both_directions() {
-        let mut source = craft_wordmodel::Document::new();
+        let mut source = nodalia_wordmodel::Document::new();
         let long_text = "x".repeat(1 << 16);
-        let mut body_para = craft_wordmodel::para::Paragraph::with_text(&long_text, Default::default());
-        body_para.objects.push(craft_wordmodel::para::InlineObject::Group {
+        let mut body_para = nodalia_wordmodel::para::Paragraph::with_text(&long_text, Default::default());
+        body_para.objects.push(nodalia_wordmodel::para::InlineObject::Group {
             w: 32.0,
             h: 24.0,
             float: Default::default(),
             ch_w: 64.0,
             ch_h: 48.0,
-            children: vec![craft_wordmodel::para::GroupChild {
+            children: vec![nodalia_wordmodel::para::GroupChild {
                 x: 4.0,
                 y: 6.0,
-                obj: craft_wordmodel::para::InlineObject::Field {
+                obj: nodalia_wordmodel::para::InlineObject::Field {
                     instr: "PAGE".into(),
                     result: "7".into(),
                     locked: true,
@@ -579,17 +579,17 @@ mod tests {
             }],
             canvas: None,
         });
-        let cell = craft_wordmodel::table::Cell::with_text("nested cell");
-        let table = craft_wordmodel::table::Table {
-            rows: vec![craft_wordmodel::table::Row { cells: vec![cell], ..Default::default() }],
+        let cell = nodalia_wordmodel::table::Cell::with_text("nested cell");
+        let table = nodalia_wordmodel::table::Table {
+            rows: vec![nodalia_wordmodel::table::Row { cells: vec![cell], ..Default::default() }],
             ..Default::default()
         };
-        source.body = vec![Arc::new(craft_wordmodel::Block::Para(body_para)), Arc::new(craft_wordmodel::Block::Table(table))];
+        source.body = vec![Arc::new(nodalia_wordmodel::Block::Para(body_para)), Arc::new(nodalia_wordmodel::Block::Table(table))];
         source.parts.insert(
             12,
-            craft_wordmodel::Part {
-                kind: craft_wordmodel::PartKind::TextBox,
-                blocks: vec![craft_wordmodel::para_block(craft_wordmodel::para::Paragraph::with_text("part story", Default::default()))],
+            nodalia_wordmodel::Part {
+                kind: nodalia_wordmodel::PartKind::TextBox,
+                blocks: vec![nodalia_wordmodel::para_block(nodalia_wordmodel::para::Paragraph::with_text("part story", Default::default()))],
                 ..Default::default()
             },
         );

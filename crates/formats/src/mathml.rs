@@ -1,6 +1,6 @@
-//! Equations as MathML (W3C MathML Core / Presentation MathML) via `craft-math`.
+//! Equations as MathML (W3C MathML Core / Presentation MathML) via `nodalia-math`.
 
-pub use craft_math::mathml::{NS, UNICODEMATH};
+pub use nodalia_math::mathml::{NS, UNICODEMATH};
 
 pub fn to_mathml(nodes: &[letra_doc::math::MNode], display: bool, linear: &str) -> String {
     let linear = if linear.is_empty() { letra_doc::math::to_linear(nodes) } else { linear.to_string() };
@@ -8,13 +8,13 @@ pub fn to_mathml(nodes: &[letra_doc::math::MNode], display: bool, linear: &str) 
 }
 
 pub fn linear_to_mathml(linear: &str, display: bool) -> String {
-    let tree = craft_math::math::parse_linear(linear);
-    craft_math::mathml::to_mathml(&tree, display, linear)
+    let tree = nodalia_math::math::parse_linear(linear);
+    nodalia_math::mathml::to_mathml(&tree, display, linear)
 }
 
 pub fn parse(html_or_math: &str) -> Option<Vec<letra_doc::math::MNode>> {
-    let ml = craft_math::mathml::parse(html_or_math)?;
-    let tree = craft_math::mathml::to_tree(&ml);
-    let linear = craft_math::math::to_linear(&tree);
+    let ml = nodalia_math::mathml::parse(html_or_math)?;
+    let tree = nodalia_math::mathml::to_tree(&ml);
+    let linear = nodalia_math::math::to_linear(&tree);
     Some(letra_doc::math::parse_linear(&linear))
 }

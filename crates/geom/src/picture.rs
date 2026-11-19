@@ -7,7 +7,7 @@
 
 use std::borrow::Cow;
 
-use craft_image_codecs::{
+use nodalia_image_codecs::{
     ChannelLayout, CodecError, DecodeOptions, EncodeOptions, Format as CodecFormat, Image as CodecImage, Limits as CodecLimits, RasterColorType,
     SampleType, bmp_probe, decode_as_with, detect, encode as codec_encode, inspect_raster, jpeg_worst_case_coefficients, png_probe, probe_size,
     webp_probe,
@@ -118,26 +118,26 @@ fn codec_to_dynamic(img: CodecImage) -> Result<DynamicImage, Refusal> {
     ImageBuffer::from_raw(w, h, rgba8).map(DynamicImage::ImageRgba8).ok_or_else(|| Refusal::Broken("decoded image buffer size mismatch".into()))
 }
 
-/// Encode `img` as PNG via `craft-image-codecs`.
+/// Encode `img` as PNG via `nodalia-image-codecs`.
 pub fn encode_png(img: &DynamicImage) -> Result<Vec<u8>, String> {
     encode_format(img, ImageFormat::Png)
 }
 
-/// Encode `img` in `format` via `craft-image-codecs`.
+/// Encode `img` in `format` via `nodalia-image-codecs`.
 pub fn encode_format(img: &DynamicImage, format: ImageFormat) -> Result<Vec<u8>, String> {
     let codec_img = dynamic_to_codec(img)?;
     let codec_fmt = to_codec_format(format).ok_or_else(|| format!("unsupported format: {format:?}"))?;
     codec_encode(&codec_img, codec_fmt, &EncodeOptions::default()).map_err(|e| e.to_string())
 }
 
-/// Decode a raster image from memory using `craft-image-codecs` with default limits.
+/// Decode a raster image from memory using `nodalia-image-codecs` with default limits.
 pub fn decode_memory(bytes: &[u8]) -> Result<DynamicImage, Refusal> {
     let codec_fmt = detect(bytes).ok_or(Refusal::NotAPicture)?;
     let img = decode_as_with(codec_fmt, bytes, &DecodeOptions { limits: CodecLimits::default(), keep_orientation: true }).map_err(broken)?;
     codec_to_dynamic(img)
 }
 
-/// Encode tightly-packed RGB8 pixels as JPEG at `quality` (1..=100) via `craft-image-codecs`.
+/// Encode tightly-packed RGB8 pixels as JPEG at `quality` (1..=100) via `nodalia-image-codecs`.
 pub fn encode_jpeg(rgb: &[u8], width: u32, height: u32, quality: u8) -> Result<Vec<u8>, String> {
     let codec_img = CodecImage::from_u8(width, height, ChannelLayout::Rgb, rgb.to_vec()).map_err(|e| e.to_string())?;
     let opts = EncodeOptions { jpeg_quality: quality.clamp(1, 100), ..EncodeOptions::default() };
@@ -275,7 +275,7 @@ fn dib_header_dims(dib: &[u8]) -> Option<(u32, u32)> {
     }
     // Only the first 12 header bytes are read, so only they are wrapped: this runs for DIBs too
     // big to decode, which must not be copied whole.
-    craft_image_codecs::bmp_probe::dimensions(&bmp_probe::dib_to_bmp(dib.get(..12).unwrap_or(dib)).ok()?)
+    nodalia_image_codecs::bmp_probe::dimensions(&bmp_probe::dib_to_bmp(dib.get(..12).unwrap_or(dib)).ok()?)
 }
 
 /// A `width` × `height` picture of `native` bytes a pixel, with its peak (see [`peak_bytes`]).
@@ -424,7 +424,7 @@ fn peak_bytes(width: u32, height: u32, native: u64, held: u64) -> Option<u64> {
 /// tag is missing. None when the header can't be read, or when the tag appears more than once:
 /// the decoder keeps the last copy, so a harmless first one must not hide a JPEG one after it.
 fn tiff_compression(bytes: &[u8]) -> Option<u16> {
-    craft_tiff::probe::first_image_compression(bytes)
+    nodalia_tiff::probe::first_image_compression(bytes)
 }
 
 #[cfg(test)]
@@ -843,7 +843,7 @@ mod tests {
         }
     }
 
-    // The local JPEG budget before it moved to `craft_image_codecs::jpeg_worst_case_coefficients` (#778), kept as the oracle.
+    // The local JPEG budget before it moved to `nodalia_image_codecs::jpeg_worst_case_coefficients` (#778), kept as the oracle.
     /// Bytes of DCT coefficients a progressive JPEG's decoder keeps for the whole picture while it
     /// reads the scans: zune-jpeg holds an `i16` per coefficient of every component, in whole MCUs.
     /// 0 for a baseline JPEG, decoded an MCU row at a time. Each frame header before the first scan
@@ -907,8 +907,8 @@ mod tests {
         mcus.saturating_mul(2 * 64 * 16 * 4)
     }
 
-    // The local DIB wrapping before it moved to `craft_image_codecs::bmp_probe` (#778), kept as the oracle.
-    /// Prepend a 14-byte `BITMAPFILEHEADER` to a normalized DIB so `craft-image-codecs` can inspect and decode it as BMP.
+    // The local DIB wrapping before it moved to `nodalia_image_codecs::bmp_probe` (#778), kept as the oracle.
+    /// Prepend a 14-byte `BITMAPFILEHEADER` to a normalized DIB so `nodalia-image-codecs` can inspect and decode it as BMP.
     fn oracle_dib_to_bmp(dib: &[u8]) -> Vec<u8> {
         let u16_at = |at: usize| dib.get(at..at + 2).and_then(|b| b.try_into().ok()).map(u16::from_le_bytes);
         let u32_at = |at: usize| dib.get(at..at + 4).and_then(|b| b.try_into().ok()).map(u32::from_le_bytes);
@@ -1052,7 +1052,7 @@ mod tests {
         v
     }
 
-    // craft-image-codecs fixed two DIB behaviours after the cutover (craft-libs #2062); the oracle
+    // nodalia-image-codecs fixed two DIB behaviours after the cutover (nodalia-libs #2062); the oracle
     // keeps the old ones, so these predicates name the inputs where the two must differ.
 
     fn le32(d: &[u8], at: usize) -> Option<u32> {
@@ -1161,7 +1161,7 @@ mod tests {
         }
     }
 
-    // The local PNG header read before it moved to `craft_image_codecs::png_probe` (#778), kept as the oracle.
+    // The local PNG header read before it moved to `nodalia_image_codecs::png_probe` (#778), kept as the oracle.
     /// A PNG's width, height, the bytes a pixel its decoder gives (samples under 8 bits widened to 8,
     /// a palette to RGB, `tRNS` to an alpha channel) and whether it has transparency, from `IHDR` and
     /// the chunk headers before the image data. The decoder's own header read inflates an ICC profile

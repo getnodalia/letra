@@ -13,14 +13,14 @@
 
 use egui::{Align, Align2, InnerResponse, Layout, Rect, Ui, UiBuilder, pos2};
 
-use craft_ui::direction::{self, Direction};
+use nodalia_ui::direction::{self, Direction};
 
 fn dir(rtl: bool) -> Direction {
     if rtl { Direction::Rtl } else { Direction::Ltr }
 }
 
 /// Install the interface direction on `ctx` when the language's has changed: the shared
-/// `craft_ui::direction` state, and egui's own chrome (check boxes and radio buttons with the mark
+/// `nodalia_ui::direction` state, and egui's own chrome (check boxes and radio buttons with the mark
 /// at the reading start, submenus, scroll bars, title bars, the font combo) through
 /// `Style::right_to_left`.
 pub fn sync(ctx: &egui::Context) {

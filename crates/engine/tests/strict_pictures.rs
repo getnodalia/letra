@@ -38,7 +38,7 @@ fn docx(header_media: &[u8], body_media: &[u8]) -> Vec<u8> {
         r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdI" Type="{REL}/image" Target="media/image2.bin"/></Relationships>"#
     );
     let types = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="bin" ContentType="application/octet-stream"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     let hdr = format!(r#"<w:hdr {NS}><w:p>{}</w:p></w:hdr>"#, pic("rIdI"));
     for (name, bytes) in [
         ("[Content_Types].xml", types.as_bytes()),
@@ -50,7 +50,7 @@ fn docx(header_media: &[u8], body_media: &[u8]) -> Vec<u8> {
         ("word/media/image2.bin", header_media),
         ("word/media/body.png", body_media),
     ] {
-        zip.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }

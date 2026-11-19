@@ -14,14 +14,14 @@ fn package(defaults: &str, style: &str, run: &str) -> Vec<u8> {
     let styles = format!(
         r#"<w:styles {ns}><w:docDefaults><w:rPrDefault><w:rPr>{defaults}</w:rPr></w:rPrDefault></w:docDefaults><w:style w:type="character" w:styleId="Fancy"><w:name w:val="Fancy"/><w:rPr>{style}</w:rPr></w:style></w:styles>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [
         ("_rels/.rels", root),
         ("word/_rels/document.xml.rels", rels),
         ("word/document.xml", document.as_str()),
         ("word/styles.xml", styles.as_str()),
     ] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     z.finish().unwrap()
 }
@@ -66,7 +66,7 @@ fn unknown_ligature_values_are_ignored() {
 fn no_ligatures_element_without_a_value() {
     let d = letra_docx::read(&package("", "", "")).unwrap();
     let out = letra_docx::write(&d).unwrap();
-    let mut z = craft_zip::Archive::open(&out, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&out, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     for name in ["word/document.xml", "word/styles.xml"] {
         let xml = String::from_utf8(z.read(name, 16 << 20).unwrap().unwrap()).unwrap();
         assert!(!xml.contains("ligatures"), "{name}");

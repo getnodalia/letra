@@ -7,15 +7,15 @@ const W_NS: &str = r#"xmlns:w="http://schemas.openxmlformats.org/wordprocessingm
 const RT: &str = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
 
 fn zip(entries: &[(&str, String)]) -> Vec<u8> {
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, text) in entries {
-        z.add(name, text.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        z.add(name, text.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     z.finish().unwrap()
 }
 
 fn unzip(bytes: &[u8]) -> BTreeMap<String, String> {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let names: Vec<String> = z.names().map(|n| n.into_owned()).collect();
     let mut parts = BTreeMap::new();
     for name in names {

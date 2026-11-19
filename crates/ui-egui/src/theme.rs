@@ -609,7 +609,7 @@ pub fn round_island_corners(painter: &egui::Painter, t: &Tokens, rect: Rect) {
     }
 }
 
-/// Install the UI fonts (Inter, JetBrains Mono) and the craft-fonts CJK interface faces if built
+/// Install the UI fonts (Inter, JetBrains Mono) and the nodalia-fonts CJK interface faces if built
 /// in, Japanese first.
 pub fn install_fonts(ctx: &egui::Context) {
     install_fonts_for(ctx, false);
@@ -780,11 +780,11 @@ pub fn font_definitions_language_arabic(
         // The same static bytes the document fonts use: one copy in the binary.
         add_cjk(&mut fonts, format!("{} {}", f.family, f.style), FontData::from_static(f.bytes));
     }
-    // Georgian has no glyphs in Inter, Source Sans or the CJK faces: the craft-fonts Geor face.
+    // Georgian has no glyphs in Inter, Source Sans or the CJK faces: the nodalia-fonts Geor face.
     for f in letra_fonts::georgian_fonts() {
         add_cjk(&mut fonts, format!("{} {}", f.family, f.style), FontData::from_static(f.bytes));
     }
-    // The embedded faces leave interface characters without a glyph (a build without craft-fonts,
+    // The embedded faces leave interface characters without a glyph (a build without nodalia-fonts,
     // without its Chinese face, #241, or with faces lacking catalog characters, #486): an
     // installed CJK font after them, so the menus don't show boxes or `?`.
     #[cfg(not(target_arch = "wasm32"))]
@@ -796,7 +796,7 @@ pub fn font_definitions_language_arabic(
     #[cfg(target_arch = "wasm32")]
     let _ = system_cjk;
     // Arabic-script faces last: the Arabic interface, its name in the language list, Arabic file
-    // names. Without an embedded one (a build without craft-fonts), an installed font, read when
+    // names. Without an embedded one (a build without nodalia-fonts), an installed font, read when
     // `system_arabic` is set: for an Arabic interface.
     let arabic = letra_fonts::ui_arabic_fonts();
     for f in &arabic {
@@ -860,7 +860,7 @@ fn system_cjk_font(hans: bool, korean: bool) -> Option<&'static letra_fonts::Sys
 ///
 /// The interface asks for this font only when CJK is on screen: the interface language, or CJK
 /// document text drawn as interface text (an input method's composition, a file name in the
-/// caption). A build with neither craft-i18n's CJK catalogs nor craft-fonts' CJK faces has no CJK
+/// caption). A build with neither nodalia-i18n's CJK catalogs nor nodalia-fonts' CJK faces has no CJK
 /// text of its own to measure, and that text drew as boxes. It gets the font picked for the
 /// language's own characters (an empty list: [`letra_fonts::system_cjk_ui_font_for`] probes
 /// one, `の` for a Japanese or other interface), or failing that a Korean font.
@@ -1313,7 +1313,7 @@ mod tests {
         assert!(semi.iter().any(|n| n.starts_with("fallback ")), "the caption is painted with semibold");
     }
 
-    /// A build without craft-i18n's CJK catalogs and craft-fonts' CJK faces has no CJK interface
+    /// A build without nodalia-i18n's CJK catalogs and nodalia-fonts' CJK faces has no CJK interface
     /// text of its own, so the CJK UI font that CJK document text asks for (a composition, a file
     /// name, a comment) was never loaded, and that text drew as boxes. It is now picked for the
     /// language's own characters.

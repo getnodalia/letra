@@ -949,7 +949,7 @@ mod tests {
         Some(((b.x0 + b.x1) / 2.0, (b.y0 + b.y1) / 2.0))
     }
 
-    /// craft-proof calls Swiss German and Portugal's Portuguese pack languages (`de-ch`,
+    /// nodalia-proof calls Swiss German and Portugal's Portuguese pack languages (`de-ch`,
     /// `pt-pt`); the status bar and the pack list still name them as German and Portuguese.
     #[test]
     fn swiss_and_portugal_text_keep_their_names() {
@@ -1654,7 +1654,7 @@ mod tests {
     }
 
     /// Martin's test: a spelling issue's context menu heading is in the interface language, not
-    /// the text's (craft-proof's message for French text is "Faute d'orthographe possible").
+    /// the text's (nodalia-proof's message for French text is "Faute d'orthographe possible").
     #[test]
     fn the_spelling_heading_is_in_the_interface_language() {
         let french = json!({"kind": "spelling", "message": "Faute d\u{2019}orthographe possible", "lang": "fr"});

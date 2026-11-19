@@ -71,7 +71,7 @@ x11-dl = "2.21"
 xkbcommon-dl = { version = "0.4.2", features = ["x11"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-# The upstream default-apps button opens Windows Settings; printing uses craft-print instead.
+# The upstream default-apps button opens Windows Settings; printing uses nodalia-print instead.
 open = "5"
 # The system's Animation effects setting (Settings › Accessibility › Visual effects), read through
 # the Windows Runtime's UISettings: a safe API, where the Win32 call needs unsafe, which our
@@ -84,9 +84,9 @@ windows = { version = "0.62", features = ["UI_ViewManagement", "System_UserProfi
 clipboard-win = { version = "5.4", features = ["std"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-# At the same craft-libs commit as the workspace's crates: `printer_queues`, the printer list that
+# At the same nodalia-libs commit as the workspace's crates: `printer_queues`, the printer list that
 # asks no driver (#5710, storytold/craft-libs#618), and `submit_cancellable` (storytold/craft-libs#622).
-craft-print = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a" }
+nodalia-print = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc" }
 rfd = { workspace = true }
 # Waits for an `rfd::AsyncFileDialog` on a background thread (the dialogs don't block the UI, #94);
 # rfd itself already depends on it.

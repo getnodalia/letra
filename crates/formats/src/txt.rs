@@ -15,7 +15,7 @@ mod legacy_oracle_tests;
 
 // Detection is shared with the other Craft apps. Letra's `cp1252` and encoding_rs agree on
 // every byte (pinned by `legacy_oracle_tests`), so a Windows-1252 guess needs no local mapping.
-pub use craft_mime::detect::{decode, is_text, legacy};
+pub use nodalia_mime::detect::{decode, is_text, legacy};
 
 /// Decode bytes in a named encoding (a WHATWG label such as `gbk`, `gb18030`, `big5`,
 /// `shift_jis`, `euc-kr`, `utf-16le`, `windows-1251`); `None` when the label isn't known.

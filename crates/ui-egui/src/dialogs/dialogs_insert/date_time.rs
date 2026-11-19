@@ -98,7 +98,7 @@ pub(super) fn date_time_ui(app: &mut WordApp, ui: &mut Ui, f: &mut DateTimeForm)
         ui.add_space(12.0);
         ui.vertical(|ui| {
             ui.label(tl!("Language"));
-            craft_ui::ComboBox::from_id_salt("date_time_lang")
+            nodalia_ui::ComboBox::from_id_salt("date_time_lang")
                 .selected_text(if f.language == "pt-BR" { tl!("Portuguese (Brazil)") } else { tl!("English (United States)") })
                 .show_ui(ui, |ui| {
                     if ui.selectable_label(f.language == "pt-BR", tl!("Portuguese (Brazil)")).clicked() {

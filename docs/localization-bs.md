@@ -8,9 +8,9 @@ language (`bs-BA`, `bs_BA.UTF-8`, `bs-Latn-BA`). The catalog code is `bs`; `ui.l
 screenshot or a launch while the preference is `auto`. Document text, command ids, CLI/MCP/control
 responses and file paths do not change.
 
-The catalog is craft-i18n's `locales/bs/wordcraft.tsv` (getnodalia/foundation (vendor/craft-i18n), 2,508 entries) over the
+The catalog is nodalia-i18n's `locales/bs/letra.tsv` (getnodalia/foundation (vendor/nodalia-i18n), 2,508 entries) over the
 shared `locales/bs/common.tsv`. Both are embedded from the
-craft-i18n commit pinned in `craft-i18n.rev` (1e51542…), which includes them. The
+nodalia-i18n commit pinned in `nodalia-i18n.rev` (1e51542…), which includes them. The
 catalog is written from the meaning of the English labels; no proprietary translation resources were
 consulted. It is an AI-assisted draft that a native speaker has not yet reviewed.
 
@@ -24,7 +24,7 @@ consulted. It is an AI-assisted draft that a native speaker has not yet reviewed
 - Messages address the user with the polite plural (`Unesite lozinku`).
 - Only the first word of a label is capitalised.
 - `@plural` rows use Bosnian's three CLDR forms, `one|few|other` (`{n} stavka|{n} stavke|{n}
-  stavki`); the `craft-i18n` crate picks the form from CLDR's rules.
+  stavki`); the `nodalia-i18n` crate picks the form from CLDR's rules.
 - Quotation marks „…”; placeholders, a trailing `…` and the spaces around joined fragments match the
   English.
 

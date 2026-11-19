@@ -245,16 +245,16 @@ fn an_equation_run_names_each_glyphs_characters() {
 }
 
 /// A metafile text run with the given font height and advances, left-aligned at the baseline.
-fn meta_text(height: f32, dx: Vec<f32>) -> craft_metafile::Text {
-    craft_metafile::Text {
+fn meta_text(height: f32, dx: Vec<f32>) -> nodalia_metafile::Text {
+    nodalia_metafile::Text {
         transform: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
         text: "ab".into(),
         dx,
-        font: craft_metafile::Font { family: "Arial".into(), height, ..Default::default() },
+        font: nodalia_metafile::Font { family: "Arial".into(), height, ..Default::default() },
         color: [0, 0, 0, 255],
         background: Some([255, 255, 255, 255]),
-        h_align: craft_metafile::HAlign::Left,
-        v_align: craft_metafile::VAlign::Baseline,
+        h_align: nodalia_metafile::HAlign::Left,
+        v_align: nodalia_metafile::VAlign::Baseline,
         clip: None,
         region: None,
         clips: Vec::new(),

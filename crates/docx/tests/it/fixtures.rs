@@ -12,9 +12,9 @@ const W_NS: &str = r#"xmlns:w="http://schemas.openxmlformats.org/wordprocessingm
 const ROOT_RELS: &str = r#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
 
 pub fn zip(entries: &[(&str, &[u8])]) -> Vec<u8> {
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in entries {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
@@ -1483,7 +1483,7 @@ fn word_watermark_survives_save() {
     };
     assert_eq!(headers(&d2), headers(&d));
     assert_eq!(headers(&d2)[0], vec!["Header label".to_string(), "Second line".to_string()]);
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     for name in ["word/header1.xml", "word/header2.xml"] {
         let xml = String::from_utf8(z.read(name, 16 << 20).unwrap().unwrap()).unwrap();
         assert_eq!(xml.matches("<v:shape ").count(), 1, "{name}");
@@ -1661,7 +1661,7 @@ fn chart_docx() -> Vec<u8> {
 
 /// The entries of a zip, by name.
 fn unzip(bytes: &[u8]) -> std::collections::BTreeMap<String, Vec<u8>> {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let names: Vec<String> = z.names().map(|n| n.into_owned()).collect();
     let mut out = std::collections::BTreeMap::new();
     for name in names {
@@ -2171,7 +2171,7 @@ fn formatting_revisions_round_trip() {
 
     // Written back: each change is the last child of its parent, and reads back the same.
     let bytes = letra_docx::write(&d).unwrap();
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     for (tag, parent) in [
         ("w:rPrChange", "</w:rPr></w:rPrChange></w:rPr>"),
@@ -2428,7 +2428,7 @@ fn note_separators_and_continuation_notice_round_trip() {
 
     let out = letra_docx::write(&d).unwrap();
     let part = |name: &str| {
-        let mut z = craft_zip::Archive::open(&out, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut z = nodalia_zip::Archive::open(&out, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
         String::from_utf8(z.read(name, 16 << 20).unwrap().unwrap()).unwrap()
     };
@@ -2553,7 +2553,7 @@ fn includepicture_keeps_its_embedded_picture() {
         let bytes = docx(&format!("<w:p>{field}</w:p><w:sectPr/>"), &[("rIdPic", "image", "media/picture.png")], &[]);
         let bytes = {
             // `docx` takes text parts; add the picture bytes as a binary part.
-            let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+            let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
             let names: Vec<String> = z.names().map(|n| n.into_owned()).collect();
             let mut entries: Vec<(String, Vec<u8>)> = Vec::new();
             for name in names {
@@ -2672,7 +2672,7 @@ fn rounded_rectangle_corners_are_read_and_saved() {
     let d = read_body(&format!("<w:p>{body}</w:p>"));
     assert_eq!(corners(&d), expected);
     let bytes = letra_docx::write(&d).unwrap();
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 3565"/></a:avLst></a:prstGeom>"#), "{xml}");
     assert_eq!(corners(&letra_docx::read(&bytes).unwrap()), expected);
@@ -2738,7 +2738,7 @@ fn arrowheads_keep_their_kind_and_size() {
     let d = read_body(&format!("<w:p>{body}</w:p>"));
     assert_eq!(ends(&d), expected);
     let bytes = letra_docx::write(&d).unwrap();
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<a:headEnd type="stealth" w="sm" len="lg"/>"#), "{xml}");
     assert!(xml.contains(r#"<a:tailEnd type="diamond" w="lg" len="sm"/>"#), "{xml}");
@@ -2862,7 +2862,7 @@ fn vml_preset_shape_survives_saving() {
         r##"<w:p><w:r><w:pict>{VML_RIGHT_ARROW_TYPE}<v:shape type="#_x0000_t13" style="width:120pt;height:40pt" fillcolor="#ffa500"/></w:pict></w:r></w:p>"##
     );
     let saved = letra_docx::write(&read_body(&body)).unwrap();
-    let mut z = craft_zip::Archive::open(&saved, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&saved, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"prst="rightArrow""#), "{xml}");
     let again = letra_docx::read(&saved).unwrap();
@@ -2889,7 +2889,7 @@ fn vml_preset_shape_survives_saving() {
 fn vml_nearest_preset_shape_survives_saving() {
     let body = r##"<w:p><w:r><w:pict><v:shape type="#_x0000_t66" style="width:60pt;height:20pt" fillcolor="#ffa500"/></w:pict></w:r></w:p>"##;
     let saved = letra_docx::write(&read_body(body)).unwrap();
-    let mut z = craft_zip::Archive::open(&saved, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&saved, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"prst="leftArrow""#), "{xml}");
     let again = letra_docx::read(&saved).unwrap();
@@ -3037,7 +3037,7 @@ fn drawingml_shapes_survive_saving() {
     let again = letra_docx::read(&bytes).unwrap();
     assert_eq!(shapes(&again), read, "every shape survives saving");
     assert_eq!(part_text_box(&again), "Floating text box");
-    let mut z = craft_zip::Archive::open(&bytes[..], craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes[..], nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert_eq!(xml.matches("<wps:wsp>").count(), 7);
     for p in presets.iter().chain(&["straightConnector1"]) {
@@ -4032,7 +4032,7 @@ fn hyperlink_with_empty_target_is_no_link() {
     let bytes = docx(body, &[("rId2", "hyperlink", "https://x"), ("rId3", "hyperlink", "mailto:a@example.com")], &[]);
     // Blank the first target and mark the mailto one external (the helper only does that for http).
     let bytes = {
-        let mut zr = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut zr = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
         let names: Vec<String> = zr.names().map(|n| n.into_owned()).collect();
         let mut entries = Vec::new();
         for name in names {

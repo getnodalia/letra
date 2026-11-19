@@ -13,6 +13,6 @@ letra-doc = { workspace = true }
 letra-engine = { workspace = true }
 letra-render = { workspace = true }
 letra-control-key = { workspace = true }
-craft-mcp-server = { workspace = true }
+nodalia-mcp-server = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }

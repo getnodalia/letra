@@ -1,41 +1,41 @@
-//! HTML import and export via `craft-html`.
+//! HTML import and export via `nodalia-html`.
 
 use letra_doc::{Document, SectionProps};
 
-pub use craft_html::doc::{ImageLoader, PAGE_FONT, css_len_pt, decode, decode_as, decode_entity, esc, export_flow, parse, parse_with, unescape};
+pub use nodalia_html::doc::{ImageLoader, PAGE_FONT, css_len_pt, decode, decode_as, decode_entity, esc, export_flow, parse, parse_with, unescape};
 
-fn shared_section(page: &SectionProps) -> craft_wordmodel::SectionProps {
+fn shared_section(page: &SectionProps) -> nodalia_wordmodel::SectionProps {
     let mut d = Document::new();
     d.last_section = page.clone();
     letra_docx::to_shared_model(&d).map(|s| s.last_section).unwrap_or_default()
 }
 
 pub fn import(html: &str) -> Document {
-    letra_docx::from_shared_model(craft_html::doc::import(html)).unwrap_or_default()
+    letra_docx::from_shared_model(nodalia_html::doc::import(html)).unwrap_or_default()
 }
 
 pub fn import_page(html: &str, images: ImageLoader<'_>) -> Document {
-    letra_docx::from_shared_model(craft_html::doc::import_page(html, images)).unwrap_or_default()
+    letra_docx::from_shared_model(nodalia_html::doc::import_page(html, images)).unwrap_or_default()
 }
 
 pub fn import_with(html: &str, images: ImageLoader<'_>) -> Document {
-    letra_docx::from_shared_model(craft_html::doc::import_with(html, images)).unwrap_or_default()
+    letra_docx::from_shared_model(nodalia_html::doc::import_with(html, images)).unwrap_or_default()
 }
 
 pub fn import_on(html: &str, images: ImageLoader<'_>, page: &SectionProps) -> Document {
-    letra_docx::from_shared_model(craft_html::doc::import_on(html, images, &shared_section(page))).unwrap_or_default()
+    letra_docx::from_shared_model(nodalia_html::doc::import_on(html, images, &shared_section(page))).unwrap_or_default()
 }
 
 pub fn export(doc: &Document) -> String {
     match letra_docx::to_shared_model(doc) {
-        Ok(shared) => craft_html::doc::export(&shared),
+        Ok(shared) => nodalia_html::doc::export(&shared),
         Err(_) => String::new(),
     }
 }
 
 pub fn export_fragment(doc: &Document) -> String {
     match letra_docx::to_shared_model(doc) {
-        Ok(shared) => craft_html::doc::export_fragment(&shared),
+        Ok(shared) => nodalia_html::doc::export_fragment(&shared),
         Err(_) => String::new(),
     }
 }

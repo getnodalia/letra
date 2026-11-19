@@ -1,4 +1,4 @@
-//! The pre-cutover local implementations, kept as an oracle: the shared `craft_mime::detect`
+//! The pre-cutover local implementations, kept as an oracle: the shared `nodalia_mime::detect`
 //! functions plus the cp1252 wrapper must agree with them byte for byte.
 
 use super::cp1252;

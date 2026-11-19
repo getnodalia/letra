@@ -31,15 +31,15 @@ const TRANSITIONAL: Names =
     Names { ns: TRANSITIONAL_NS, rels: TRANSITIONAL_RELS, shape: "wps", group: "wpg", canvas: "wpc", content: "w:txbxContent" };
 
 fn zip(entries: &[(&str, &[u8])]) -> Vec<u8> {
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in entries {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
 
 fn document_xml(bytes: &[u8]) -> String {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }

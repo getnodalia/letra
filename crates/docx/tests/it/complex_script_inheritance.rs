@@ -12,14 +12,14 @@ fn package(run: &str, defaults: &str, styles: &str, paragraph_style: &str) -> Ve
         r#"<w:document {ns}><w:body><w:p><w:pPr>{paragraph_style}<w:bidi/></w:pPr><w:r><w:rPr>{run}</w:rPr><w:t>שָׁלוֹם ABC 123</w:t></w:r></w:p></w:body></w:document>"#
     );
     let styles = format!("<w:styles {ns}><w:docDefaults><w:rPrDefault><w:rPr>{defaults}</w:rPr></w:rPrDefault></w:docDefaults>{styles}</w:styles>");
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [
         ("_rels/.rels", root),
         ("word/_rels/document.xml.rels", rels),
         ("word/document.xml", document.as_str()),
         ("word/styles.xml", styles.as_str()),
     ] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     z.finish().unwrap()
 }
@@ -179,7 +179,7 @@ fn split_runs_add_no_phantom_tracked_formatting() {
     let d = letra_docx::read(&package(run, "", "", "")).unwrap();
     let bytes = letra_docx::write(&d).unwrap();
     let xml = String::from_utf8(
-        craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 })
+        nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 })
             .unwrap()
             .read("word/document.xml", 16 << 20)
             .unwrap()

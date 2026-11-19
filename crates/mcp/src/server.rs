@@ -1,16 +1,16 @@
-//! Letra's MCP server: the shared `craft_mcp_server` core (JSON-RPC framing, the lifecycle,
+//! Letra's MCP server: the shared `nodalia_mcp_server` core (JSON-RPC framing, the lifecycle,
 //! `tools/*` and `resources/*`) around Letra's own tools, resources and instructions.
 
 use std::io::{BufRead, Read, Write};
 
-use craft_mcp_server::{Contents, Info, Options, Tools};
+use nodalia_mcp_server::{Contents, Info, Options, Tools};
 use serde_json::{Value, json};
 
 use crate::backend::Backend;
 use crate::tools::{call_tool, tool_definitions};
 
 /// The MCP revision we implement.
-pub use craft_mcp_server::PROTOCOL_VERSION;
+pub use nodalia_mcp_server::PROTOCOL_VERSION;
 
 const INSTRUCTIONS: &str = "Letra is a word processor (a Microsoft Word clone). Every action is a command: find ids and \
 parameters with list_commands and run them with execute (or several with batch). Positions are \
@@ -115,7 +115,7 @@ impl Tools for LetraTools {
 
 /// An MCP server bound to one backend.
 pub struct Server {
-    inner: craft_mcp_server::Server<LetraTools>,
+    inner: nodalia_mcp_server::Server<LetraTools>,
 }
 
 impl Server {
@@ -127,7 +127,7 @@ impl Server {
             tool_errors_as_results: true,
             strict_request_ids: true,
         };
-        Self { inner: craft_mcp_server::Server::new(info, LetraTools { backend }).with_options(options) }
+        Self { inner: nodalia_mcp_server::Server::new(info, LetraTools { backend }).with_options(options) }
     }
 
     pub fn backend(&mut self) -> &mut dyn Backend {

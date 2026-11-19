@@ -1,4 +1,4 @@
-//! The hand-written MCP server core Letra had before it moved to `craft_mcp_server`, kept
+//! The hand-written MCP server core Letra had before it moved to `nodalia_mcp_server`, kept
 //! verbatim as the oracle the differential test compares the shared server against.
 
 use std::io::{BufRead, Write};

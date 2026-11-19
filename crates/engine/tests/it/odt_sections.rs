@@ -31,15 +31,15 @@ fn odt() -> Vec<u8> {
         <text:p text:style-name="PBack">Closing words</text:p><text:p>Last line.</text:p>
         </office:text></office:body></office:document-content>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", &content), ("styles.xml", &styles)] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     z.finish().unwrap()
 }
 
 fn document_xml(docx: &[u8]) -> String {
-    let mut zip = craft_zip::Archive::open(docx, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(docx, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }

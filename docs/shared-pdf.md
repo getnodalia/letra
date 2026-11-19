@@ -1,7 +1,7 @@
 # Shared PDF writer
 
-Letra uses `craft-pdf` with default features disabled and `write` enabled. Both that dependency
-and the required root Krilla patch use the same immutable `getnodalia/foundation (vendor/craft-libs)` revision,
+Letra uses `nodalia-pdf` with default features disabled and `write` enabled. Both that dependency
+and the required root Krilla patch use the same immutable `getnodalia/foundation (vendor/nodalia-libs)` revision,
 pinned in [`Cargo.toml`](../Cargo.toml). Rust 1.95 or newer is required. The revision must be
 available from the remote before a fresh checkout can resolve it. The shared writer checks a
 backend marker at compile time so an unpatched Krilla cannot replace the required backend.
@@ -27,7 +27,7 @@ it does not enable the shared `write-simple-text` feature. Letra does not embed 
 pages, so it does not enable Krilla's optional `pdf` feature or the shared `write-pdf` feature.
 The shared writer has no parser dependency. Hayro syntax and interpretation remain explicit test
 dependencies at their existing registry versions; no parser or codec fork is introduced. The
-existing `craft-print` and `craft-ui` dependency pins are retained separately.
+existing `nodalia-print` and `nodalia-ui` dependency pins are retained separately.
 
 Krilla's existing bundled profiles retain their upstream licences, recorded in the pinned shared
 repository's `licenses/pdf-writer/` and `ATTRIBUTION.md`. This migration

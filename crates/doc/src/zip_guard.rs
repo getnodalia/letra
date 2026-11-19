@@ -1,14 +1,14 @@
 //! A bytes-only check of a ZIP package's declared entry count, run before anything opens the ZIP
-//! (#3660). The logic lives in `craft-zip`; this wraps its error as a `String`.
+//! (#3660). The logic lives in `nodalia-zip`; this wraps its error as a `String`.
 
 /// Refuse `bytes` when the end record `zip` would use declares more than `max_entries` entries.
 pub fn check(bytes: &[u8], max_entries: u64) -> Result<(), String> {
-    craft_zip::check_entry_count(bytes, max_entries).map_err(|e| e.to_string())
+    nodalia_zip::check_entry_count(bytes, max_entries).map_err(|e| e.to_string())
 }
 
 /// A ZIP64 package declaring `entries` entries: regression input for the readers' tests.
 #[cfg(any(test, feature = "test-support"))]
-pub use craft_zip::zip64_entry_count_sample;
+pub use nodalia_zip::zip64_entry_count_sample;
 
 #[cfg(test)]
 mod tests {

@@ -4,7 +4,7 @@ use letra_doc::{InlineObject, Path, StoryRef};
 
 fn package(body: &str) -> Vec<u8> {
     let xml = format!(r#"<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>{body}</w:body></w:document>"#);
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, value) in [
         ("word/document.xml", xml.as_str()),
         (
@@ -12,7 +12,7 @@ fn package(body: &str) -> Vec<u8> {
             r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#,
         ),
     ] {
-        zip.add(name, value.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, value.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }

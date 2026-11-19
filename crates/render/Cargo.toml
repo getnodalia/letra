@@ -13,7 +13,7 @@ letra-geom = { workspace = true, features = ["image"] }
 letra-doc = { workspace = true }
 letra-fonts = { workspace = true }
 letra-layout = { workspace = true }
-craft-metafile = { workspace = true }
+nodalia-metafile = { workspace = true }
 vello_cpu = { workspace = true }
 image = { workspace = true }
 log = { workspace = true }

@@ -358,7 +358,7 @@ fn non_latin_file_name_is_drawn_in_the_caption() {
 }
 
 /// The CJK UI font a Japanese file name asks for is loaded and draws the name, also in a build
-/// without craft-i18n's CJK catalogs and craft-fonts' CJK faces. There it was never loaded, and
+/// without nodalia-i18n's CJK catalogs and nodalia-fonts' CJK faces. There it was never loaded, and
 /// the caption, like an input method's composition, showed boxes.
 #[test]
 fn a_japanese_file_name_is_drawn_in_the_caption() {

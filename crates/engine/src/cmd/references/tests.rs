@@ -68,7 +68,7 @@ fn docx_styleref_header_shows_each_page_s_chapter() {
     );
     let root = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
     let rels = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdH" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rIdS" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>"#;
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, text) in [
         ("_rels/.rels", root),
         ("word/document.xml", body.as_str()),
@@ -76,7 +76,7 @@ fn docx_styleref_header_shows_each_page_s_chapter() {
         ("word/header1.xml", header.as_str()),
         ("word/styles.xml", styles.as_str()),
     ] {
-        zw.add(name, text.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, text.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     let bytes = zw.finish().unwrap();
     let headers = |s: &mut Session| -> Vec<String> {
@@ -721,9 +721,9 @@ fn output_numbers_text_box_captions_where_their_boxes_are_anchored() {
     let body: String = paras.iter().map(|p| format!("<w:p>{p}</w:p>")).collect();
     let document = format!("<w:document {ns}><w:body>{body}<w:sectPr/></w:body></w:document>");
     let root = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, text) in [("_rels/.rels", root), ("word/document.xml", document.as_str())] {
-        zw.add(name, text.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, text.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     let s = Session::new(crate::io::open_bytes("boxes.docx", &zw.finish().unwrap()).unwrap());
     let out = crate::cmd::references::output_fields(&s.doc).expect("fresh numbers");
@@ -780,9 +780,9 @@ fn output_shows_references_to_bookmarks_outside_the_body() {
         ("word/endnotes.xml", endnotes),
         ("word/comments.xml", comments),
     ];
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, text) in &files {
-        zw.add(name, text.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, text.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     let s = Session::new(crate::io::open_bytes("stories.docx", &zw.finish().unwrap()).unwrap());
     let out = crate::cmd::references::output_fields(&s.doc).expect("fresh references");

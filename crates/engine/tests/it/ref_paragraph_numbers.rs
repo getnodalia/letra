@@ -9,9 +9,9 @@ const W: &str = r#"xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2
 
 /// Build an OOXML ZIP entirely in memory.
 fn zip(entries: &[(&str, &str)]) -> Vec<u8> {
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, body) in entries {
-        zw.add(name, body.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, body.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }

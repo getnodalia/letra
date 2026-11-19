@@ -21,24 +21,24 @@ letra-docbin = { path = "crates/docbin" }
 letra-formats = { path = "crates/formats" }
 letra-render = { path = "crates/render" }
 letra-pdf = { path = "crates/pdf" }
-# Proofing is craft-libs' craft-proof (it was crates/proof); its Language data is craft-i18n's
-# language-data/, embedded from CRAFT_I18N_DIR (craft-i18n.rev). The package keeps the
+# Proofing is nodalia-libs' nodalia-proof (it was crates/proof); its Language data is nodalia-i18n's
+# language-data/, embedded from NODALIA_I18N_DIR (nodalia-i18n.rev). The package keeps the
 # `letra-proof` name here so `letra_proof::` paths are unchanged.
-# craft-proof is getnodalia/foundation (vendor/craft-libs) main at 93dac78c. That tree has #590 (ca-ES-valencia
+# nodalia-proof is getnodalia/foundation (vendor/nodalia-libs) main at 93dac78c. That tree has #590 (ca-ES-valencia
 # reads the ca-valencia pack), #589 (French elision suggestions first), #497 (flag-based
 # compounding), #496 (review follow-ups, en-AU) and the merged #482–#490/#495 stack; the font
 # store's `language-pack` kind is #486 (CP4.1).
-letra-proof = { package = "craft-proof", git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-font-store = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-font-catalog = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-ssip = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
+letra-proof = { package = "nodalia-proof", git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-font-store = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-font-catalog = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-ssip = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
 letra-engine = { path = "crates/engine" }
 letra-mcp = { path = "crates/mcp" }
 letra-zotero = { path = "crates/zotero" }
 letra-control-key = { path = "crates/control-key" }
 letra-ui-egui = { path = "crates/ui-egui" }
-craft-codepage = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-metafile = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
+nodalia-codepage = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-metafile = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
 
 # foundation
 kurbo = { version = "0.13", features = ["serde"] }
@@ -69,36 +69,36 @@ wuff = "0.2.9"
 brotli-decompressor = "6"
 vello_cpu = "0.2"
 image = { version = "0.25", default-features = false }
-craft-image-codecs = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-tiff = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-pdf = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0", default-features = false, features = ["write"] }
+nodalia-image-codecs = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-tiff = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-pdf = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0", default-features = false, features = ["write"] }
 # In-app updates from this app's GitHub releases, with the update windows for egui.
 nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "114848a2ff1a7c29c9a5432fb12e955fbe0aeef2", features = ["egui"] }
 nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "3c6bbd28c68496b3084fdae29005f4ac48720fe5", features = ["egui"] }
-craft-wordmodel = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-docx = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-mcp-server = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-rtf = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0", features = ["doc"] }
-craft-doc-binary = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-flow = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-odf = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0", features = ["text"] }
-craft-markdown = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-html = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0", features = ["flow"] }
-craft-latex = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-math = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-mime = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0", features = ["detect"] }
-craft-sheet = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-ods = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-xls = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-xlsx = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-xml = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
-craft-zip = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a", version = "=0.1.0" }
+nodalia-wordmodel = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-docx = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-mcp-server = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-rtf = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0", features = ["doc"] }
+nodalia-doc-binary = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-flow = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-odf = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0", features = ["text"] }
+nodalia-markdown = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-html = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0", features = ["flow"] }
+nodalia-latex = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-math = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-mime = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0", features = ["detect"] }
+nodalia-sheet = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-ods = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-xls = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-xlsx = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-xml = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
+nodalia-zip = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc", version = "=0.1.0" }
 # zlib streams (compressed metafile pictures in `.doc` drawings); already in the lock as a dependency of other crates.
 miniz_oxide = "0.9"
 cfb = "0.15"
 # Legacy text encodings (GBK/GB18030, Big5, Shift_JIS, EUC-KR, single-byte code pages) for plain
 # text and CSV recipient lists (#778): encoding_rs ((Apache-2.0 OR MIT) AND BSD-3-Clause), pure
-# Rust (Firefox's). Detection is craft-mime's `detect` feature.
+# Rust (Firefox's). Detection is nodalia-mime's `detect` feature.
 encoding_rs = "0.8"
 # chardetng (Apache-2.0 OR MIT): only the formats test oracle for the old detector uses it directly.
 chardetng = "1"
@@ -156,9 +156,9 @@ lto = "thin"
 codegen-units = 16
 debug = 0
 
-# Required by craft-pdf: the backend rejects writers that failed during unwinding.
+# Required by nodalia-pdf: the backend rejects writers that failed during unwinding.
 [patch.crates-io]
-krilla = { git = "https://github.com/getnodalia/foundation", rev = "93dac78c93a7f1fd66e2022edeb089233b1dc45a" }
+krilla = { git = "https://github.com/getnodalia/foundation", rev = "a5b5ee89657540c6d0f45505bc2e188e6b0706bc" }
 ecolor = { git = "https://github.com/getnodalia/foundation", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
 emath = { git = "https://github.com/getnodalia/foundation", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
 epaint = { git = "https://github.com/getnodalia/foundation", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
@@ -175,8 +175,8 @@ egui_demo_lib = { git = "https://github.com/getnodalia/foundation", rev = "6d518
 egui_inspection = { git = "https://github.com/getnodalia/foundation", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
 winit = { git = "https://github.com/getnodalia/foundation", rev = "a517b3846ee8457d84ee4975110bfda6797c44dc" }
 
-# craft-libs at the pinned revision names winprint.rs by its old home; resolve it from foundation,
+# nodalia-libs at the pinned revision names winprint.rs by its old home; resolve it from foundation,
 # which keeps the same commits (vendor/winprint.rs/*).
-[patch."https://github.com/storytold/winprint.rs"]
-craft-winprint-gdi = { git = "https://github.com/getnodalia/foundation", rev = "64e7afd4d1483512385012c340ecaaaf0f3beb7f" }
-winprint = { git = "https://github.com/getnodalia/foundation", rev = "8ae097ef941b432b0e7671b1ec3a506800e65e57" }
+[patch."https://github.com/getnodalia/foundation"]
+nodalia-winprint-gdi = { git = "https://github.com/getnodalia/foundation", rev = "5a9c69b611f181d50655758b6eb1fb49fb3737e8" }
+winprint = { git = "https://github.com/getnodalia/foundation", rev = "3cfce9594f720c499514c9d8a7a96c98af187f2d" }

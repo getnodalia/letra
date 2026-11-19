@@ -18,15 +18,15 @@ fn docx(body: &str, styles: Option<&str>) -> Vec<u8> {
             format!(r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">{s}</w:styles>"#),
         ));
     }
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, xml) in &parts {
-        zw.add(name, xml.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, xml.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
 
 fn part(bytes: &[u8], name: &str) -> String {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(z.read(name, 16 << 20).unwrap().unwrap()).unwrap()
 }

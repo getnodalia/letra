@@ -10,7 +10,7 @@ OOXML diagram/WordArt mappings, existing document-owned names and attribution ar
 
 ## Translation dependency and readiness
 
-Letra embeds shared catalogs from craft-i18n at `craft-i18n.rev`. The companion catalog PR must merge, then this pin must be advanced to its upstream commit before this app draft is marked ready. Until then, newly renamed labels can fall back to English. Do not merge the app change first.
+Letra embeds shared catalogs from nodalia-i18n at `nodalia-i18n.rev`. The companion catalog PR must merge, then this pin must be advanced to its upstream commit before this app draft is marked ready. Until then, newly renamed labels can fall back to English. Do not merge the app change first.
 
 The companion includes localized feature labels for every offered non-English language. Native-speaker review, the normal engine/UI/OOXML tests, visual ribbon/dialog checks and full CI remain required.
 

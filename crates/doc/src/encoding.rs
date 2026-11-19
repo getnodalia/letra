@@ -1,5 +1,5 @@
-//! Legacy character decoding delegates to craft-codepage; document fallback policy stays here.
-pub use craft_codepage::{
+//! Legacy character decoding delegates to nodalia-codepage; document fallback policy stays here.
+pub use nodalia_codepage::{
     MAC_ROMAN_CODE_PAGE, MULTIBYTE_CODE_PAGES, OEM_CODE_PAGES, SINGLE_BYTE_CODE_PAGES, cp1252, is_multibyte_code_page, multibyte_encoding_name,
     oem_byte, windows_byte,
 };
@@ -18,7 +18,7 @@ pub fn is_text_code_page(cp: u16) -> bool {
 }
 /// Preserve Word's existing symbol-font selection policy, not the shared symbol extension.
 pub fn charset_code_page(charset: i32) -> Option<u16> {
-    if charset == 2 { None } else { craft_codepage::charset_code_page(charset) }
+    if charset == 2 { None } else { nodalia_codepage::charset_code_page(charset) }
 }
 #[cfg(test)]
 #[allow(dead_code)]

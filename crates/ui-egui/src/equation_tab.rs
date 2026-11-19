@@ -68,7 +68,7 @@ fn math_placeholder(ui: &Ui, linear: &str) -> String {
 
 /// [`math_placeholder`] given which characters the interface fonts cover. A character they lack
 /// becomes its UnicodeMath name (`┬` → `\below`), so the same template has a different
-/// placeholder in a build without craft-fonts; the i18n audit recognizes the exact strings
+/// placeholder in a build without nodalia-fonts; the i18n audit recognizes the exact strings
 /// (`placeholder_linears`) as math input rather than interface wording.
 pub(crate) fn math_placeholder_with(linear: &str, covered: impl Fn(char) -> bool) -> String {
     let mut result = String::new();
@@ -493,7 +493,7 @@ mod placeholder_tests {
 
     #[test]
     fn a_missing_math_glyph_falls_back_to_its_linear_name() {
-        // Without craft-fonts the interface fonts may have no `┬`: the Equation button's picture
+        // Without nodalia-fonts the interface fonts may have no `┬`: the Equation button's picture
         // then reads `lim\below(n→∞)`. That is still math input, not interface wording.
         let covered = |c: char| c.is_ascii() || matches!(c, '∞' | '→');
         assert_eq!(super::math_placeholder_with("lim┬(n→∞)", covered), "lim\\below(n→∞)");

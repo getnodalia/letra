@@ -17,7 +17,7 @@ const REL_VBA_DATA: &str = "http://schemas.microsoft.com/office/2006/relationshi
 const VBA_DATA: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><wne:vbaSuppData xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"><wne:mcds><wne:mcd wne:macroName="PROJECT.NEWMACROS.HELLO" wne:name="Project.NewMacros.Hello" wne:bEncrypt="00" wne:cmg="56"/></wne:mcds></wne:vbaSuppData>"#;
 
 fn unzip(bytes: &[u8]) -> BTreeMap<String, Vec<u8>> {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).expect("zip");
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).expect("zip");
     let names: Vec<String> = z.names().map(|n| n.into_owned()).collect();
     let mut out = BTreeMap::new();
     for name in names {
@@ -28,11 +28,11 @@ fn unzip(bytes: &[u8]) -> BTreeMap<String, Vec<u8>> {
 }
 
 fn zip(entries: &BTreeMap<String, Vec<u8>>) -> Vec<u8> {
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     // Content types first, as Word writes them.
     let order = entries.iter().filter(|(n, _)| *n == "[Content_Types].xml").chain(entries.iter().filter(|(n, _)| *n != "[Content_Types].xml"));
     for (name, bytes) in order {
-        zw.add(name.as_str(), bytes, craft_zip::Compression::Deflated).expect("write");
+        zw.add(name.as_str(), bytes, nodalia_zip::Compression::Deflated).expect("write");
     }
     zw.finish().expect("finish")
 }

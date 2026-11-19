@@ -26,7 +26,7 @@ const RTF: &str = r"{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0 Times New Roman;}
 \pard\plain Last line.\par}";
 
 fn document_xml(docx: &[u8]) -> String {
-    let mut zip = craft_zip::Archive::open(docx, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(docx, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }

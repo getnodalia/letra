@@ -44,9 +44,9 @@ fn package_styled(body: &str, chunk: Option<(&str, &str, &[u8])>, styles: Option
     }
     types.push_str(r#"<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#);
     files.push(("[Content_Types].xml".into(), types.into_bytes()));
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in files {
-        zw.add(&name, &bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(&name, &bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
@@ -141,9 +141,9 @@ fn package_with_stories(body: &str, stories: &[(&str, &str, String)], chunk: Opt
     if let Some(c) = chunk {
         files.push(("word/afchunk.docx".into(), c.to_vec()));
     }
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in files {
-        zw.add(&name, &bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(&name, &bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
@@ -391,14 +391,14 @@ fn inner_with_dropped_pictures(n: usize, external: bool) -> Vec<u8> {
         (0..n).map(image).collect::<String>()
     );
     let types = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in [
         ("[Content_Types].xml", types.as_bytes()),
         ("_rels/.rels", ROOT_RELS.as_bytes()),
         ("word/document.xml", doc.as_bytes()),
         ("word/_rels/document.xml.rels", rels.as_bytes()),
     ] {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }

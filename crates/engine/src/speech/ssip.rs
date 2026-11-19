@@ -13,7 +13,7 @@
 //! client halts reading on it ([`Outcome::Halted`]), and so does one that never began
 //! ([`Outcome::NotStarted`]).
 
-use craft_ssip::{Lines, final_code, message_data};
+use nodalia_ssip::{Lines, final_code, message_data};
 use std::io::{ErrorKind, Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
 use std::os::unix::net::UnixStream;
@@ -464,7 +464,7 @@ pub(super) fn converse(stream: &Stream, req: &Request<'_>, changed: &dyn Fn() ->
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_ssip::MAX_LINE;
+    use nodalia_ssip::MAX_LINE;
     use std::io::{BufRead, BufReader};
 
     #[test]
@@ -562,7 +562,7 @@ mod tests {
         assert_eq!(lines.next_line().unwrap().as_deref(), Some("200 OK"));
     }
 
-    /// The sentence encoder this module had before it moved to `craft-ssip`, kept as the oracle.
+    /// The sentence encoder this module had before it moved to `nodalia-ssip`, kept as the oracle.
     fn old_message_data(text: &str) -> String {
         let line: String = text.chars().map(|c| if c == '\r' || c == '\n' { ' ' } else { c }).collect();
         let dot = if line.starts_with('.') { "." } else { "" };

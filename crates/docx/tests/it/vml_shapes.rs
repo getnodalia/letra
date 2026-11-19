@@ -6,9 +6,9 @@ use letra_doc::para::ShapeKind;
 use letra_doc::{Document, InlineObject, Paragraph};
 
 fn zip(entries: &[(&str, &[u8])]) -> Vec<u8> {
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in entries {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }

@@ -42,12 +42,12 @@ fn json_input(d: &Path, text: &str) -> PathBuf {
     path
 }
 
-/// Built without craft-fonts, the host's own fonts decide what is drawable: skip, as the layout
+/// Built without nodalia-fonts, the host's own fonts decide what is drawable: skip, as the layout
 /// tests do.
 fn without_fonts() -> bool {
-    let missing = option_env!("CRAFT_FONTS_DIR").is_none_or(str::is_empty);
+    let missing = option_env!("NODALIA_FONTS_DIR").is_none_or(str::is_empty);
     if missing {
-        eprintln!("skipped: built without craft-fonts (set CRAFT_FONTS_DIR to a checkout)");
+        eprintln!("skipped: built without nodalia-fonts (set NODALIA_FONTS_DIR to a checkout)");
     }
     missing
 }
@@ -105,7 +105,7 @@ fn package(document: &str, document_rels: &str, extra: &[(&str, &[u8])]) -> Vec<
         r#"<Relationships xmlns="{RELS_NS}"><Relationship Id="rId1" Type="{REL}/officeDocument" Target="word/document.xml"/></Relationships>"#
     );
     let types = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="bin" ContentType="application/octet-stream"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     let mut parts: Vec<(&str, &[u8])> = vec![
         ("[Content_Types].xml", types.as_bytes()),
         ("_rels/.rels", rels.as_bytes()),
@@ -114,7 +114,7 @@ fn package(document: &str, document_rels: &str, extra: &[(&str, &[u8])]) -> Vec<
     ];
     parts.extend_from_slice(extra);
     for (name, bytes) in parts {
-        zip.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }

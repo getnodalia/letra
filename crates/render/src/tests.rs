@@ -2005,7 +2005,7 @@ fn undecodable_pictures_keep_their_grey_box_pixels() {
 /// A tile or clip path shared by several items is charged once.
 #[test]
 fn geometry_bytes_counts_pattern_tiles_and_clips_once() {
-    use craft_metafile::{ClipPath, Tile};
+    use nodalia_metafile::{ClipPath, Tile};
     let segs = |n: usize| vec![Seg::Line(0.0, 0.0); n];
     let pic = |items: Vec<Item>| Picture { width: 10.0, height: 10.0, items, ..Default::default() };
     let base = crate::media::geometry_bytes(&pic(vec![]));
@@ -2039,7 +2039,7 @@ fn geometry_bytes_counts_pattern_tiles_and_clips_once() {
 /// capacity a vector keeps, not only its length.
 #[test]
 fn geometry_bytes_charges_the_capacity_of_segment_and_dash_vectors() {
-    use craft_metafile::LineStyle;
+    use nodalia_metafile::LineStyle;
     let pic = |items: Vec<Item>| Picture { width: 10.0, height: 10.0, items, ..Default::default() };
     let path = |segs: Vec<Seg>, dash: Vec<f32>| Item::Path {
         segs,
@@ -2063,7 +2063,7 @@ fn geometry_bytes_charges_the_capacity_of_segment_and_dash_vectors() {
 /// name; the cache charge counts both, so many dashed paths or text records are not under-counted.
 #[test]
 fn geometry_bytes_counts_dash_arrays_and_text_records() {
-    use craft_metafile::{Font, HAlign, LineStyle, Text, VAlign};
+    use nodalia_metafile::{Font, HAlign, LineStyle, Text, VAlign};
     let pic = |items: Vec<Item>| Picture { width: 10.0, height: 10.0, items, ..Default::default() };
     let path = |dash: usize| Item::Path {
         segs: vec![Seg::Line(0.0, 0.0); 2],

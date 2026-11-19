@@ -1,17 +1,17 @@
 //! The font store as the packs [`Backend`](super::Backend): its folder, its consent setting, the
-//! pinned pack index and verified installs (craft-libs `craft-font-store`, kind `language-pack`).
+//! pinned pack index and verified installs (nodalia-libs `nodalia-font-store`, kind `language-pack`).
 
 use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
 
-use craft_font_catalog::FontEnv;
-use craft_font_store::{FontStore, Network, PackEntry, PackIndex, PackIndexPin};
+use nodalia_font_catalog::FontEnv;
+use nodalia_font_store::{FontStore, Network, PackEntry, PackIndex, PackIndexPin};
 
 use super::{Cancel, Pack};
 
-/// The pack index this build trusts: craft-i18n's second Language pack release,
-/// language-packs-2 (75 packs, built from craft-i18n `20467b63`), pinned by the sha256 of its `index.json`.
-/// `CRAFT_LANGUAGE_PACK_INDEX` (read by the font store itself) points Letra at a local or test
+/// The pack index this build trusts: nodalia-i18n's second Language pack release,
+/// language-packs-2 (75 packs, built from nodalia-i18n `20467b63`), pinned by the sha256 of its `index.json`.
+/// `NODALIA_LANGUAGE_PACK_INDEX` (read by the font store itself) points Letra at a local or test
 /// index instead, for trying packs before they are released.
 pub const PACK_INDEX: PackIndexPin = PackIndexPin {
     url: "https://github.com/storytold/craft-i18n/releases/download/language-packs-2/index.json",
@@ -33,7 +33,7 @@ impl FontStoreBackend {
 
     /// A store in `dir`.
     pub(super) fn in_dir(dir: PathBuf, user: bool) -> Self {
-        let caller = if user { craft_font_store::Caller::User } else { craft_font_store::Caller::Agent };
+        let caller = if user { nodalia_font_store::Caller::User } else { nodalia_font_store::Caller::Agent };
         Self { store: FontStore::new(dir, caller), index: Mutex::new(None) }
     }
 
@@ -50,7 +50,7 @@ fn pack(e: &PackEntry) -> Pack {
         name: e.name.clone(),
         version: e.version.clone(),
         url: e.url.clone(),
-        // TODO(CP4): the index's optional `source` once craft-font-store's PackEntry carries it.
+        // TODO(CP4): the index's optional `source` once nodalia-font-store's PackEntry carries it.
         source: None,
         size: e.size,
         licence: e.licence.clone(),
@@ -95,7 +95,7 @@ impl super::Backend for FontStoreBackend {
     }
 
     fn index_override(&self) -> Option<String> {
-        craft_font_store::language_pack_index_overridden()
+        nodalia_font_store::language_pack_index_overridden()
     }
 
     fn packs_dir(&self) -> Option<PathBuf> {

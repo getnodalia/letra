@@ -27,7 +27,7 @@ fn package(body: &str) -> Vec<u8> {
     let doc_rels = r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdPic" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/square.png"/><Relationship Id="rIdWeb" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://example.com/picture" TargetMode="External"/><Relationship Id="rIdRun" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://example.com/run" TargetMode="External"/></Relationships>"#;
     let types = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
     let png = png();
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, bytes) in [
         ("[Content_Types].xml", types.as_bytes()),
         ("_rels/.rels", rels.as_bytes()),
@@ -35,7 +35,7 @@ fn package(body: &str) -> Vec<u8> {
         ("word/_rels/document.xml.rels", doc_rels.as_bytes()),
         ("word/media/square.png", png.as_slice()),
     ] {
-        zip.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }
@@ -51,7 +51,7 @@ fn picture_links(doc: &Document) -> Vec<Option<String>> {
 }
 
 fn part(bytes: &[u8], name: &str) -> String {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(z.read(name, 16 << 20).unwrap().unwrap()).unwrap()
 }
@@ -106,15 +106,15 @@ fn a_linked_picture_is_saved_with_its_link_on_the_drawing_too() {
     // The drawing's link alone (as Word writes it) reads back the same.
     let without_run_link = xml.replace(&format!(r#"<w:hyperlink r:id="{rid}" w:history="1">"#), "").replacen("</w:hyperlink>", "", 1);
     assert_ne!(without_run_link, xml);
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let names: Vec<String> = z.names().map(|n| n.into_owned()).collect();
-    let mut out = craft_zip::Writer::new();
+    let mut out = nodalia_zip::Writer::new();
     for name in names {
         let mut data = z.read(&name, 16 << 20).unwrap().unwrap();
         if name == "word/document.xml" {
             data = without_run_link.clone().into_bytes();
         }
-        out.add(&name, &data, craft_zip::Compression::Deflated).unwrap();
+        out.add(&name, &data, nodalia_zip::Compression::Deflated).unwrap();
     }
     let edited = out.finish().unwrap();
     assert_eq!(picture_links(&letra_docx::read(&edited).unwrap())[0], Some("https://example.com/saved".to_string()));

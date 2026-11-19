@@ -41,7 +41,7 @@ fn route_f6(app: &WordApp, ctx: &egui::Context) {
         });
     });
     if let Some(reverse) = cycle {
-        craft_ui::panes::focus_next(ctx, app.window_id(HOST), reverse);
+        nodalia_ui::panes::focus_next(ctx, app.window_id(HOST), reverse);
     }
 }
 

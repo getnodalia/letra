@@ -226,7 +226,7 @@ fn enter_on_an_empty_item_numbered_by_its_style_moves_it_up_a_level() {
     let doc_rels =
         format!("<Relationships {rels_ns}>{}{}</Relationships>", rel("rId1", "styles", "styles.xml"), rel("rId2", "numbering", "numbering.xml"));
     let ct = r#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/></Types>"#;
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [
         ("[Content_Types].xml", ct),
         ("_rels/.rels", main.as_str()),
@@ -235,7 +235,7 @@ fn enter_on_an_empty_item_numbered_by_its_style_moves_it_up_a_level() {
         ("word/styles.xml", styles.as_str()),
         ("word/numbering.xml", numbering.as_str()),
     ] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let doc = crate::io::open_bytes("t.docx", &z.finish().unwrap()).unwrap();
     let mut s = Session::new(doc);
@@ -2430,9 +2430,9 @@ fn two_section_docx(kind: &str) -> Vec<u8> {
             ),
         ),
     ];
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, data) in files {
-        zip.add(name, data.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, data.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }
@@ -2500,9 +2500,9 @@ fn break_on_the_last_paragraph_docx(then: Option<&str>) -> Vec<u8> {
             ),
         ),
     ];
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, data) in files {
-        zip.add(name, data.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, data.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }

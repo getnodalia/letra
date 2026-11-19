@@ -612,7 +612,7 @@ fn lenient_styles_pane_dock<'de, D: serde::Deserializer<'de>>(d: D) -> Result<le
     Ok(v.as_str().and_then(letra_engine::StylesPaneDock::parse).unwrap_or_default())
 }
 
-/// Anything but four finite numbers reads as no saved rect; `craft_ui::panes` brings a saved one
+/// Anything but four finite numbers reads as no saved rect; `nodalia_ui::panes` brings a saved one
 /// back inside the window.
 fn lenient_float_rect<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<[f32; 4]>, D::Error> {
     Ok(panes::float_rect(&Value::deserialize(d)?))
@@ -751,7 +751,7 @@ pub struct WordApp {
     pub(crate) want_system_cjk: bool,
     /// Arabic text is (about to be) on screen in a non-Arabic interface, e.g. "العربية" in the
     /// language picker or Language packs list: load an installed Arabic font when no embedded face
-    /// covers it (dev builds without craft-fonts).
+    /// covers it (dev builds without nodalia-fonts).
     pub(crate) want_system_arabic: bool,
     /// The Preferences page scrolls to `ui.options_pane` on its next frame (a pane was asked for).
     pub(crate) options_scroll: bool,

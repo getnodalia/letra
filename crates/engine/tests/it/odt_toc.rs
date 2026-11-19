@@ -24,9 +24,9 @@ fn odt(titled: bool) -> Vec<u8> {
         <text:h text:outline-level="3">Too deep</text:h><text:p>Last.</text:p>
         </office:text></office:body></office:document-content>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str())] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     z.finish().unwrap()
 }
@@ -72,9 +72,9 @@ fn an_odt_index_updates_from_its_marks() {
         <text:p>Clay <text:alphabetical-index-mark text:string-value="kilns"/>is fired; <text:alphabetical-index-mark-start text:id="m"/>glazes<text:alphabetical-index-mark-end text:id="m"/> shine.</text:p>
         </office:text></office:body></office:document-content>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str())] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let mut s = Session::new(io::open_bytes("index.odt", &z.finish().unwrap()).unwrap());
     s.run("references.updateIndex", &json!({})).unwrap();
@@ -93,9 +93,9 @@ fn an_odt_bibliography_updates_from_its_citations_sources() {
         <text:bibliography text:name="B"><text:bibliography-source/><text:index-body><text:p>stale</text:p></text:index-body></text:bibliography>
         </office:text></office:body></office:document-content>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str())] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let mut s = Session::new(io::open_bytes("bib.odt", &z.finish().unwrap()).unwrap());
     s.run("references.updateIndex", &json!({})).unwrap();
@@ -134,10 +134,10 @@ fn an_odt_toc_with_numbered_headings_keeps_its_entries_on_one_line() {
         <text:h text:outline-level="2">Budget</text:h><text:p>More text.</text:p>
         </office:text></office:body></office:document-content>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("styles.xml", styles.as_str()), ("content.xml", content.as_str())]
     {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let mut s = Session::new(io::open_bytes("toc.odt", &z.finish().unwrap()).unwrap());
     s.run("references.updateToc", &json!({})).unwrap();

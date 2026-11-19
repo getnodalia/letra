@@ -4,7 +4,7 @@
 //! never be mistaken for a user's data. It is not a document property, so it stays out of
 //! `docProps/custom.xml`.
 
-use craft_docx::DocxError;
+use nodalia_docx::DocxError;
 use letra_doc::FitState;
 
 /// The part this crate writes and reads back.
@@ -19,13 +19,13 @@ pub(crate) const KIND: &str = "letra-fit-v1";
 /// Serialize `fit` as the custom XML store.
 pub(crate) fn write(fit: &FitState) -> Result<Vec<u8>, DocxError> {
     let json = serde_json::to_string(fit).map_err(|e| DocxError::Xml(e.to_string()))?;
-    let esc_json = craft_xml::esc(&json);
+    let esc_json = nodalia_xml::esc(&json);
     Ok(format!(r#"<?xml version="1.0" encoding="UTF-8"?><{ROOT} xmlns="{NS}" kind="{KIND}"><fitState>{}</fitState></{ROOT}>"#, esc_json).into_bytes())
 }
 
 /// Read the state from a custom XML part's bytes, if it is ours.
 pub(crate) fn read_from_bytes(bytes: &[u8]) -> Option<FitState> {
-    let root = craft_xml::parse(bytes).ok()?;
+    let root = nodalia_xml::parse(bytes).ok()?;
     if root.local() != ROOT || root.attr("kind") != Some(KIND) {
         return None;
     }

@@ -4,7 +4,7 @@ use super::{
     Arc, Fill, FillRule, Image, LineCap, LineJoin, NormalizedF32, Path, PathBuilder, Picture, PlacedItem, Rect, Size, Stroke, StrokeDash, Surface,
     Transform, krilla, rgb,
 };
-use craft_metafile::Item;
+use nodalia_metafile::Item;
 use kurbo::Shape as _;
 use letra_doc::picfx::PicFx;
 
@@ -24,7 +24,7 @@ pub(crate) struct Vector {
 /// Parses a metafile and embeds its bitmaps and pattern tiles. None when the picture has no usable
 /// size.
 pub(crate) fn build_vector(bytes: &[u8]) -> Option<Vector> {
-    let mut pic = craft_metafile::parse(bytes).ok()?;
+    let mut pic = nodalia_metafile::parse(bytes).ok()?;
     if !pic.has_size() {
         return None;
     }
@@ -110,7 +110,7 @@ pub(crate) fn vector_picture(ex: &mut Exporter, s: &mut Surface, v: &Vector, r: 
             }
             PlacedItem::Pattern { index, path, even_odd, tile, region, clips } => {
                 let Some(p) = path_from(&path) else { continue };
-                let Some(craft_metafile::Item::Pattern { tile: t, .. }) = v.pic.items.get(index) else { continue };
+                let Some(nodalia_metafile::Item::Pattern { tile: t, .. }) = v.pic.items.get(index) else { continue };
                 let rule = if even_odd { FillRule::EvenOdd } else { FillRule::NonZero };
                 let paint = match v.images.get(index) {
                     Some(Some(img)) => tile_pattern(s, img, t.width, t.height, tile).map(|p| (p.into(), norm(1.0))),
@@ -127,7 +127,7 @@ pub(crate) fn vector_picture(ex: &mut Exporter, s: &mut Surface, v: &Vector, r: 
                 pop_clips(s, n);
             }
             PlacedItem::Text { index, transform, clip, region, clips } => {
-                let Some(craft_metafile::Item::Text(t)) = v.pic.items.get(index) else { continue };
+                let Some(nodalia_metafile::Item::Text(t)) = v.pic.items.get(index) else { continue };
                 let Some(n) = push_clips(s, region.as_deref(), &clips) else { continue };
                 let text_clip = clip.and_then(|c| path_from(&c.to_path(0.1)));
                 if let Some(c) = &text_clip {
@@ -151,7 +151,7 @@ pub(crate) fn vector_picture(ex: &mut Exporter, s: &mut Surface, v: &Vector, r: 
 
 /// Pushes a metafile item's clip region and clip paths; pop them with [`pop_clips`] and the count
 /// returned. None (nothing pushed) when a clip has no area to draw in.
-fn push_clips(s: &mut Surface, region: Option<&kurbo::BezPath>, clips: &[Arc<craft_metafile::PlacedClip>]) -> Option<usize> {
+fn push_clips(s: &mut Surface, region: Option<&kurbo::BezPath>, clips: &[Arc<nodalia_metafile::PlacedClip>]) -> Option<usize> {
     let mut paths = Vec::with_capacity(clips.len() + 1);
     if let Some(region) = region {
         paths.push((path_from(region)?, FillRule::NonZero));
@@ -173,16 +173,16 @@ fn pop_clips(s: &mut Surface, n: usize) {
 
 /// A metafile pen for `path`: `width` (points, at least [`HAIRLINE`]), the pen's caps, joins,
 /// miter limit and dashes (`letra_layout::metafile_dashes`, with the hairline as the pixel).
-fn pen(paint: krilla::paint::Paint, opacity: NormalizedF32, width: f64, line: &craft_metafile::LineStyle, path: &kurbo::BezPath) -> Stroke {
+fn pen(paint: krilla::paint::Paint, opacity: NormalizedF32, width: f64, line: &nodalia_metafile::LineStyle, path: &kurbo::BezPath) -> Stroke {
     let line_cap = match line.cap {
-        craft_metafile::Cap::Round => LineCap::Round,
-        craft_metafile::Cap::Square => LineCap::Square,
-        craft_metafile::Cap::Flat => LineCap::Butt,
+        nodalia_metafile::Cap::Round => LineCap::Round,
+        nodalia_metafile::Cap::Square => LineCap::Square,
+        nodalia_metafile::Cap::Flat => LineCap::Butt,
     };
     let line_join = match line.join {
-        craft_metafile::Join::Round => LineJoin::Round,
-        craft_metafile::Join::Bevel => LineJoin::Bevel,
-        craft_metafile::Join::Miter => LineJoin::Miter,
+        nodalia_metafile::Join::Round => LineJoin::Round,
+        nodalia_metafile::Join::Bevel => LineJoin::Bevel,
+        nodalia_metafile::Join::Miter => LineJoin::Miter,
     };
     let dash = if line.dash.is_empty() { None } else { letra_layout::metafile_dashes(&line.dash, width == 0.0, HAIRLINE, path.perimeter(1.0)) };
     Stroke {

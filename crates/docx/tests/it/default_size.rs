@@ -8,7 +8,7 @@ fn resolved(d: &Document) -> f32 {
     d.styles.resolve_char(None, &CharProps::default()).size
 }
 fn styles_xml(bytes: &[u8]) -> String {
-    let mut archive = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut archive = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(archive.read("word/styles.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }
@@ -45,9 +45,9 @@ fn a_file_that_omits_the_default_size_is_still_read_as_ten_points() {
     let doc = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>x</w:t></w:r></w:p></w:body></w:document>"#;
     let styles = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr/></w:rPrDefault></w:docDefaults></w:styles>"#;
     let rels = r#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>"#;
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, body) in [("_rels/.rels", root), ("word/document.xml", doc), ("word/_rels/document.xml.rels", rels), ("word/styles.xml", styles)] {
-        zw.add(name, body.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, body.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     let d = letra_docx::read(&zw.finish().unwrap()).unwrap();
     assert_eq!(d.styles.default_chr.size, Some(10.0));

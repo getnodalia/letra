@@ -1,8 +1,8 @@
-//! MHT / MHTML (Single File Web Page) import via `craft-mime` and `craft-html`.
+//! MHT / MHTML (Single File Web Page) import via `nodalia-mime` and `nodalia-html`.
 
 use std::sync::Arc;
 
-use craft_mime::{Body, Part};
+use nodalia_mime::{Body, Part};
 use letra_doc::{Document, SectionProps};
 
 /// Picture bytes one page may load, counting every `img` that names a part.
@@ -39,10 +39,10 @@ fn part_bytes(part: &Part) -> &[u8] {
 
 /// [`import`] onto `page`.
 pub fn import_on(bytes: &[u8], page: &SectionProps) -> Document {
-    let msg = craft_mime::parse(bytes, &craft_mime::Limits::DEFAULT);
+    let msg = nodalia_mime::parse(bytes, &nodalia_mime::Limits::DEFAULT);
     let mut leaves = Vec::new();
     collect_leaves(&msg.root, &mut leaves);
-    let root = craft_mime::start_part(&msg.root)
+    let root = nodalia_mime::start_part(&msg.root)
         .or_else(|| leaves.iter().copied().find(|p| matches!(p.declared_media_type(), Some("text/html" | "application/xhtml+xml"))));
     let Some(root) = root else {
         let text = leaves.iter().copied().find(|p| p.declared_media_type().unwrap_or("text/plain") == "text/plain").map(part_bytes).unwrap_or(&[]);
@@ -50,7 +50,7 @@ pub fn import_on(bytes: &[u8], page: &SectionProps) -> Document {
     };
     let html = crate::html::decode_as(part_bytes(root), root.content_type.get("charset"));
     let base = root.content_location().unwrap_or("");
-    let resources = craft_mime::Resources::of(&msg.root);
+    let resources = nodalia_mime::Resources::of(&msg.root);
     let left = std::cell::Cell::new(PICTURE_BUDGET);
     let loader = |src: &str| -> Option<Arc<Vec<u8>>> {
         let part = resources.find(src.trim(), base)?;

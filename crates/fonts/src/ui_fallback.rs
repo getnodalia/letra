@@ -1,6 +1,6 @@
-//! An installed CJK font for the interface, after the embedded craft-fonts faces, when they leave
-//! characters of the interface text without a glyph: a build without craft-fonts, one whose
-//! craft-fonts checkout lacks the Chinese face (#241), or one whose faces lack characters the
+//! An installed CJK font for the interface, after the embedded nodalia-fonts faces, when they leave
+//! characters of the interface text without a glyph: a build without nodalia-fonts, one whose
+//! nodalia-fonts checkout lacks the Chinese face (#241), or one whose faces lack characters the
 //! catalogs use (#486) would otherwise draw Chinese menus with boxes and `?`. Native only; wasm
 //! has no system fonts to read.
 //!
@@ -40,7 +40,7 @@ pub fn is_cjk(c: char) -> bool {
 }
 
 /// The distinct CJK characters of `texts` (see [`is_cjk`]) that none of the `embedded` faces
-/// maps, in code point order. A craft-fonts face may lack characters the interface catalogs use
+/// maps, in code point order. A nodalia-fonts face may lack characters the interface catalogs use
 /// (an older or subset file), and those would draw as boxes or `?` (#486).
 pub fn ui_uncovered_cjk(texts: &[&str], embedded: &[&CraftFont]) -> Vec<char> {
     let faces: Vec<_> = embedded.iter().filter_map(|f| skrifa::FontRef::from_index(f.bytes, 0).ok()).map(|f| f.charmap()).collect();
@@ -50,7 +50,7 @@ pub fn ui_uncovered_cjk(texts: &[&str], embedded: &[&CraftFont]) -> Vec<char> {
 
 /// Do the embedded interface faces (`ui_cjk_fonts`) leave CJK characters of `texts` (the
 /// interface catalogs and language names that can be on screen) without a glyph? Then an
-/// installed CJK font goes after them. No embedded face (a build without craft-fonts) leaves
+/// installed CJK font goes after them. No embedded face (a build without nodalia-fonts) leaves
 /// every CJK character uncovered; a Japanese face alone lacks the simplified-only hanzi (页, 选,
 /// 删 …, #241) and some traditional ones (啟, 內 …, #486).
 pub fn ui_needs_system_cjk(texts: &[&str], embedded: &[&CraftFont]) -> bool {
@@ -241,7 +241,7 @@ fn arabic_candidates() -> &'static [&'static str] {
     }
 }
 
-/// An installed font with Arabic letters, for an Arabic interface in a build whose craft-fonts
+/// An installed font with Arabic letters, for an Arabic interface in a build whose nodalia-fonts
 /// input has no Arabic face. Reads at most one font file per candidate; never panics on damaged
 /// files.
 pub fn system_arabic_ui_font() -> Option<SystemUiFont> {
@@ -406,7 +406,7 @@ mod tests {
 
     #[test]
     fn needs_system_cjk_when_an_embedded_face_lacks_an_interface_character() {
-        // A face without CJK glyphs stands in for a craft-fonts face that lacks some (#486).
+        // A face without CJK glyphs stands in for a nodalia-fonts face that lacks some (#486).
         let latin = CraftFont { family: "Source Sans 3", style: "Regular", scripts: &["Hans"], bytes: crate::bundled()[0] };
         assert_eq!(ui_uncovered_cjk(&["选项 Options", "選項：选项"], &[&latin]), ['选', '選', '項', '项', '：']);
         assert!(ui_needs_system_cjk(&["简体中文"], &[]));
@@ -416,7 +416,7 @@ mod tests {
         // A damaged embedded face counts as covering nothing; it never panics.
         let broken = CraftFont { family: "x", style: "Regular", scripts: &["Hans"], bytes: b"OTTO" };
         assert!(ui_needs_system_cjk(&["页"], &[&broken]));
-        // The real faces, when built with craft-fonts: the Chinese face covers simplified and
+        // The real faces, when built with nodalia-fonts: the Chinese face covers simplified and
         // traditional hanzi the Japanese one lacks (#241, #486).
         let embedded = crate::ui_cjk_fonts(true);
         if crate::chinese_fonts().next().is_some() {

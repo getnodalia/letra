@@ -26,4 +26,4 @@ sys-locale = "0.3"
 letra-fonts = { workspace = true }
 letra-geom = { workspace = true, features = ["image"] }
 image = { workspace = true }
-craft-zip = { workspace = true }
+nodalia-zip = { workspace = true }

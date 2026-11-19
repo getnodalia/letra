@@ -8,7 +8,7 @@ use super::{
 pub const FALLBACK_FAMILY: &str = "Source Sans 3";
 
 /// The bundled fonts (OFL), as font file bytes. Japanese fonts are not bundled: they come from
-/// the optional craft-fonts build input ([`crate::japanese_document_fonts`]).
+/// the optional nodalia-fonts build input ([`crate::japanese_document_fonts`]).
 pub fn bundled() -> &'static [&'static [u8]] {
     BUNDLED
 }

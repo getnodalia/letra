@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, Weak};
 
-use craft_metafile::{Item, Picture, PlacedItem, Seg};
+use nodalia_metafile::{Item, Picture, PlacedItem, Seg};
 use letra_doc::Document;
 use letra_doc::para::ShapeKind;
 use letra_doc::props::Rgb;

@@ -149,9 +149,9 @@ fn docx_embedding(family: &str, font: Option<(&[u8], &str)>, text: &str) -> Vec<
     }
     table.push_str("</w:font></w:fonts>");
     files.push(("word/fontTable.xml".into(), table.into_bytes()));
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, bytes) in files {
-        zip.add(&name, &bytes, craft_zip::Compression::Deflated).unwrap();
+        zip.add(&name, &bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }

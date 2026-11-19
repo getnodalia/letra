@@ -1,6 +1,6 @@
 # MCP server
 
-> **Last updated:** 2026-11-17 · The protocol core is the shared `craft-mcp-server` crate (#778); `click` and `key` list every argument they accept. Earlier: Keep the complete `type_text` description in one tool-table row; behavior wording unchanged. Delivery review fixes for #2596: unknown outcomes are not replayed, including image exports to a path; invalid UTF-8 returns a parse error without stopping later requests.
+> **Last updated:** 2026-11-17 · The protocol core is the shared `nodalia-mcp-server` crate (#778); `click` and `key` list every argument they accept. Earlier: Keep the complete `type_text` description in one tool-table row; behavior wording unchanged. Delivery review fixes for #2596: unknown outcomes are not replayed, including image exports to a path; invalid UTF-8 returns a parse error without stopping later requests.
 
 Letra speaks the [Model Context Protocol](https://modelcontextprotocol.io) over stdio, so
 Claude and other agents can write and edit documents.
@@ -36,7 +36,7 @@ On stdio, an invalid UTF-8 request line returns JSON-RPC parse error `-32700`. I
 the backend, and the server continues with the next line instead of substituting characters
 in text or paths.
 
-The protocol core (framing, lifecycle, `tools/*`, `resources/*`) is the shared `craft-mcp-server`
+The protocol core (framing, lifecycle, `tools/*`, `resources/*`) is the shared `nodalia-mcp-server`
 crate; Letra supplies the tools, resources and instructions. What that means for a client:
 
 - A request line over 1 MiB gets `-32600` "request too large" and the server keeps serving.
@@ -166,8 +166,8 @@ web build has no packs.
 A click or key sent with `click`/`key` on Add a language…, Install or Refresh never turns
 downloading on either: only the person's own click does; the app shows why instead.
 
-Installing reads the pinned index of craft-i18n's language-packs-2 release (75 languages). For
-testing packs before they are released, set `CRAFT_LANGUAGE_PACK_INDEX` to another index (a URL or a path
+Installing reads the pinned index of nodalia-i18n's language-packs-2 release (75 languages). For
+testing packs before they are released, set `NODALIA_LANGUAGE_PACK_INDEX` to another index (a URL or a path
 to an `index.json`) when starting Letra or `letra-cli`. That index isn't pinned, so the
 sha256 of each archive only matches what that index says: it catches a broken download, not a
 changed pack. `proof.packs` then returns `"index_override": "<url or path>"`, and the app shows the

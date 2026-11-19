@@ -8,14 +8,14 @@ use letra_ui_egui::printing::{Discover, Duplex, Printer, Settings, Submit};
 /// sends the list through a channel, keeping spooler calls off the UI thread.
 ///
 /// The Print panel needs only names and the default, so the list comes from
-/// `craft_print::printer_queues`, which asks no printer driver anything: on Windows a networked
+/// `nodalia_print::printer_queues`, which asks no printer driver anything: on Windows a networked
 /// printer in power save can hold a driver's capability query for a long time, and the list must
 /// not wait on it (#5710). Submission still checks the job's options with the driver.
 pub fn discover() -> Discover {
     Box::new(|| {
         let (sender, receiver) = std::sync::mpsc::channel();
         let _ = std::thread::Builder::new().name("print-discovery".into()).spawn(move || {
-            let printers = craft_print::printer_queues()
+            let printers = nodalia_print::printer_queues()
                 .into_iter()
                 .map(|printer| Printer { name: printer.name, label: printer.description, default: printer.default })
                 .collect();
@@ -74,29 +74,29 @@ pub fn submit() -> Submit {
     Box::new(|bytes, settings: Settings, collate, options| {
         let (sender, receiver) = std::sync::mpsc::channel();
         #[cfg(not(windows))]
-        let cancel = craft_print::Cancel::new();
+        let cancel = nodalia_print::Cancel::new();
         #[cfg(windows)]
         let cancel = isolated::Submission::new();
         let token = cancel.clone();
         let worker = std::thread::Builder::new().name("print-submit".into()).spawn(move || {
-            let job = craft_print::Job {
+            let job = nodalia_print::Job {
                 printer: Some(settings.printer),
                 copies: settings.copies.clamp(1, 999),
                 collate,
                 duplex: settings.duplex.map(|value| match value {
-                    Duplex::LongEdge => craft_print::Duplex::LongEdge,
-                    Duplex::ShortEdge => craft_print::Duplex::ShortEdge,
-                    Duplex::Off => craft_print::Duplex::Off,
+                    Duplex::LongEdge => nodalia_print::Duplex::LongEdge,
+                    Duplex::ShortEdge => nodalia_print::Duplex::ShortEdge,
+                    Duplex::Off => nodalia_print::Duplex::Off,
                 }),
                 grayscale: settings.grayscale,
                 grey_pages: false,
-                scaling: craft_print::Scaling::ShrinkToFit,
+                scaling: nodalia_print::Scaling::ShrinkToFit,
                 title: "Letra document".into(),
                 options,
                 driver_settings: None,
             };
             #[cfg(not(windows))]
-            let sent = craft_print::submit_cancellable(&bytes, &job, &mut |_, _| {}, &token).map_err(|error| error.to_string());
+            let sent = nodalia_print::submit_cancellable(&bytes, &job, &mut |_, _| {}, &token).map_err(|error| error.to_string());
             #[cfg(windows)]
             let sent = token.submit(&bytes, &job);
             let _ = sender.send(sent);

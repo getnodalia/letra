@@ -1656,7 +1656,7 @@ fn balloon_font_fixtures() -> (egui::FontDefinitions, Vec<BalloonFontFixture>) {
         ("Noto Sans Arabic", "Arab", "شركة", "شركة اي\n123\nالربط (APIs) هنا\nLatin\n"),
         ("Noto Sans Hebrew", "Hebr", "שלום", "שלום עולם\n123\nשלום (APIs) עולם\nLatin\n"),
     ] {
-        if let Some(face) = letra_fonts::CRAFT_FONTS.iter().find(|face| face.family == family && face.style == "Regular") {
+        if let Some(face) = letra_fonts::NODALIA_FONTS.iter().find(|face| face.family == family && face.style == "Regular") {
             assert!(face.scripts.contains(&script));
             assert!(!face.bytes.is_empty());
             fonts.font_data.insert(family.into(), std::sync::Arc::new(egui::FontData::from_static(face.bytes)));
@@ -1664,7 +1664,7 @@ fn balloon_font_fixtures() -> (egui::FontDefinitions, Vec<BalloonFontFixture>) {
             fixtures.push(BalloonFontFixture { family, probe, text });
         }
     }
-    if option_env!("CRAFT_FONTS_REQUIRED").is_some() || std::env::var_os("CRAFT_FONTS_REQUIRED").is_some() {
+    if option_env!("NODALIA_FONTS_REQUIRED").is_some() || std::env::var_os("NODALIA_FONTS_REQUIRED").is_some() {
         assert_eq!(fixtures.len(), 3, "qualification requires both exact embedded Arabic and Hebrew faces");
     }
     for name in &names {
@@ -1776,7 +1776,7 @@ fn assert_balloon_paint_case(
     let mut clip = Rect::NOTHING;
     let output = ctx.run_ui(egui::RawInput::default(), |ui| {
         let aligned = balloon_text(ui.painter(), fixture.text.into(), (*font).clone(), Color32::BLACK, width);
-        let craft_ui::text::AlignedGalley::Aligned { galley, paint_offset, reading_rect } = &aligned else { panic!("valid width must align") };
+        let nodalia_ui::text::AlignedGalley::Aligned { galley, paint_offset, reading_rect } = &aligned else { panic!("valid width must align") };
         assert_eq!(aligned.height(), original.rect.height());
         assert_eq!(*reading_rect, Rect::from_min_size(Pos2::ZERO, vec2(width, original.rect.height())));
         assert_eq!(galley.job.halign, egui::Align::Min);
@@ -1990,7 +1990,7 @@ fn read_only_balloon_bodies_and_replies_keep_real_font_card_geometry() {
         if fixture.family != "Balloon Latin" {
             let face = db.face(fixture.family, "Regular");
             assert_eq!(face.family, fixture.family, "do not accept a substitute fixture face");
-            let embedded = letra_fonts::CRAFT_FONTS.iter().find(|font| font.family == fixture.family && font.style == "Regular").unwrap();
+            let embedded = letra_fonts::NODALIA_FONTS.iter().find(|font| font.family == fixture.family && font.style == "Regular").unwrap();
             assert_eq!(face.data(), embedded.bytes);
             assert!(fixture.probe.chars().all(|c| face.covers(c)));
             app.canvas.ime_faces.push(face);
@@ -4381,7 +4381,7 @@ fn space_and_enter_on_the_canvas_do_not_interrupt_ime() {
 }
 
 /// Kittest's `MissingGlyphPolicy::Panic` is right: a missing glyph is a bug. But the interface
-/// fonts need not carry Japanese (craft-fonts is optional, and a CI Linux runner has no
+/// fonts need not carry Japanese (nodalia-fonts is optional, and a CI Linux runner has no
 /// Japanese system font), and these IME tests compose Japanese through the interface font
 /// chain. Draw a stand-in for exactly those characters; every other missing glyph still panics.
 fn kana_test_glyphs(ctx: &egui::Context) {

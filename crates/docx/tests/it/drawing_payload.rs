@@ -71,7 +71,7 @@ fn check_box(doc: &Document) {
     assert_eq!(doc.media[media].as_slice(), BLUE_PNG);
 }
 fn package(xml: &str) -> Vec<u8> {
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     let rels = br#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#;
     let docrels = br#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdIsolationRect" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/isolation-blue.png"/></Relationships>"#;
     let types = br#"<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>"#;
@@ -82,7 +82,7 @@ fn package(xml: &str) -> Vec<u8> {
         ("word/_rels/document.xml.rels", docrels.as_slice()),
         ("word/media/isolation-blue.png", BLUE_PNG),
     ] {
-        zip.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }

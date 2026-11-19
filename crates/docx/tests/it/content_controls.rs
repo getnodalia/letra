@@ -11,9 +11,9 @@ const ROOT_RELS: &str = r#"<Relationships xmlns="http://schemas.openxmlformats.o
 
 fn package(body: &str) -> Vec<u8> {
     let doc = format!(r#"<w:document {NS}><w:body>{body}</w:body></w:document>"#);
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in [("_rels/.rels", ROOT_RELS.as_bytes()), ("word/document.xml", doc.as_bytes())] {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
@@ -87,7 +87,7 @@ fn form() -> Vec<u8> {
 }
 
 fn document_xml(docx: &[u8]) -> String {
-    let mut z = craft_zip::Archive::open(docx, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(docx, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }

@@ -92,13 +92,13 @@ pub struct FontDb {
 }
 
 impl FontDb {
-    /// A database holding the bundled fonts, then the craft-fonts Japanese faces (Mincho first,
+    /// A database holding the bundled fonts, then the nodalia-fonts Japanese faces (Mincho first,
     /// so they are the fallback for Japanese text after the requested and bundled fonts), then the
-    /// other craft-fonts faces: Simplified Chinese, for the ideographs the Japanese fonts lack, and
+    /// other nodalia-fonts faces: Simplified Chinese, for the ideographs the Japanese fonts lack, and
     /// Arabic, so Arabic and Persian text draws without system fonts (#1652) (all empty without
-    /// `CRAFT_FONTS_DIR`), whose system font scan reads `font_dirs`.
+    /// `NODALIA_FONTS_DIR`), whose system font scan reads `font_dirs`.
     pub fn with_font_dirs(font_dirs: Vec<std::path::PathBuf>) -> Self {
-        let others = crate::CRAFT_FONTS.iter().filter(|f| !f.scripts.contains(&"Jpan"));
+        let others = crate::NODALIA_FONTS.iter().filter(|f| !f.scripts.contains(&"Jpan"));
         let craft = crate::japanese_document_fonts().into_iter().chain(others).map(|f| f.bytes);
         Self::with_static_fonts(font_dirs, BUNDLED.iter().copied().chain(craft))
     }
@@ -162,7 +162,7 @@ impl FontDb {
     }
 
     /// Initialize a test process with only the repository's pinned bundled fonts: no optional
-    /// craft-fonts, user fonts or system font directories. Call before any global font lookup.
+    /// nodalia-fonts, user fonts or system font directories. Call before any global font lookup.
     /// Returns false if a normal global database was already initialized; never replaces it.
     /// Repeated/concurrent calls are safe. Merely enabling `test-support` changes nothing.
     #[cfg(feature = "test-support")]

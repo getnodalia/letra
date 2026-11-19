@@ -1,12 +1,12 @@
 //! Task panes: Navigation (headings, pages, search results), Clipboard, Styles, Style Inspector,
 //! Accessibility and Alt Text (see `a11y_pane`), Format Shape (see `format_shape`), Restrict Editing
-//! ([`crate::dialogs_review`]), Comments, and the SmartArt Text Pane. `craft_ui::panes` draws them
+//! ([`crate::dialogs_review`]), Comments, and the SmartArt Text Pane. `nodalia_ui::panes` draws them
 //! around the document, with their title bars, menus and resize edges; the session's view flags say
 //! which are open.
 
 use std::collections::BTreeMap;
 
-use craft_ui::panes::{Edge, PaneContent, PaneHost, PaneLabels, PaneRequest, PaneState, Place, SidePolicy};
+use nodalia_ui::panes::{Edge, PaneContent, PaneHost, PaneLabels, PaneRequest, PaneState, Place, SidePolicy};
 use egui::{Stroke, Ui, vec2};
 use letra_doc::numbering::{Counters, LevelSuffix};
 use letra_doc::section::NumFormat;

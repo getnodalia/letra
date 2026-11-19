@@ -12,9 +12,9 @@ pub fn crop_sides(crop: [f32; 4]) -> [f32; 4] {
 }
 
 /// The part of a picture's source that `crop` keeps, as fractions of the source: [left, top,
-/// width, height] (`craft_metafile::crop_window` of [`crop_sides`]).
+/// width, height] (`nodalia_metafile::crop_window` of [`crop_sides`]).
 pub fn crop_window(crop: [f32; 4]) -> [f64; 4] {
-    craft_metafile::crop_window(crop_sides(crop))
+    nodalia_metafile::crop_window(crop_sides(crop))
 }
 
 /// The miter limit a metafile pen is drawn with: its own when it is finite and at least 1,
@@ -24,7 +24,7 @@ pub fn metafile_miter_limit(limit: f32) -> f32 {
 }
 
 /// The dash lengths (page points) a metafile pen draws a path `length` points long with, or None
-/// for a solid line. `dash` is the placed pen's pattern (`craft_metafile::LineStyle::dash`, page
+/// for a solid line. `dash` is the placed pen's pattern (`nodalia_metafile::LineStyle::dash`, page
 /// points) and `pixel` is one output pixel in points.
 ///
 /// A cosmetic pen (`cosmetic`: width 0) has its pattern scaled so that its shortest dash or gap is

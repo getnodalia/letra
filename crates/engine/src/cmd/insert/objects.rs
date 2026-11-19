@@ -71,7 +71,7 @@ pub fn base64_decode(s: &str) -> Option<Vec<u8>> {
     Some(out)
 }
 
-pub use craft_mime::transfer::base64 as base64_encode;
+pub use nodalia_mime::transfer::base64 as base64_encode;
 
 pub(crate) fn picture(s: &mut Session, v: &Value) -> CmdResult {
     let bytes = if let Some(d) = p::str(v, "data") {

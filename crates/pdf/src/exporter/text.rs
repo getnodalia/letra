@@ -181,8 +181,8 @@ impl Exporter<'_> {
     }
 
     /// Draws a metafile text run as PDF text (outlines when the font cannot be embedded). `tf` maps
-    /// its text space (`craft_metafile::Text::transform`) to the page.
-    pub(crate) fn vector_text(&mut self, s: &mut Surface, t: &craft_metafile::Text, tf: kurbo::Affine) {
+    /// its text space (`nodalia_metafile::Text::transform`) to the page.
+    pub(crate) fn vector_text(&mut self, s: &mut Surface, t: &nodalia_metafile::Text, tf: kurbo::Affine) {
         let (face, shaped) = letra_layout::metafile_text_run(t);
         let glyphs: Vec<_> = shaped.iter().map(|g| (g.cluster, f64::from(g.x_advance), f64::from(g.x_offset), f64::from(g.y_offset))).collect();
         let Some(lay) = letra_layout::layout_metafile_text(t, face.upem, face.ascent, face.descent, &glyphs) else { return };

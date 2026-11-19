@@ -1,5 +1,5 @@
-// A copy of craft-proof's hand-written Czech fixture (`crates/proof/src/cs/test_dict.rs` in
-// craft-libs, which a dependency's tests can't share); its install helper resolves this parent import.
+// A copy of nodalia-proof's hand-written Czech fixture (`crates/proof/src/cs/test_dict.rs` in
+// nodalia-libs, which a dependency's tests can't share); its install helper resolves this parent import.
 use letra_proof::cs::install_dictionary;
 mod czech_test_dict;
 
@@ -25,17 +25,17 @@ mod typing;
 mod wordart;
 
 /// True, after saying so on stderr, when this build lacks the Language data the proofing tests
-/// need (craft-proof built without `CRAFT_I18N_DIR`). The probes are craft-proof's public
+/// need (nodalia-proof built without `NODALIA_I18N_DIR`). The probes are nodalia-proof's public
 /// `english_source` (the embedded English dictionary) and its American/British variant table
-/// (`colour` → `color`): a craft-i18n checkout without some of the files embeds only the rest,
-/// so both are asked. Without them English still spells from craft-proof's built-in word list,
+/// (`colour` → `color`): a nodalia-i18n checkout without some of the files embeds only the rest,
+/// so both are asked. Without them English still spells from nodalia-proof's built-in word list,
 /// but there are no hyphenation patterns and no variant table, so the tests that check those
-/// return early, as craft-proof's own do; with the data (CI, releases) they all run.
+/// return early, as nodalia-proof's own do; with the data (CI, releases) they all run.
 pub(crate) fn no_language_data(test: &str) -> bool {
     let missing = letra_proof::english_source(letra_proof::ProofLang::En) != Some(letra_proof::EnglishSource::Embedded)
         || letra_proof::en_variants::preferred("colour", letra_proof::ProofLang::En).as_deref() != Some("color");
     if missing {
-        eprintln!("{test}: skipped, needs the Language data (set CRAFT_I18N_DIR to a craft-i18n checkout)");
+        eprintln!("{test}: skipped, needs the Language data (set NODALIA_I18N_DIR to a nodalia-i18n checkout)");
     }
     missing
 }
@@ -4309,7 +4309,7 @@ fn word_toc_control_with_the_field_end_after_the_entries_survives_update_and_sav
         style("Heading1", &t("Chapter One")),
         style("Heading2", &t("Section"))
     );
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, value) in [
         ("word/document.xml", xml.as_str()),
         (
@@ -4317,7 +4317,7 @@ fn word_toc_control_with_the_field_end_after_the_entries_survives_update_and_sav
             r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#,
         ),
     ] {
-        zip.add(name, value.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, value.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     let mut s = Session::new(letra_docx::read(&zip.finish().unwrap()).unwrap());
     let mut blocks = None;
@@ -4325,7 +4325,7 @@ fn word_toc_control_with_the_field_end_after_the_entries_survives_update_and_sav
         run(&mut s, "references.updateToc", json!({}));
         let bytes = letra_docx::write(&s.doc).unwrap();
         let xml = String::from_utf8(
-            craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 })
+            nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 })
                 .unwrap()
                 .read("word/document.xml", 16 << 20)
                 .unwrap()
@@ -4356,7 +4356,7 @@ fn docx_with_styles(body: &str, styles: &str) -> Vec<u8> {
     const W: &str = r#"xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main""#;
     const RELS: &str = r#"xmlns="http://schemas.openxmlformats.org/package/2006/relationships""#;
     const TYPE: &str = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, value) in [
         ("word/document.xml", format!(r#"<w:document {W}><w:body>{body}</w:body></w:document>"#)),
         (
@@ -4374,7 +4374,7 @@ fn docx_with_styles(body: &str, styles: &str) -> Vec<u8> {
             format!(r#"<Relationships {RELS}><Relationship Id="main" Type="{TYPE}/officeDocument" Target="word/document.xml"/></Relationships>"#),
         ),
     ] {
-        zip.add(name, value.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, value.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }
@@ -4694,7 +4694,7 @@ fn update_toc_clears_stale_field_result_for_docx_span() {
     // DOCX round-trip: entries must be enclosed within the TOC field rather than outside it.
     let bytes = letra_docx::write(&s.doc).unwrap();
     let xml = {
-        let mut archive = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut archive = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
         String::from_utf8(archive.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
     };
     let b = xml.find(r#"w:fldCharType="begin""#).expect("TOC begin marker present");
@@ -4919,7 +4919,7 @@ fn toc_page_numbers_are_pageref_fields() {
     let expected = text(&s);
     assert!(expected.contains("Alpha\t2") && expected.contains("Bravo\t3"), "{expected}");
     let bytes = crate::io::save_bytes("toc.docx", &s.doc).unwrap();
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert_eq!(xml.matches("PAGEREF _Toc").count(), 2, "{xml}");
     let mut s = Session::new(crate::io::open_bytes("toc.docx", &bytes).unwrap());
@@ -5635,14 +5635,14 @@ fn an_odt_frame_moved_from_its_page_loses_the_page_number() {
     let content = format!(
         r#"<office:document-content {ns}><office:body><office:text><draw:frame text:anchor-type="page" text:anchor-page-number="3" svg:x="5cm" svg:y="5cm" svg:width="4cm" svg:height="2cm"><draw:text-box><text:p>On it</text:p></draw:text-box></draw:frame><text:p>One</text:p><text:p>Two</text:p></office:text></office:body></office:document-content>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str())] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let odt = z.finish().unwrap();
     let frame_tag = |s: &Session| {
         let _a_bytes = letra_formats::odt::export(&s.doc).unwrap();
-        let mut a = craft_zip::Archive::open(&_a_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut a = nodalia_zip::Archive::open(&_a_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
         let c = String::from_utf8(a.read("content.xml", 16 << 20).unwrap().unwrap()).unwrap();
         c.split("<draw:frame").nth(1).and_then(|t| t.split('>').next()).unwrap_or_default().to_string()
     };
@@ -10077,7 +10077,7 @@ fn english_dialects_survive_a_docx_round_trip() {
     let before = spelling_with_first_suggestion(&mut s);
     assert_eq!(before, pairs(&[("color", "colour"), ("Centre", "Center")]));
     let bytes = crate::io::save_bytes("british.docx", &s.doc).unwrap();
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let mut part = |name: &str| String::from_utf8(zip.read(name, 16 << 20).unwrap().unwrap()).unwrap();
     assert!(part("word/styles.xml").contains(r#"w:val="en-GB""#), "the default language is written");
     assert!(part("word/document.xml").contains(r#"w:val="en-US""#), "the run's language is written");
@@ -10569,7 +10569,7 @@ fn smart_art_round_trips_through_docx() {
     assert_eq!(r["smartArt"]["layout"], "hierarchy");
     let spec = cmd::smart_art::selected_smart_art(&s).expect("selected after insert");
     let bytes = crate::io::save_bytes("sa.docx", &s.doc).unwrap();
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     for part in ["data1", "layout1", "quickStyle1", "colors1", "drawing1"] {
         assert!(zip.contains(&format!("word/diagrams/{part}.xml")), "{part} written");
     }
@@ -10585,15 +10585,15 @@ fn smart_art_round_trips_through_docx() {
     select_graphic(&mut s3);
     assert_eq!(cmd::smart_art::selected_smart_art(&s3).map(|g| g.layout), Some(letra_doc::smart_art::SmartArtLayout::Venn));
     // A data part another program rewrote: shown, not editable.
-    let mut zip = craft_zip::Archive::open(&again, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&again, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let names: Vec<String> = zip.names().map(|n| n.into_owned()).collect();
-    let mut out = craft_zip::Writer::new();
+    let mut out = nodalia_zip::Writer::new();
     for name in names {
         let mut buf = zip.read(&name, 16 << 20).unwrap().unwrap();
         if name.ends_with("data1.xml") {
             buf = String::from_utf8(buf).unwrap().replace("<dgm:bg/>", "<dgm:bg><a:noFill/></dgm:bg>").into_bytes();
         }
-        out.add(&name, &buf, craft_zip::Compression::Deflated).unwrap();
+        out.add(&name, &buf, nodalia_zip::Compression::Deflated).unwrap();
     }
     let foreign = out.finish().unwrap();
     let mut s4 = Session::new(crate::io::open_bytes("sa.docx", &foreign).unwrap());
@@ -11650,7 +11650,7 @@ fn tracked_field_result_docx() -> Vec<u8> {
     let xml = format!(
         r#"<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p>{p1}</w:p><w:p>{p2}</w:p></w:body></w:document>"#
     );
-    let mut zip = craft_zip::Writer::new();
+    let mut zip = nodalia_zip::Writer::new();
     for (name, value) in [
         ("word/document.xml", xml.as_str()),
         (
@@ -11658,7 +11658,7 @@ fn tracked_field_result_docx() -> Vec<u8> {
             r#"<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>"#,
         ),
     ] {
-        zip.add(name, value.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zip.add(name, value.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     zip.finish().unwrap()
 }
@@ -11674,7 +11674,7 @@ fn tracked_deletion_inside_a_field_result_is_a_revision_and_is_saved() {
     assert_eq!(p.text.replace(letra_doc::para::OBJ, ""), "$150.00$140.00");
     // Saving keeps the deletion inside the result, with its text as delText.
     let bytes = letra_docx::write(&doc).unwrap();
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     let sep = xml.find(r#"w:fldCharType="separate""#).unwrap();
     let end = xml.find(r#"w:fldCharType="end""#).unwrap();
@@ -12284,7 +12284,7 @@ fn html_converted_to_docx_keeps_bold_headers_and_right_aligned_cells() {
     let mut s = s();
     run(&mut s, "file.open", json!({"path": "S05.html", "data": crate::cmd::insert::base64_encode(SAMPLE_1381.as_bytes())}));
     let bytes = crate::io::save_bytes("out.docx", &s.doc).unwrap();
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     let cell = |text: &str| {
         let at = xml.find(&format!(">{text}<")).unwrap_or_else(|| panic!("{text} in {xml}"));
@@ -12437,9 +12437,9 @@ fn odt_inserted_then_deleted_text_round_trips() {
         info("Alice"),
         info("Bob")
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str())] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let doc = crate::io::open_bytes("t.odt", &z.finish().unwrap()).unwrap();
     let doc = crate::io::open_bytes("t.odt", &letra_formats::odt::export(&doc).unwrap()).unwrap();
@@ -12461,9 +12461,9 @@ fn odt_tracked_changes_accept_and_reject_all() {
         info("Alice"),
         info("Bob")
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str())] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let bytes = z.finish().unwrap();
     let doc = crate::io::open_bytes("t.odt", &bytes).unwrap();
@@ -12490,9 +12490,9 @@ fn odt_deleted_mark_inside_an_insertion_survives_reject_all() {
         info("Alice"),
         info("Bob")
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str())] {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let doc = crate::io::open_bytes("t.odt", &z.finish().unwrap()).unwrap();
     let saved = crate::io::open_bytes("t.odt", &letra_formats::odt::export(&doc).unwrap()).unwrap();
@@ -13428,7 +13428,7 @@ fn an_odt_charts_paragraph_is_written_as_read_after_drawing_it() {
     let first = letra_formats::odt::export(&s.doc).unwrap();
     let doc = crate::io::open_bytes("t.odt", &first).unwrap();
     let _z_bytes = letra_formats::odt::export(&doc).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let content = String::from_utf8(z.read("content.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(content.contains(r#"draw:name="Chart1""#) && !content.contains("wcChart"), "{content}");
 }
@@ -13465,7 +13465,7 @@ fn an_odt_scatter_chart_reopens_without_lines() {
     }
     let doc = crate::io::open_bytes("t.odt", &letra_formats::odt::export(&s.doc).unwrap()).unwrap();
     let again = letra_formats::odt::export(&doc).unwrap();
-    let mut z = craft_zip::Archive::open(&again, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&again, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let content = String::from_utf8(z.read("content.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(content.contains(r#"draw:name="Chart1""#) && !content.contains("wcChart"), "{content}");
 }
@@ -13519,14 +13519,14 @@ fn an_odts_picture_wider_than_the_text_keeps_its_size() {
         r#"<office:document-content {ns}><office:body><office:text><text:p><draw:frame draw:name="Rule" text:anchor-type="paragraph" svg:x="-1cm" svg:width="18cm" svg:height="0.2cm"><draw:image xlink:href="Pictures/r.png"/></draw:frame>Text</text:p></office:text></office:body></office:document-content>"#
     );
     let png = [b"\x89PNG\r\n\x1a\n".as_slice(), &[7u8; 64]].concat();
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [
         ("mimetype", b"application/vnd.oasis.opendocument.text".as_slice()),
         ("content.xml", content.as_bytes()),
         ("styles.xml", styles.as_bytes()),
         ("Pictures/r.png", &png),
     ] {
-        z.add(name, data, craft_zip::Compression::Stored).unwrap();
+        z.add(name, data, nodalia_zip::Compression::Stored).unwrap();
     }
     let doc = crate::io::open_bytes("t.odt", &z.finish().unwrap()).unwrap();
     let width = doc.body[0]
@@ -13538,7 +13538,7 @@ fn an_odts_picture_wider_than_the_text_keeps_its_size() {
     let want = 18.0 * 72.0 / 2.54;
     assert!(width.is_some_and(|w| (w - want).abs() < 0.1), "{width:?}, not fitted to the text");
     let _z_bytes = letra_formats::odt::export(&doc).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let saved = String::from_utf8(z.read("content.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(saved.contains(r#"svg:width="510.24pt""#), "written as read: {saved}");
 }
@@ -13554,10 +13554,10 @@ fn an_odts_language_survives_a_save_after_numbering_or_a_new_style() {
     let content = format!(
         r#"<office:document-content {ns}><office:body><office:text><text:p>Hallo</text:p></office:text></office:body></office:document-content>"#
     );
-    let mut z = craft_zip::Writer::new();
+    let mut z = nodalia_zip::Writer::new();
     for (name, data) in [("mimetype", "application/vnd.oasis.opendocument.text"), ("content.xml", content.as_str()), ("styles.xml", styles.as_str())]
     {
-        z.add(name, data.as_bytes(), craft_zip::Compression::Stored).unwrap();
+        z.add(name, data.as_bytes(), nodalia_zip::Compression::Stored).unwrap();
     }
     let odt = z.finish().unwrap();
     for (command, params) in [("para.numbering", json!({})), ("styles.create", json!({"name": "Notiz"}))] {
@@ -13588,9 +13588,9 @@ fn docx_with_chunk(body: &str, ext: &str, content_type: &str, chunk: &[u8]) -> V
             format!(r#"<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>{body}</w:body></w:document>"#).into_bytes(),
         ),
     ];
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in files.iter().map(|(n, b)| (n.as_str(), b.as_slice())).chain([(format!("word/afchunk.{ext}").as_str(), chunk)]) {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
@@ -13830,14 +13830,14 @@ fn an_odts_picture_is_fitted_only_when_it_states_no_size() {
         let content = format!(
             r#"<office:document-content {ns}><office:body><office:text><text:p><draw:frame text:anchor-type="as-char"{attrs}><draw:image xlink:href="Pictures/a.png"/></draw:frame></text:p></office:text></office:body></office:document-content>"#
         );
-        let mut z = craft_zip::Writer::new();
+        let mut z = nodalia_zip::Writer::new();
         for (name, data) in [
             ("mimetype", b"application/vnd.oasis.opendocument.text".as_slice()),
             ("content.xml", content.as_bytes()),
             ("styles.xml", styles.as_bytes()),
             ("Pictures/a.png", &png),
         ] {
-            z.add(name, data, craft_zip::Compression::Stored).unwrap();
+            z.add(name, data, nodalia_zip::Compression::Stored).unwrap();
         }
         let doc = crate::io::open_bytes("t.odt", &z.finish().unwrap()).unwrap();
         doc.body[0]

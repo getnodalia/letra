@@ -1,6 +1,6 @@
 //! Localized print-page wording around the shared, backend-independent controls.
-use craft_ui::printing::Labels;
-pub use craft_ui::printing::{Discover, Duplex, Feedback, Printer, Settings, State};
+use nodalia_ui::printing::Labels;
+pub use nodalia_ui::printing::{Discover, Duplex, Feedback, Printer, Settings, State};
 
 /// Native submission adds Letra's PDF-page collation setting and spooler options to the shared spooler settings.
 pub type Submit = Box<dyn Fn(Vec<u8>, Settings, bool, Vec<(String, String)>) -> std::sync::mpsc::Receiver<Result<String, String>>>;

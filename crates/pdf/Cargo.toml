@@ -3,7 +3,7 @@ name = "letra-pdf"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Letra PDF export (craft-pdf / Krilla): embedded font subsets with selectable text, links, outline, tagging"
+description = "Letra PDF export (nodalia-pdf / Krilla): embedded font subsets with selectable text, links, outline, tagging"
 
 [lints]
 workspace = true
@@ -13,8 +13,8 @@ letra-doc = { workspace = true }
 letra-geom = { workspace = true, features = ["image"] }
 letra-fonts = { workspace = true }
 letra-layout = { workspace = true }
-craft-metafile = { workspace = true }
-craft-pdf = { workspace = true }
+nodalia-metafile = { workspace = true }
+nodalia-pdf = { workspace = true }
 kurbo = { workspace = true }
 image = { workspace = true }
 thiserror = { workspace = true }

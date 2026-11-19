@@ -693,9 +693,9 @@ fn a_workbook_with_several_sheets_asks_which_one() {
         table("Notes", &["n"]),
         table("Guests", &["Name", "Ada", "Alan"])
     );
-    let mut z = craft_zip::Writer::new();
-    z.add("mimetype", b"application/vnd.oasis.opendocument.spreadsheet", craft_zip::Compression::Stored).unwrap();
-    z.add("content.xml", content.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+    let mut z = nodalia_zip::Writer::new();
+    z.add("mimetype", b"application/vnd.oasis.opendocument.spreadsheet", nodalia_zip::Compression::Stored).unwrap();
+    z.add("content.xml", content.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     std::fs::write(&book, z.finish().unwrap()).unwrap();
     let (mut a, shown) = async_app();
     a.run("ui.openRecipientList", json!({})).unwrap();

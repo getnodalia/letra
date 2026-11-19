@@ -1379,7 +1379,7 @@ fn arrange_bounds_on_header_picture_writes_page_anchored_odt_frame() {
     assert_eq!((float.x, float.y), (0.0, 0.0));
 
     let _z_bytes = letra_formats::odt::export(&s.doc).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let styles = String::from_utf8(z.read("styles.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(styles.contains(r#"text:anchor-type="page""#), "frame should be page-anchored: {styles}");
     assert!(styles.contains(r#"svg:x="0pt""#) && styles.contains(r#"svg:y="0pt""#), "offsets should be 0pt: {styles}");
@@ -1393,7 +1393,7 @@ fn arrange_bounds_on_header_picture_writes_page_anchored_odt_frame() {
     assert_eq!((float.x, float.y), (10.0, 20.0));
 
     let _z_bytes = letra_formats::odt::export(&s.doc).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let styles = String::from_utf8(z.read("styles.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(styles.contains(r#"text:anchor-type="page""#), "{styles}");
     assert!(styles.contains(r#"svg:x="10pt""#) && styles.contains(r#"svg:y="20pt""#), "{styles}");
@@ -1430,7 +1430,7 @@ fn a_moved_body_picture_is_placed_by_its_paragraph_even_when_fixed_to_the_page()
     assert!((hit.rect.x - 50.0).abs() < 1.0 && (hit.rect.y - 80.0).abs() < 1.0, "dropped: {:?}", hit.rect);
 
     let _z_bytes = letra_formats::odt::export(&s.doc).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let content = String::from_utf8(z.read("content.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(content.contains(r#"text:anchor-type="paragraph""#), "body picture should export with paragraph anchor: {content}");
     assert!(!content.contains("anchor-page-number"), "{content}");
@@ -1729,11 +1729,11 @@ fn group_with_word_ink() -> Vec<u8> {
         ),
         ("word/ink/ink1.xml", r#"<ink xmlns="http://www.w3.org/2003/InkML"><trace>0 0, 1 1</trace></ink>"#.to_string()),
     ];
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, xml) in parts {
-        zw.add(name, xml.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, xml.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
-    zw.add("word/media/preview.png", &png(8, 4), craft_zip::Compression::Deflated).unwrap();
+    zw.add("word/media/preview.png", &png(8, 4), nodalia_zip::Compression::Deflated).unwrap();
     zw.finish().unwrap()
 }
 
@@ -1766,7 +1766,7 @@ fn ungroup_refuses_a_group_holding_word_ink_and_the_ink_survives_saving() {
     let err = ungroup(&mut s, &json!({})).unwrap_err();
     assert!(matches!(err, CmdError::Disabled(_)), "{err:?}");
     let bytes = letra_docx::write(&s.doc).unwrap();
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert_eq!(xml.matches("<w14:contentPart").count(), 1, "{xml}");
     assert!(xml.contains("<mc:Fallback>"), "{xml}");

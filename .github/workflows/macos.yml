@@ -34,8 +34,8 @@ jobs:
     permissions:
       contents: write
     env:
-      CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
-      CRAFT_I18N_DIR: ${{ github.workspace }}/craft-i18n
+      NODALIA_FONTS_DIR: ${{ github.workspace }}/nodalia-fonts
+      NODALIA_I18N_DIR: ${{ github.workspace }}/nodalia-i18n
       DIST: ${{ github.workspace }}/dist
       # Releases ship one DMG for both architectures; everything else builds Apple Silicon only.
       ARCH: ${{ github.event_name == 'release' && 'universal' || 'aarch64' }}
@@ -44,22 +44,22 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check out craft-fonts
+      - name: Check out nodalia-fonts
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: getnodalia/foundation # kept at vendor/craft-fonts/main
+          repository: getnodalia/foundation # kept at nodalia/fonts
           # Same commit as release.yml.
-          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
-          path: craft-fonts
+          ref: d4f57e6b31d7c7526b539f7aaaa07312c9908bb8
+          path: nodalia-fonts
           persist-credentials: false
 
-      - name: Check out craft-i18n
+      - name: Check out nodalia-i18n
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: getnodalia/foundation # kept at vendor/craft-i18n/main
-          # The commit craft-i18n.rev pins.
-          ref: 81e4f1a99b4ac140aae52093a91a95eb6f8cfbb5
-          path: craft-i18n
+          repository: getnodalia/foundation # kept at nodalia/i18n
+          # The commit nodalia-i18n.rev pins.
+          ref: c10ca1f628bbdfe4fa88b4248d97098d9530b0cc
+          path: nodalia-i18n
           persist-credentials: false
 
       - name: Link against the macOS 26 SDK

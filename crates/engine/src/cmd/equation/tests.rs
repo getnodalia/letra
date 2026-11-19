@@ -116,9 +116,9 @@ fn imported(math: &str) -> Session {
         ),
         ("word/document.xml", format!(r#"<w:document xmlns:w="{w}" xmlns:m="{m}"><w:body><w:p><m:oMath>{math}</m:oMath></w:p><w:sectPr/></w:body></w:document>"#)),
     ];
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, xml) in parts {
-        zw.add(name, xml.as_bytes(), craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, xml.as_bytes(), nodalia_zip::Compression::Deflated).unwrap();
     }
     let bytes = zw.finish().unwrap();
     let mut s = Session::new(letra_docx::read(&bytes).unwrap());
@@ -128,7 +128,7 @@ fn imported(math: &str) -> Session {
 
 fn document_xml(s: &Session) -> String {
     let bytes = letra_docx::write(&s.doc).unwrap();
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }

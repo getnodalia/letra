@@ -1,21 +1,21 @@
-//! Markdown import and export via `craft-markdown`.
+//! Markdown import and export via `nodalia-markdown`.
 
 use letra_doc::{Block, Document, SectionProps};
 
-pub use craft_markdown::{Refs, escape, parse, parse_inlines};
+pub use nodalia_markdown::{Refs, escape, parse, parse_inlines};
 
-fn shared_section(page: &SectionProps) -> craft_wordmodel::SectionProps {
+fn shared_section(page: &SectionProps) -> nodalia_wordmodel::SectionProps {
     let mut d = Document::new();
     d.last_section = page.clone();
     letra_docx::to_shared_model(&d).map(|s| s.last_section).unwrap_or_default()
 }
 
 pub fn import(text: &str) -> Document {
-    letra_docx::from_shared_model(craft_markdown::import(text)).unwrap_or_default()
+    letra_docx::from_shared_model(nodalia_markdown::import(text)).unwrap_or_default()
 }
 
 pub fn import_on(text: &str, page: &SectionProps) -> Document {
-    letra_docx::from_shared_model(craft_markdown::import_on(text, &shared_section(page))).unwrap_or_default()
+    letra_docx::from_shared_model(nodalia_markdown::import_on(text, &shared_section(page))).unwrap_or_default()
 }
 
 /// [`import_on`] returning the document and the 0-based starting line of each top-level block.
@@ -62,7 +62,7 @@ pub fn import_on_with_lines(text: &str, page: &SectionProps) -> (Document, Vec<u
 
 pub fn export(doc: &Document) -> String {
     match letra_docx::to_shared_model(doc) {
-        Ok(shared) => craft_markdown::export(&shared),
+        Ok(shared) => nodalia_markdown::export(&shared),
         Err(_) => String::new(),
     }
 }

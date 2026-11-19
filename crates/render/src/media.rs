@@ -1,5 +1,5 @@
 use super::{Affine, Arc, Document, FontDb, HashMap, Item, Mutex, Page, Picture, Pixmap, PlacedItem, RenderContext, Seg, Shape, Weak, kurbo, peniko};
-use craft_metafile::{ClipPath, Tile};
+use nodalia_metafile::{ClipPath, Tile};
 use std::collections::HashSet;
 
 /// Upper bound on the bytes the two decoded-media caches keep together (about 256 MB), half each;
@@ -128,11 +128,11 @@ pub fn image_size(bytes: &[u8]) -> Option<(u32, u32)> {
 /// extension it is stored under (`"wmf"` or `"emf"`), or None for anything else (#802). Very large
 /// frames are scaled down to 22 inches on the longer side, keeping the shape.
 pub fn metafile_size(bytes: &[u8]) -> Option<(f32, f32, &'static str)> {
-    if !craft_metafile::is_metafile(bytes) {
+    if !nodalia_metafile::is_metafile(bytes) {
         return None;
     }
     // The frame comes from the header where the file has one, so no bitmap is decoded for it.
-    let (w, h) = craft_metafile::size(bytes).ok()?;
+    let (w, h) = nodalia_metafile::size(bytes).ok()?;
     if !(w.is_finite() && h.is_finite() && w > 0.0 && h > 0.0) {
         return None;
     }
@@ -192,7 +192,7 @@ pub(crate) fn geometry_bytes(pic: &Picture) -> usize {
                 (segs.capacity() * seg).saturating_add(tile_bytes)
             }
             Item::Text(t) => {
-                std::mem::size_of::<craft_metafile::Text>() + t.text.len() + t.dx.len() * std::mem::size_of::<f32>() + t.font.family.len()
+                std::mem::size_of::<nodalia_metafile::Text>() + t.text.len() + t.dx.len() * std::mem::size_of::<f32>() + t.font.family.len()
             }
         };
         let region_bytes = region.as_ref().map_or(0, |r| r.len() * std::mem::size_of::<[f32; 4]>());
@@ -212,7 +212,7 @@ pub(crate) fn geometry_bytes(pic: &Picture) -> usize {
 /// the caller falls back to the raster path (and the grey box).
 pub(crate) fn vector_for(doc: &Document, key: &str) -> Option<Arc<Vector>> {
     let bytes = doc.media.get(key)?;
-    if !craft_metafile::is_metafile(bytes) {
+    if !nodalia_metafile::is_metafile(bytes) {
         return None;
     }
     if let Some(v) = lock(vectors()).get(key, bytes) {
@@ -230,7 +230,7 @@ pub(crate) fn vector_for(doc: &Document, key: &str) -> Option<Arc<Vector>> {
 /// Parses a metafile and decodes its bitmaps and pattern tiles. None when the picture has no
 /// usable size.
 pub(crate) fn build_vector(bytes: &[u8]) -> Option<Vector> {
-    let mut pic = craft_metafile::parse(bytes).ok()?;
+    let mut pic = nodalia_metafile::parse(bytes).ok()?;
     if !pic.has_size() {
         return None;
     }
@@ -415,7 +415,7 @@ pub(crate) fn draw_vector(ctx: &mut RenderContext, v: &Vector, r: &kurbo::Rect, 
 fn clipped(
     ctx: &mut RenderContext,
     region: Option<&kurbo::BezPath>,
-    clips: &[Arc<craft_metafile::PlacedClip>],
+    clips: &[Arc<nodalia_metafile::PlacedClip>],
     draw: impl FnOnce(&mut RenderContext),
 ) {
     if let Some(region) = region {
@@ -435,16 +435,16 @@ fn clipped(
 
 /// A metafile pen for `path` as a stroke `width` wide (page points, at least one device `pixel`):
 /// its caps, joins, miter limit and dashes (`letra_layout::metafile_dashes`).
-fn pen(width: f64, pixel: f64, line: &craft_metafile::LineStyle, path: &kurbo::BezPath) -> kurbo::Stroke {
+fn pen(width: f64, pixel: f64, line: &nodalia_metafile::LineStyle, path: &kurbo::BezPath) -> kurbo::Stroke {
     let cap = match line.cap {
-        craft_metafile::Cap::Round => kurbo::Cap::Round,
-        craft_metafile::Cap::Square => kurbo::Cap::Square,
-        craft_metafile::Cap::Flat => kurbo::Cap::Butt,
+        nodalia_metafile::Cap::Round => kurbo::Cap::Round,
+        nodalia_metafile::Cap::Square => kurbo::Cap::Square,
+        nodalia_metafile::Cap::Flat => kurbo::Cap::Butt,
     };
     let join = match line.join {
-        craft_metafile::Join::Round => kurbo::Join::Round,
-        craft_metafile::Join::Bevel => kurbo::Join::Bevel,
-        craft_metafile::Join::Miter => kurbo::Join::Miter,
+        nodalia_metafile::Join::Round => kurbo::Join::Round,
+        nodalia_metafile::Join::Bevel => kurbo::Join::Bevel,
+        nodalia_metafile::Join::Miter => kurbo::Join::Miter,
     };
     let stroke = kurbo::Stroke::new(width.max(pixel))
         .with_caps(cap)
@@ -459,9 +459,9 @@ fn pen(width: f64, pixel: f64, line: &craft_metafile::LineStyle, path: &kurbo::B
     }
 }
 
-/// Draws a metafile text run: `tf` maps its text space (`craft_metafile::Text::transform`) to the
+/// Draws a metafile text run: `tf` maps its text space (`nodalia_metafile::Text::transform`) to the
 /// device.
-fn draw_vector_text(ctx: &mut RenderContext, t: &craft_metafile::Text, tf: Affine) {
+fn draw_vector_text(ctx: &mut RenderContext, t: &nodalia_metafile::Text, tf: Affine) {
     let (face, shaped) = letra_layout::metafile_text_run(t);
     let glyphs: Vec<_> = shaped.iter().map(|g| (g.cluster, f64::from(g.x_advance), f64::from(g.x_offset), f64::from(g.y_offset))).collect();
     let Some(lay) = letra_layout::layout_metafile_text(t, face.upem, face.ascent, face.descent, &glyphs) else { return };

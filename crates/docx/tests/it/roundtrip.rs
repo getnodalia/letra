@@ -328,7 +328,7 @@ fn tracked_style_definition_change_round_trips() {
     });
     d.body = vec![para_block(Paragraph::with_text("x", CharProps::default()))];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/styles.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains("<w:pPrChange") && xml.contains("<w:rPrChange"), "{xml}");
     assert!(!xml.contains("stylePrChange"), "CT_Style has no such element: {xml}");
@@ -751,7 +751,7 @@ fn note_options_round_trip_per_section() {
     assert!(sections[1].1.footnote_pr.is_empty() && sections[1].1.endnote_pr.is_empty());
     assert_eq!(r.note_options(sections[0].1, false).num_start, 7);
     assert_eq!(r.note_options(sections[1].1, false).num_start, 4);
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     let at = |s: &str| xml.find(s).unwrap_or_else(|| panic!("{s} missing"));
     assert!(
@@ -775,7 +775,7 @@ fn note_never_references_itself() {
     d.body = vec![para_block(p)];
 
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/footnotes.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(!xml.contains("<w:footnoteReference"), "a footnote cites itself: {xml}");
     assert_eq!(xml.matches("<w:footnoteRef/>").count(), 1, "{xml}");
@@ -841,7 +841,7 @@ fn word_note_mark_round_trips_once() {
     let mut doc = d;
     for pass in 0..2 {
         let bytes = letra_docx::write(&doc).expect("write");
-        let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
         for (file, mark, reference, style) in [
             ("word/footnotes.xml", "<w:footnoteRef/>", "<w:footnoteReference", "FootnoteReference"),
             ("word/endnotes.xml", "<w:endnoteRef/>", "<w:endnoteReference", "EndnoteReference"),
@@ -894,7 +894,7 @@ fn toc_field_wraps_its_entries() {
         let d = doc_with(blocks);
 
         let bytes = letra_docx::write(&d).expect("write");
-        let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
         let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
         let sdt = xml.find("<w:sdt>").expect("TOC content control");
         assert!(xml.contains(r#"<w:docPartGallery w:val="Table of Contents"/>"#), "{xml}");
@@ -932,7 +932,7 @@ fn cell_text_direction_round_trips() {
     let mut d = Document::new();
     d.body = vec![Arc::new(Block::Table(t)), para_block(Paragraph::new())];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<w:textDirection w:val="tbRl"/>"#), "{xml}");
     assert!(xml.contains(r#"<w:textDirection w:val="btLr"/>"#), "{xml}");
@@ -986,7 +986,7 @@ fn toc_field_skips_nested_stories() {
     d.body = vec![para_block(head), para_block(last), para_block(Paragraph::with_text("Body", CharProps::default()))];
 
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     let boxes: Vec<(usize, usize)> = xml.match_indices("<w:txbxContent>").map(|(a, _)| (a, a + xml[a..].find("</w:txbxContent>").unwrap())).collect();
     // Each text box is written twice: in the drawing and in its VML fallback.
@@ -1052,7 +1052,7 @@ fn tracked_equations_round_trip() {
     p.insert_object(end, InlineObject::Equation { linear: "z=1".into(), display: false, math: Default::default() }, &plain).unwrap();
     d.body = vec![para_block(p.clone())];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<w:ins w:id="1" w:author="Alice" w:date="2026-05-01T10:00:00Z"><m:oMath>"#), "ins directly encloses inline math: {xml}");
     assert!(
@@ -1116,7 +1116,7 @@ fn tracked_paragraph_marks_round_trip() {
     let last = Paragraph::with_text("plain", CharProps::default());
     d.body = vec![para_block(split), para_block(joined), para_block(last)];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<w:rPr><w:ins w:id="#), "{xml}");
     assert!(xml.contains(r#"<w:rPr><w:del w:id="#), "{xml}");
@@ -1161,7 +1161,7 @@ fn fields_and_special_chars_round_trip() {
 
 /// The `document.xml` of a written package.
 fn document_xml(bytes: &[u8]) -> String {
-    let mut zip = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap()
 }
@@ -1441,7 +1441,7 @@ fn drawing_canvas_round_trips() {
     p.insert_object(end, canvas, &CharProps::default()).unwrap();
     d.body = vec![para_block(p)];
     let bytes = letra_docx::write(&d).unwrap();
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains("wordprocessingCanvas") && xml.contains("<wpc:wpc>") && xml.contains("<wpc:bg>") && xml.contains("<wpc:whole>"), "{xml}");
     let r = letra_docx::read(&bytes).unwrap();
@@ -1488,7 +1488,7 @@ fn rotated_drawing_canvas_round_trips() {
     let end = p.len();
     p.insert_object(end, canvas(square), &CharProps::default()).unwrap();
     let bytes = letra_docx::write(&doc_with(vec![p])).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(
         xml.contains(r#"<wpc:extLst><a:ext uri="urn:wordcraft:canvas-xfrm"><a:xfrm rot="1800000" flipH="1"/></a:ext></wpc:extLst></wpc:wpc>"#),
@@ -1517,7 +1517,7 @@ fn table_contextual_spacing_compatibility_flag_round_trips() {
             assert_eq!(r.settings.compat_mode, mode);
             if allow {
                 let bytes = letra_docx::write(&d).unwrap();
-                let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+                let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
                 let xml = String::from_utf8(zip.read("word/settings.xml", 16 << 20).unwrap().unwrap()).unwrap();
                 // CT_Compat requires the boolean option before compatSetting.
                 assert!(xml.find("<w:allowSpaceOfSameStyleInTable").unwrap() < xml.find("<w:compatSetting").unwrap());
@@ -1549,7 +1549,7 @@ fn attached_template_and_link_styles_round_trip() {
     d.settings.mirror_margins = true;
     d.settings.track_changes = true;
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/settings.xml", 16 << 20).unwrap().unwrap()).unwrap();
     let at = |tag: &str| xml.find(tag).unwrap_or_else(|| panic!("{tag} missing: {xml}"));
     assert!(at("<w:mirrorMargins") < at("<w:attachedTemplate"));
@@ -1573,7 +1573,7 @@ fn attached_template_and_link_styles_round_trip() {
 #[test]
 fn gutter_at_top_survives_open_and_save() {
     let settings_xml = |bytes: &[u8]| {
-        let mut zip = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut zip = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
         String::from_utf8(zip.read("word/settings.xml", 16 << 20).unwrap().unwrap()).unwrap()
     };
     let mut d = Document::new();
@@ -1596,7 +1596,7 @@ fn gutter_at_top_survives_open_and_save() {
 #[test]
 fn zoom_round_trips() {
     let settings = |bytes: &[u8]| {
-        let mut zip = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut zip = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
         String::from_utf8(zip.read("word/settings.xml", 16 << 20).unwrap().unwrap()).unwrap()
     };
@@ -1661,7 +1661,7 @@ fn settings_core_theme_round_trip() {
 }
 
 fn part_xml(bytes: &[u8], name: &str) -> String {
-    let mut z = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
 
     String::from_utf8(z.read(name, 16 << 20).unwrap().unwrap()).unwrap()
 }
@@ -2071,7 +2071,7 @@ fn char_border_written_between_u_and_shd() {
     let c =
         CharProps { border: Some(Border::single(0.5)), underline: Some(Underline::Single), shading: Some(Rgb(0xFF, 0xFF, 0)), ..Default::default() };
     let bytes = letra_docx::write(&doc_with(vec![para_runs(&[("x", c)])])).unwrap();
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     let bdr = r#"<w:bdr w:val="single" w:sz="4" w:space="0" w:color="auto"/>"#;
     assert_eq!(xml.matches(bdr).count(), 1, "{xml}");
@@ -2169,7 +2169,7 @@ fn ink_and_freeforms_round_trip_as_custom_geometry() {
     }
     let d = doc_with(vec![p]);
     let bytes = letra_docx::write(&d).unwrap();
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert_eq!(xml.matches("<a:custGeom>").count(), 3, "{xml}");
     assert!(xml.contains(r#"<a:path w="762000" h="254000" fill="none"><a:moveTo><a:pt x="12700" y="12700"/></a:moveTo><a:lnTo>"#), "{xml}");
@@ -2210,7 +2210,7 @@ fn shape_effects_round_trip() {
     let mut p = Paragraph::with_text("x", CharProps::default());
     p.insert_object(1, shape, &CharProps::default()).unwrap();
     let bytes = letra_docx::write(&doc_with(vec![p])).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(
         xml.contains(
@@ -2302,7 +2302,7 @@ fn rotation_and_flips_round_trip() {
     }
     d.body = vec![para_block(p)];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<a:xfrm rot="1800000">"#), "{xml}");
     assert!(xml.contains(r#"<a:xfrm rot="5400000" flipH="1">"#), "{xml}");
@@ -2354,7 +2354,7 @@ fn rotated_group_and_shadow_rotation_round_trip() {
     let mut p = Paragraph::with_text("g", CharProps::default());
     p.insert_object(1, group, &CharProps::default()).unwrap();
     let bytes = letra_docx::write(&doc_with(vec![p])).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<wpg:grpSpPr><a:xfrm rot="8100000" flipH="1">"#), "{xml}");
     assert!(xml.contains(r#"rotWithShape="1""#) && xml.contains(r#"rotWithShape="0""#), "{xml}");
@@ -2463,7 +2463,7 @@ fn a_corporate_author_round_trips() {
         ..Default::default()
     });
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes[..], craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes[..], nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let item_xml = String::from_utf8(zip.read("customXml/item1.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(item_xml.contains("<b:Author><b:Author><b:Corporate>World Health Organization</b:Corporate></b:Author><b:Editor>"), "{item_xml}");
     assert!(item_xml.contains("<b:Corporate>Harbor Guild, Inc.</b:Corporate>"), "{item_xml}");
@@ -2474,7 +2474,7 @@ fn a_corporate_author_round_trips() {
 }
 
 fn assert_bibliography_parts(bytes: &[u8]) {
-    let mut zip = craft_zip::Archive::open(bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     assert!(zip.contains("customXml/item1.xml"));
     assert!(zip.contains("customXml/itemProps1.xml"));
     assert!(zip.contains("customXml/_rels/item1.xml.rels"));
@@ -2618,7 +2618,7 @@ fn wrap_polygons_round_trip() {
     }
     d.body = vec![para_block(p)];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<wp:wrapPolygon edited="1"><wp:start x="-300" y="0"/><wp:lineTo x="21600" y="1200"/>"#), "{xml}");
     assert!(xml.contains(r#"<wp:lineTo x="-300" y="0"/></wp:wrapPolygon>"#), "closed: {xml}");
@@ -2656,7 +2656,7 @@ fn enclosed_characters_round_trip_in_words_structure() {
     }
     let doc = doc_with(vec![p]);
     let bytes = letra_docx::write(&doc).unwrap();
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"<w:instrText xml:space="preserve"> eq \o\ac(○</w:instrText>"#), "{xml}");
     assert!(!xml.contains("separate") && !xml.contains("enlarge"), "{xml}");
@@ -2690,7 +2690,7 @@ fn ruby_phonetic_guide_round_trips_as_w_ruby() {
     p.insert_object(5, ruby.clone(), &bold).unwrap();
     let d = doc_with(vec![p]);
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     for part in [
         r#"<w:rubyAlign w:val="distributeSpace"/><w:hps w:val="11"/><w:hpsRaise w:val="20"/><w:hpsBaseText w:val="22"/><w:lid w:val="ja-JP"/>"#,
@@ -2736,7 +2736,7 @@ fn wrap_text_sides_round_trip() {
     }
     d.body = vec![para_block(p)];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     for tag in [
         r#"<wp:wrapSquare wrapText="left"/>"#,
@@ -2802,7 +2802,7 @@ fn alt_text_title_and_decorative_round_trip_for_every_object() {
     t.props.description = Some("Prices by year".into());
     d.body = vec![para_block(p), Arc::new(Block::Table(t))];
     let bytes = letra_docx::write(&d).expect("write");
-    let mut zip = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut zip = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(zip.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"{C183D7F6-B498-43B3-948B-1728B52AA6E4}"><adec:decorative xmlns:adec="http://schemas.microsoft.com/office/drawing/2017/decorative" val="1"/>"#), "{xml}");
     assert!(
@@ -2882,7 +2882,7 @@ fn warps_and_glued_connectors_round_trip() {
 
     // Hostile: an unknown warp, a huge adjust value, a glue to a missing shape.
     let xml = letra_docx::write(&r).unwrap();
-    let mut pkg = craft_zip::Archive::open(&xml, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut pkg = nodalia_zip::Archive::open(&xml, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let doc_xml = String::from_utf8(pkg.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     let doc_xml = doc_xml
         .replace("prst=\"textArchUp\"", "prst=\"textNotAWarp\"")
@@ -2896,15 +2896,15 @@ fn warps_and_glued_connectors_round_trip() {
 
 /// `zip` with part `name` replaced by `data`.
 fn replace_part(zip_bytes: &[u8], name: &str, data: &[u8]) -> Vec<u8> {
-    let mut src = craft_zip::Archive::open(zip_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut src = nodalia_zip::Archive::open(zip_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let names: Vec<String> = src.names().map(|n| n.into_owned()).collect();
-    let mut out = craft_zip::Writer::new();
+    let mut out = nodalia_zip::Writer::new();
     for n in names {
         if n == name {
-            out.add(&n, data, craft_zip::Compression::Deflated).unwrap();
+            out.add(&n, data, nodalia_zip::Compression::Deflated).unwrap();
         } else {
             let bytes = src.read(&n, 16 << 20).unwrap().unwrap();
-            out.add(&n, &bytes, craft_zip::Compression::Deflated).unwrap();
+            out.add(&n, &bytes, nodalia_zip::Compression::Deflated).unwrap();
         }
     }
     out.finish().unwrap()
@@ -2948,7 +2948,7 @@ fn drop_cap_options_round_trip() {
     margin.props.drop_cap_margin = Some(true);
     let d = doc_with(vec![dropped, margin]);
     let bytes = letra_docx::write(&d).expect("write");
-    let mut z = craft_zip::Archive::open(&bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     assert!(xml.contains(r#"w:dropCap="drop" w:lines="2" w:hSpace="120""#), "{xml}");
     assert!(xml.contains(r#"w:dropCap="margin" w:lines="4""#), "{xml}");

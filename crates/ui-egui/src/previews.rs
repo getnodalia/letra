@@ -833,7 +833,7 @@ fn font_preview_rows_are_centred_on_the_drawn_text() {
 }
 
 /// Every loaded face's name fits its font-menu row: faces with tall line metrics (the
-/// craft-fonts Arabic and Japanese faces) were cut off at the bottom.
+/// nodalia-fonts Arabic and Japanese faces) were cut off at the bottom.
 #[test]
 fn font_preview_shows_the_whole_name_in_every_loaded_face() {
     let ppp = 2.0;

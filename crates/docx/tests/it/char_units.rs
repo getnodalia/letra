@@ -6,9 +6,9 @@ use letra_doc::Document;
 use letra_doc::props::ParaProps;
 
 fn zip(entries: &[(&str, &[u8])]) -> Vec<u8> {
-    let mut zw = craft_zip::Writer::new();
+    let mut zw = nodalia_zip::Writer::new();
     for (name, bytes) in entries {
-        zw.add(name, bytes, craft_zip::Compression::Deflated).unwrap();
+        zw.add(name, bytes, nodalia_zip::Compression::Deflated).unwrap();
     }
     zw.finish().unwrap()
 }
@@ -42,7 +42,7 @@ fn character_indents_read_and_round_trip() {
     assert_eq!((p[3].indent_first_chars, p[3].indent_left_chars), (Some(1584.0), None));
 
     let _z_bytes = letra_docx::write(&d).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     for attr in [r#"w:firstLineChars="200""#, r#"w:leftChars="150""#, r#"w:rightChars="50""#, r#"w:hangingChars="100""#, r#"w:firstLineChars="0""#] {
         assert!(xml.contains(attr), "{attr} missing: {xml}");
@@ -69,7 +69,7 @@ fn automatic_spacing_reads_and_round_trips() {
     assert_eq!(d.styles.resolve_para(&p[2]).space_after, 5.0);
 
     let _z_bytes = letra_docx::write(&d).unwrap();
-    let mut z = craft_zip::Archive::open(&_z_bytes, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+    let mut z = nodalia_zip::Archive::open(&_z_bytes, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
     let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
     for attr in [r#"w:beforeAutospacing="1""#, r#"w:afterAutospacing="1""#, r#"w:beforeAutospacing="0""#] {
         assert!(xml.contains(attr), "{attr} missing");
@@ -87,7 +87,7 @@ fn adjust_right_indent_is_preserved() {
     assert_eq!(props(&d).iter().map(|p| p.adjust_right_indent).collect::<Vec<_>>(), [Some(false), Some(true), None]);
     for _ in 0..2 {
         let out = letra_docx::write(&d).unwrap();
-        let mut z = craft_zip::Archive::open(&out, craft_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
+        let mut z = nodalia_zip::Archive::open(&out, nodalia_zip::Limits { max_entries: 10_000, max_total_bytes: 64 << 20 }).unwrap();
         let xml = String::from_utf8(z.read("word/document.xml", 16 << 20).unwrap().unwrap()).unwrap();
         assert!(xml.contains(r#"<w:adjustRightInd w:val="0""#), "explicit false was lost: {xml}");
         assert!(xml.contains("<w:adjustRightInd/>"), "explicit true was lost: {xml}");

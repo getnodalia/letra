@@ -427,19 +427,19 @@ fn untranslated_interface_text() {
     assert!(found.is_empty(), "{} interface texts skip translation (wrap them in tl!):\n{report}", found.len());
 }
 
-/// The missing-translation report (craft-i18n's S3; `cargo xtask i18n-report`, part of `cargo xtask
+/// The missing-translation report (nodalia-i18n's S3; `cargo xtask i18n-report`, part of `cargo xtask
 /// ci`): the embedded catalogs' problems (the crate's `check_all`), and per language the interface
-/// strings with no translation (the missing bucket, which translators fill in craft-i18n) and those
+/// strings with no translation (the missing bucket, which translators fill in nodalia-i18n) and those
 /// whose translation is the English itself (kept English, not counted as translated). A missing
 /// translation falls back to English, so the report never fails; without embedded catalogs
-/// (`CRAFT_I18N_DIR` unset) it is skipped. The strings are the ones the audit saw looked up, the
+/// (`NODALIA_I18N_DIR` unset) it is skipped. The strings are the ones the audit saw looked up, the
 /// ribbon tabs, every command's label and ribbon location, the File › Home greetings, every reason
 /// a command gives for being off (#2678) and the equation gallery's labels (shown in menus the
 /// audit doesn't open one by one). Numbered style names go through a template.
 fn report_catalog_gaps(mut keys: std::collections::BTreeSet<String>) {
     use letra_engine::math_gallery::{BUILT_INS, STRUCTURES, SYMBOL_SETS};
-    if super::CRAFT_I18N.is_empty() {
-        eprintln!("missing-translation report skipped: built without craft-i18n (set CRAFT_I18N_DIR to a craft-i18n checkout)");
+    if super::NODALIA_I18N.is_empty() {
+        eprintln!("missing-translation report skipped: built without nodalia-i18n (set NODALIA_I18N_DIR to a nodalia-i18n checkout)");
         return;
     }
     let problems = super::I18N.check_all();
@@ -656,9 +656,9 @@ fn frame_at(ctx: &egui::Context, app: &mut WordApp, width: f32) -> Vec<(String, 
 /// so a grid that is not wrapped in `rtl::grid` fails here.
 #[test]
 fn the_arabic_interface_is_mirrored_and_never_panics() {
-    // Arabic comes from the craft-i18n catalogs: a build without them (English only) has nothing to mirror.
+    // Arabic comes from the nodalia-i18n catalogs: a build without them (English only) has nothing to mirror.
     let Some(ar) = super::Lang::from_code("ar") else {
-        eprintln!("skipped: built without the craft-i18n Arabic catalog (set CRAFT_I18N_DIR to a checkout)");
+        eprintln!("skipped: built without the nodalia-i18n Arabic catalog (set NODALIA_I18N_DIR to a checkout)");
         return;
     };
     let start = |ctx: &egui::Context| {

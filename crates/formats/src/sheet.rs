@@ -1,8 +1,8 @@
-//! Spreadsheets as mail-merge recipient lists via `craft-ods`, `craft-xls`, and `craft-xlsx`.
+//! Spreadsheets as mail-merge recipient lists via `nodalia-ods`, `nodalia-xls`, and `nodalia-xlsx`.
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-use craft_sheet::{CellRef, Value};
+use nodalia_sheet::{CellRef, Value};
 
 pub const EXTENSIONS: &[&str] = &["xlsx", "xlsm", "xls", "ods"];
 pub const MAX_ROWS: usize = 100_000;
@@ -28,16 +28,16 @@ pub fn is_extension(ext: &str) -> bool {
 }
 
 pub fn detect(bytes: &[u8]) -> Option<Kind> {
-    if craft_xls::is_xls(bytes) {
+    if nodalia_xls::is_xls(bytes) {
         return Some(Kind::Xls);
     }
     if bytes.starts_with(b"PK") {
-        if let Ok(mut pkg) = craft_xlsx::Package::open(bytes, &craft_xlsx::Limits::default())
+        if let Ok(mut pkg) = nodalia_xlsx::Package::open(bytes, &nodalia_xlsx::Limits::default())
             && pkg.workbook().is_ok()
         {
             return Some(Kind::Xlsx);
         }
-        if craft_ods::read(bytes, &craft_ods::Options::default()).is_ok() {
+        if nodalia_ods::read(bytes, &nodalia_ods::Options::default()).is_ok() {
             return Some(Kind::Ods);
         }
     }
@@ -45,30 +45,30 @@ pub fn detect(bytes: &[u8]) -> Option<Kind> {
 }
 
 pub fn sheet_names(bytes: &[u8]) -> Result<Vec<String>, String> {
-    if craft_xls::is_xls(bytes) {
-        let read = craft_xls::read(bytes).map_err(|e| e.to_string())?;
+    if nodalia_xls::is_xls(bytes) {
+        let read = nodalia_xls::read(bytes).map_err(|e| e.to_string())?;
         return Ok(read.workbook.sheets.into_iter().map(|s| s.name).collect());
     }
-    if let Ok(mut pkg) = craft_xlsx::Package::open(bytes, &craft_xlsx::Limits::default())
+    if let Ok(mut pkg) = nodalia_xlsx::Package::open(bytes, &nodalia_xlsx::Limits::default())
         && let Ok(wb) = pkg.workbook()
     {
         return Ok(wb.sheets.into_iter().map(|s| s.name).collect());
     }
-    if let Ok(book) = craft_ods::read(bytes, &craft_ods::Options::default()) {
+    if let Ok(book) = nodalia_ods::read(bytes, &nodalia_ods::Options::default()) {
         return Ok(book.sheets.into_iter().map(|s| s.name).collect());
     }
     Err("not an Excel or OpenDocument spreadsheet".into())
 }
 
 pub fn read_rows(bytes: &[u8], pick: Pick<'_>) -> Result<(Vec<String>, Vec<Vec<String>>), String> {
-    if craft_xls::is_xls(bytes) {
-        let read = craft_xls::read(bytes).map_err(|e| e.to_string())?;
+    if nodalia_xls::is_xls(bytes) {
+        let read = nodalia_xls::read(bytes).map_err(|e| e.to_string())?;
         let names: Vec<String> = read.workbook.sheets.iter().map(|s| s.name.clone()).collect();
         let i = resolve(&names, pick)?;
         let sheet = &read.workbook.sheets[i];
         return Ok((names, cells_to_rows(&sheet.cells, |c| format_value(&c.value))));
     }
-    if let Ok(mut pkg) = craft_xlsx::Package::open(bytes, &craft_xlsx::Limits::default())
+    if let Ok(mut pkg) = nodalia_xlsx::Package::open(bytes, &nodalia_xlsx::Limits::default())
         && let Ok(wb) = pkg.workbook()
     {
         let names: Vec<String> = wb.sheets.iter().map(|s| s.name.clone()).collect();
@@ -91,7 +91,7 @@ pub fn read_rows(bytes: &[u8], pick: Pick<'_>) -> Result<(Vec<String>, Vec<Vec<S
         .map_err(|e| e.to_string())?;
         return Ok((names, grid_to_rows(&grid)));
     }
-    if let Ok(book) = craft_ods::read(bytes, &craft_ods::Options::default()) {
+    if let Ok(book) = nodalia_ods::read(bytes, &nodalia_ods::Options::default()) {
         let names: Vec<String> = book.sheets.iter().map(|s| s.name.clone()).collect();
         let i = resolve(&names, pick)?;
         let sheet = &book.sheets[i];
@@ -112,7 +112,7 @@ pub fn read_rows(bytes: &[u8], pick: Pick<'_>) -> Result<(Vec<String>, Vec<Vec<S
 #[cfg(feature = "test-support")]
 #[doc(hidden)]
 pub fn xls_fixture(sheets: &[(&str, Vec<Vec<String>>)]) -> Result<Vec<u8>, String> {
-    craft_xls::testing::workbook(sheets).map_err(|e| e.to_string())
+    nodalia_xls::testing::workbook(sheets).map_err(|e| e.to_string())
 }
 
 pub fn field_names(row: &[String]) -> Vec<String> {
