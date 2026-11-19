@@ -313,10 +313,16 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
     let left = if mac { bar.content_left as i8 } else { 8 };
     let control_h = if mac { 22.0 } else { 28.0 };
     let captions = crate::window_controls::reserved(app);
+    let captions_left = crate::window_controls::side(app) == Some(nodalia_theme::titlebar::Side::Left);
     egui::Panel::top("title_bar")
         .exact_size(if mac { bar.height } else { 44.0 })
         .show_separator_line(false)
-        .frame(egui::Frame::NONE.fill(t.title_bar).inner_margin(egui::Margin { left, right: if captions > 0.0 { 0 } else { 10 }, top: 0, bottom: 0 }))
+        .frame(egui::Frame::NONE.fill(t.title_bar).inner_margin(egui::Margin {
+            left: if captions_left { 0 } else { left },
+            right: if captions > 0.0 && !captions_left { 0 } else { 10 },
+            top: 0,
+            bottom: 0,
+        }))
         .show(ui, |ui| {
             let full = ui.max_rect();
             // Drag the window by the title bar (integrated title bar on macOS, and Letra's own
@@ -330,7 +336,12 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                 note_title_drag(ui.ctx(), full);
             }
             crate::window_controls::caption_buttons(app, ui, full);
-            let full = Rect::from_min_max(full.min, pos2(full.max.x - captions, full.max.y));
+            // The buttons take one end of the bar: the content keeps to the rest.
+            let full = if captions_left {
+                Rect::from_min_max(pos2(full.min.x + captions + f32::from(left), full.min.y), full.max)
+            } else {
+                Rect::from_min_max(full.min, pos2(full.max.x - captions, full.max.y))
+            };
             if drag.double_clicked() {
                 let max = ui.ctx().input(|i| i.viewport().maximized.unwrap_or(false));
                 ui.ctx().send_viewport_cmd(egui::ViewportCommand::Maximized(!max));

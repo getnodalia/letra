@@ -62,7 +62,13 @@ pub enum Caption {
 
 const CAPTIONS: [Caption; 3] = [Caption::Minimize, Caption::Maximize, Caption::Close];
 
-/// The width the buttons take at the title bar's right end: zero without Nodalia's controls.
+/// The end of the title bar Nodalia's buttons sit at: the side the desktop keeps its own on (the
+/// right on Windows-style layouts, the left on macOS-style ones), `None` without Nodalia's controls.
+pub fn side(app: &WordApp) -> Option<nodalia_theme::titlebar::Side> {
+    app.ndl_window_controls.then(nodalia_theme::titlebar::system_side)
+}
+
+/// The width the buttons take at their end of the title bar: zero without Nodalia's controls.
 pub fn reserved(app: &WordApp) -> f32 {
     if app.ndl_window_controls { CAPTIONS.len() as f32 * (SIZE + 2.0 * GAP) + END - GAP } else { 0.0 }
 }
@@ -81,7 +87,8 @@ pub fn toggle_maximize(ctx: &egui::Context) {
     ctx.send_viewport_cmd(ViewportCommand::Maximized(!maximized(ctx)));
 }
 
-/// The buttons at the right end of `bar` (the title bar's rect), full bar height. Close asks the
+/// The buttons at the desktop's side of `bar` (the title bar's rect), full bar height; at the left
+/// the order mirrors, with Close first. Close asks the
 /// host to close the window, which asks about unsaved work first. The buttons drag the window too,
 /// as GTK's and KDE's do.
 pub fn caption_buttons(app: &mut WordApp, ui: &mut Ui, bar: Rect) {
@@ -90,13 +97,16 @@ pub fn caption_buttons(app: &mut WordApp, ui: &mut Ui, bar: Rect) {
     }
     let t = Tokens::get(ui.ctx());
     let max = maximized(ui.ctx());
+    let left_side = side(app) == Some(nodalia_theme::titlebar::Side::Left);
     let right = bar.right().min(ui.ctx().content_rect().right());
-    let mut x = right - reserved(app);
+    let mut x = if left_side { bar.left() } else { right - reserved(app) };
     let mut clicked = None;
-    for (i, c) in CAPTIONS.into_iter().enumerate() {
-        let after = if i + 1 == CAPTIONS.len() { END } else { GAP };
-        let r = Rect::from_min_max(pos2(x, bar.top()), pos2(x + GAP + SIZE + after, bar.bottom()));
-        let centre = pos2(x + GAP + SIZE / 2.0, bar.center().y);
+    let order = if left_side { [Caption::Close, Caption::Maximize, Caption::Minimize] } else { CAPTIONS };
+    for (i, c) in order.into_iter().enumerate() {
+        // The outer end of the cluster keeps END from the window's edge, the inner end GAP.
+        let (before, after) = if left_side { (if i == 0 { END } else { GAP }, GAP) } else { (GAP, if i + 1 == CAPTIONS.len() { END } else { GAP }) };
+        let r = Rect::from_min_max(pos2(x, bar.top()), pos2(x + before + SIZE + after, bar.bottom()));
+        let centre = pos2(x + before + SIZE / 2.0, bar.center().y);
         x = r.right();
         let resp = ui.interact(r, caption_id(c), Sense::click_and_drag());
         if resp.drag_started_by(PointerButton::Primary) {
