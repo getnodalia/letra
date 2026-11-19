@@ -1,5 +1,5 @@
 //! One native window per open document. Each window is an egui viewport, driven by
-//! [`craft_window::Viewports`]: one window draws in the root viewport, every other one in an
+//! [`nodalia_window::Viewports`]: one window draws in the root viewport, every other one in an
 //! immediate viewport of its own, and each draws the whole interface (title bar, ribbon, page,
 //! status bar, dialogs) for its own document. [`WordApp`]'s fields hold the drawn window's state
 //! ([`crate::window_ui`]); the other windows keep theirs in their [`Window`]. Between frames the
@@ -29,9 +29,9 @@
 
 use std::collections::HashMap;
 
-use craft_window::{Document, Frame, Viewports, WindowEvent, WindowId, WindowList, WindowMenu};
 use egui::{ViewportCommand, ViewportId};
 use letra_engine::WindowView;
+use nodalia_window::{Document, Frame, Viewports, WindowEvent, WindowId, WindowList, WindowMenu};
 use serde_json::{Value, json};
 
 use crate::{WordApp, documents, window_ui::WindowUi};

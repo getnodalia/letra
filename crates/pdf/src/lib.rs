@@ -1,4 +1,4 @@
-//! Letra PDF export through the shared `craft-pdf` writer and Krilla drawing primitives.
+//! Letra PDF export through the shared `nodalia-pdf` writer and Krilla drawing primitives.
 //!
 //! [`export`] lays the document out and draws each page's display list
 //! ([`letra_layout::display::page_display`]) into a PDF page:
@@ -28,7 +28,6 @@ use std::collections::{HashMap, HashSet};
 use std::num::NonZeroU16;
 use std::sync::Arc;
 
-use craft_pdf::write::{self, Metadata, WriteError, Writer, backend as krilla};
 use krilla::annotation::{Annotation, LinkAnnotation, Target};
 use krilla::color::rgb;
 use krilla::destination::XyzDestination;
@@ -53,6 +52,7 @@ use letra_layout::display::{Draw, ItemDisplay, Stroke as LineStyle};
 use letra_layout::para::{ClKind, LineEnd};
 use letra_layout::{DocLayout, LayoutCache, NumeralMode, Page, Placed, layout};
 use letra_metafile::{Picture, PlacedItem};
+use nodalia_pdf::write::{self, Metadata, WriteError, Writer, backend as krilla};
 
 mod export;
 mod exporter;

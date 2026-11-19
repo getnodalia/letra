@@ -155,8 +155,8 @@ web build has no packs.
 A click or key sent with `click`/`key` on Add a language…, Install or Refresh never turns
 downloading on either: only the person's own click does; the app shows why instead.
 
-Installing reads the pinned index of craft-i18n's language-packs-2 release (75 languages). For
-testing packs before they are released, set `CRAFT_LANGUAGE_PACK_INDEX` to another index (a URL or a path
+Installing reads the pinned index of nodalia-i18n's language-packs-2 release (75 languages). For
+testing packs before they are released, set `NODALIA_LANGUAGE_PACK_INDEX` to another index (a URL or a path
 to an `index.json`) when starting Letra or `letra-cli`. That index isn't pinned, so the
 sha256 of each archive only matches what that index says: it catches a broken download, not a
 changed pack. `proof.packs` then returns `"index_override": "<url or path>"`, and the app shows the

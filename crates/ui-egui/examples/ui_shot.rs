@@ -14,7 +14,7 @@
 //! `{"demoPacks": true}` lists a few sample Language packs (installs only record themselves), and
 //! (with `{"network": true}` on a line, downloading is already on) `{"demoPacks": "store"}` uses a real font store, as the desktop app does, in a new temporary
 //! folder rather than the person's, or in `"storeDir"` given on the same line (with
-//! `CRAFT_LANGUAGE_PACK_INDEX` for a local pack index).
+//! `NODALIA_LANGUAGE_PACK_INDEX` for a local pack index).
 
 use letra_engine::Session;
 use letra_ui_egui::{ControlRequest, Services, WordApp};

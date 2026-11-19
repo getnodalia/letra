@@ -1,6 +1,6 @@
 //! Host modes: a page that runs Letra (as an `<iframe>`, or in its own document) opens
 //! documents in it and stores what it saves instead of the browser downloading. The messages and
-//! the two transports are `craft-web-host`'s (getnodalia/foundation (vendor/craft-libs)), the same contract as the
+//! the two transports are `nodalia-web-host`'s (getnodalia/foundation (vendor/nodalia-libs)), the same contract as the
 //! other Craft apps' bridges, with the `letra:` prefix. This module is Letra's part of it.
 //!
 //! - `?host=parent` (an `<iframe>`, such as a Nextcloud app) talks to the same-origin parent over
@@ -32,8 +32,8 @@
 
 use std::rc::Rc;
 
-use craft_web_host::web::{FileData, Host, Message};
 use letra_ui_egui::{Inbox, Services, WordApp};
+use nodalia_web_host::web::{FileData, Host, Message};
 
 /// The app id in the host messages (`letra:ready`).
 const APP: &str = "letra";

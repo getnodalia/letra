@@ -1,5 +1,5 @@
 //! A test-only pseudo-language: while it is on (per thread), every string that goes through a
-//! lookup comes back as the craft-i18n crate's pseudo locale marks it, wrapped in `⟦…⟧`, so text
+//! lookup comes back as the nodalia-i18n crate's pseudo locale marks it, wrapped in `⟦…⟧`, so text
 //! drawn without the marks never went through translation.
 
 use std::cell::Cell;

@@ -19,7 +19,7 @@
 
 use std::sync::mpsc::Sender;
 
-use craft_ui::capture::CaptureSlot;
+use nodalia_ui::capture::CaptureSlot;
 
 use serde_json::{Value, json};
 

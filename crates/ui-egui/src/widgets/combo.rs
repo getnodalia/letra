@@ -419,7 +419,7 @@ fn combo_impl(ui: &mut Ui, options: ComboOptions<'_>) -> Option<String> {
         let close = if search { egui::PopupCloseBehavior::CloseOnClickOutside } else { egui::PopupCloseBehavior::CloseOnClick };
         let mut menu_field = aresp.clone();
         menu_field.rect = resp.rect.union(ar);
-        let menu = craft_ui::combo::Menu::new(ui, &menu_field).close_behavior(close).height(420.0);
+        let menu = nodalia_ui::combo::Menu::new(ui, &menu_field).close_behavior(close).height(420.0);
         let row_h = if preview.is_some() { COMBO_PREVIEW_ROW_H } else { ui.spacing().interact_size.y };
         // The recent section keeps its order while the list stays open: a pick moves the family to
         // the top for the next time the list opens, not under the pointer.

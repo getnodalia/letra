@@ -61,7 +61,7 @@ fn list(s: &mut Session, v: &Value) -> CmdResult {
         "refreshing": packs::fetching(),
         "errors": packs::errors().into_iter().map(|(l, e)| (l, Value::String(e))).collect::<serde_json::Map<String, Value>>(),
         "network": backend.as_ref().is_some_and(|b| b.network_on()),
-        // The packs come from a test index (`CRAFT_LANGUAGE_PACK_INDEX`), not the pinned one.
+        // The packs come from a test index (`NODALIA_LANGUAGE_PACK_INDEX`), not the pinned one.
         "index_override": packs::index_override(),
         "available": backend.is_some(),
     }))
@@ -635,7 +635,7 @@ mod tests {
         });
     }
 
-    /// Swiss German and European Portuguese are pack languages in craft-proof (`de-ch`, `pt-pt`:
+    /// Swiss German and European Portuguese are pack languages in nodalia-proof (`de-ch`, `pt-pt`:
     /// their spelling is their own) but hyphenate and check grammar as German and Portuguese.
     #[test]
     fn swiss_german_and_portugal_portuguese_keep_their_languages_rules() {

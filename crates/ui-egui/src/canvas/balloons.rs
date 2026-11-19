@@ -104,7 +104,7 @@ pub(super) fn balloons(app: &mut WordApp, ui: &mut Ui, painter: &egui::Painter, 
             let active = app.canvas.balloon == Some(*id);
             // Lay out a read-only balloon's text: the comment, then each reply under a rule,
             // each with who wrote it and when. (galley, gap above, a rule above, height shown)
-            let mut lines: Vec<(craft_ui::text::AlignedGalley, f32, bool, f32)> = Vec::new();
+            let mut lines: Vec<(nodalia_ui::text::AlignedGalley, f32, bool, f32)> = Vec::new();
             let card = if active {
                 Rect::from_min_size(pos2(x0, top), vec2(w, app.canvas.balloon_h.max(24.0)))
             } else {
@@ -276,10 +276,10 @@ fn card_shapes(painter: &egui::Painter, t: &Tokens, card: Rect, color: Color32, 
 
 /// The height of a balloon body's first [`COMMENT_ROWS`](crate::panes::COMMENT_ROWS) rows; the
 /// rest is cut off until the balloon is selected and its field scrolls.
-fn shown_height(g: &craft_ui::text::AlignedGalley) -> f32 {
+fn shown_height(g: &nodalia_ui::text::AlignedGalley) -> f32 {
     match g {
-        craft_ui::text::AlignedGalley::Aligned { galley, .. } => galley.rows.get(crate::panes::COMMENT_ROWS).map_or(g.height(), |r| r.pos.y),
-        craft_ui::text::AlignedGalley::InvalidWidth { .. } => g.height(),
+        nodalia_ui::text::AlignedGalley::Aligned { galley, .. } => galley.rows.get(crate::panes::COMMENT_ROWS).map_or(g.height(), |r| r.pos.y),
+        nodalia_ui::text::AlignedGalley::InvalidWidth { .. } => g.height(),
     }
 }
 
@@ -287,13 +287,13 @@ fn shown_height(g: &craft_ui::text::AlignedGalley) -> f32 {
 /// mixed-direction paragraphs itself; `TextDirection::Auto` takes each paragraph's first strong
 /// character. Place each already-shaped row against the card's start edge, including neutral
 /// paragraphs inheriting their predecessor's direction. Logical text and glyph order stay intact.
-pub(super) fn balloon_text(painter: &egui::Painter, text: String, font: egui::FontId, color: Color32, width: f32) -> craft_ui::text::AlignedGalley {
+pub(super) fn balloon_text(painter: &egui::Painter, text: String, font: egui::FontId, color: Color32, width: f32) -> nodalia_ui::text::AlignedGalley {
     let mut job = egui::text::LayoutJob::simple(text, font, color, width);
     job.direction = egui::epaint::text::TextDirection::Auto;
     job.halign = egui::Align::Min;
     // Row placement below supplies the reading edge, including empty RTL rows.
     job.halign_min_is_start = false;
-    craft_ui::text::align_galley_rows(painter.layout_job(job), width, |row| if row.rtl_paragraph { egui::Align::Max } else { egui::Align::Min })
+    nodalia_ui::text::align_galley_rows(painter.layout_job(job), width, |row| if row.rtl_paragraph { egui::Align::Max } else { egui::Align::Min })
 }
 
 /// The selected balloon: the comment and its replies, each with who wrote it and when, as

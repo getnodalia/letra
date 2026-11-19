@@ -25,7 +25,7 @@ commands:
                   audit with its missing-translation report, then doctests
   i18n-report     the interface audit: fails on text that skips the catalog, and prints the
                   strings each language has no translation for (never a failure)
-  language        the build embeds English Language data plus only what CRAFT_PROOF_EMBED names (`en`: English
+  language        the build embeds English Language data plus only what NODALIA_PROOF_EMBED names (`en`: English
                   only), or by default the carry-over locales (de, pl, pt, it, ru) until Language packs ship
   ci              fmt --check, clippy -D warnings, test, i18n-report, language, doctest, assets,
                   layers, wasm
@@ -185,8 +185,8 @@ fn cmd_test() -> Result<(), String> {
 const LANGUAGE_CHECK: &str = "packs::tests::the_default_build_embeds_only_english";
 const LANGUAGE_CHECK_FILTER: &str = "package(letra-engine) & test(=packs::tests::the_default_build_embeds_only_english)";
 
-/// CP4.4: the embedded locales are English plus what the build asked for: `CRAFT_PROOF_EMBED`
-/// (craft-proof's build.rs; `en` alone is the English-only build), else the carry-over locales
+/// CP4.4: the embedded locales are English plus what the build asked for: `NODALIA_PROOF_EMBED`
+/// (nodalia-proof's build.rs; `en` alone is the English-only build), else the carry-over locales
 /// until Language packs ship.
 fn cmd_language() -> Result<(), String> {
     test_run(&["-E", LANGUAGE_CHECK_FILTER], &["--exact", LANGUAGE_CHECK])

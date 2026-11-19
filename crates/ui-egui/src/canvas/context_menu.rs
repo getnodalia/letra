@@ -49,7 +49,7 @@ fn equation_menu(app: &mut WordApp, ui: &mut Ui) {
 }
 
 /// The heading of a proofing issue's context menu, in the interface language like the rest of
-/// the menu: a spelling issue's own message is in the text's language (craft-proof's, "Faute
+/// the menu: a spelling issue's own message is in the text's language (nodalia-proof's, "Faute
 /// d'orthographe possible" for French text), so it says Possible spelling mistake instead.
 /// English grammar rules' messages are catalog keys; other languages' rules explain in their own.
 pub(crate) fn issue_heading(issue: &serde_json::Value) -> String {
