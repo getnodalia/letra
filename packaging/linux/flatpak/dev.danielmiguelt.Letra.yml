@@ -18,6 +18,8 @@ sdk-extensions:
   - org.freedesktop.Sdk.Extension.rust-stable
 command: letra
 finish-args:
+  # The shared updater inspects and updates this installation via flatpak-spawn --host.
+  - --talk-name=org.freedesktop.Flatpak
   - --filesystem=xdg-data/Nodalia/versions:ro
   # Display: Wayland first; X11 only when no Wayland compositor is running.
   - --socket=wayland
@@ -128,6 +130,6 @@ modules:
       # the two equal).
       - type: git
         url: https://github.com/getnodalia/foundation
-        commit: e8ee4b2a43c9bb269cc0aa4c1a8c9af13bb70647
+        commit: c10ca1f628bbdfe4fa88b4248d97098d9530b0cc
         dest: nodalia-i18n
       - cargo-sources.json

@@ -10,8 +10,10 @@ workspace = true
 
 [features]
 # Picture decoding within a memory budget (`picture`), for the crates that decode pictures.
-image = ["dep:image"]
+image = ["dep:image", "dep:nodalia-image-codecs", "dep:nodalia-tiff"]
 
 [dependencies]
+nodalia-image-codecs = { workspace = true, optional = true }
+nodalia-tiff = { workspace = true, optional = true }
 image = { workspace = true, optional = true }
 serde = { workspace = true }

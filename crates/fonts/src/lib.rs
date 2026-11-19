@@ -8,6 +8,7 @@
 #![forbid(unsafe_code)]
 
 pub mod color;
+pub mod download;
 mod fontdb;
 pub mod math;
 mod script;
@@ -643,7 +644,7 @@ mod tests {
     }
 
     #[test]
-    fn works_without_nodalia_fonts() {
+    fn works_without_craft_fonts() {
         // Always true without NODALIA_FONTS_DIR; with it, the bundled fonts must still all load.
         let db = FontDb::with_font_dirs(Vec::new());
         db.set_system_fallback(false);

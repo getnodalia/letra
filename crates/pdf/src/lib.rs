@@ -51,7 +51,7 @@ use letra_layout::display::Paint;
 use letra_layout::display::{Draw, ItemDisplay, Stroke as LineStyle};
 use letra_layout::para::{ClKind, LineEnd};
 use letra_layout::{DocLayout, LayoutCache, NumeralMode, Page, Placed, layout};
-use letra_metafile::{Picture, PlacedItem};
+use nodalia_metafile::{Picture, PlacedItem};
 use nodalia_pdf::write::{self, Metadata, WriteError, Writer, backend as krilla};
 
 mod export;

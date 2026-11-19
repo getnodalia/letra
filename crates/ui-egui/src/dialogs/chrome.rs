@@ -188,6 +188,7 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
         Dialog::Icons { .. } => "Icons",
         Dialog::PasteSpecial { .. } => "Paste Special",
         Dialog::About { .. } => "About Letra",
+        Dialog::FontDownload { .. } => "Get the Missing Fonts",
         Dialog::SaveChanges { .. } => "Letra",
         Dialog::DiscardRecovery { .. } => "Discard recovery copy",
         Dialog::RecipientList { .. } => "Recipient List",
@@ -231,7 +232,21 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     let shown = place_dialog(ctx, id, window).show(ctx, |ui| {
         ui.visuals_mut().widgets.open.weak_bg_fill = open_fill;
         ui.set_min_width(340.0);
-        close = crate::rtl::root(ui, |ui| body(app, ui, &mut d));
+        // Scrolls only when the last frame's body was taller than the screen.
+        let room = (ui.ctx().content_rect().height() - 110.0).max(160.0);
+        let key = id.with("body_height");
+        let tall = ui.ctx().data(|data| data.get_temp::<f32>(key)).is_some_and(|h| h > room);
+        let mut content = |ui: &mut egui::Ui| {
+            let top = ui.cursor().min.y;
+            close = crate::rtl::root(ui, |ui| body(app, ui, &mut d));
+            let height = ui.min_rect().max.y - top;
+            ui.ctx().data_mut(|data| data.insert_temp(key, height));
+        };
+        if tall {
+            egui::ScrollArea::vertical().max_height(room).auto_shrink([true, true]).show(ui, content);
+        } else {
+            content(ui);
+        }
     });
     ctx.all_styles_mut(|s| s.visuals.widgets.open.weak_bg_fill = open_fill);
     if let Some(events) = held {
@@ -254,7 +269,14 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
             });
         }
         count_dialog_frame(ctx, id);
-        close |= crate::window_close::show(ctx, &shown.response, &Tokens::get(ctx));
+        if crate::window_close::show(ctx, &shown.response, &Tokens::get(ctx)) && !close {
+            close = true;
+            // The title bar's close box is Cancel: a dialog opened from Define New Bullet goes
+            // back to it, as its Cancel button does (#2786).
+            if back_to_bullet(app, &mut d) {
+                return;
+            }
+        }
         // A file browser it opened (Attach…, Browse…) stays above it.
         if d.is_modal() && !close && !app.file_browser_open() {
             block_behind(app, ctx, &shown.response);
@@ -269,6 +291,13 @@ pub fn show(app: &mut WordApp, ctx: &egui::Context) {
     } else {
         app.dialog = Some(d);
     }
+}
+
+/// Back to Define New Bullet from a Font or Symbol dialog it opened, when `d` is one (#2786).
+fn back_to_bullet(app: &mut WordApp, d: &mut Dialog) -> bool {
+    let Some(form) = d.bullet_form() else { return false };
+    app.dialog = Some(Dialog::Insert(Box::new(crate::dialogs_insert::InsertDialog::DefineBullet(form))));
+    true
 }
 
 /// Cancel key for dialogs: Escape everywhere, plus ⌘. (Command+Period) on macOS.

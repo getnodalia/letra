@@ -13,7 +13,7 @@ letra-geom = { workspace = true, features = ["image"] }
 letra-doc = { workspace = true }
 letra-fonts = { workspace = true }
 letra-proof = { workspace = true }
-letra-metafile = { workspace = true }
+nodalia-metafile = { workspace = true }
 kurbo = { workspace = true }
 unicode-bidi = { workspace = true }
 unicode-linebreak = { workspace = true }
