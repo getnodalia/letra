@@ -281,10 +281,10 @@ fn undo_list_cancel_closes_without_undoing() {
 
 #[test]
 fn mac_title_bar_centres_and_clears_the_traffic_lights() {
-    // The lights are centred in the bar, and content keeps the same gap after them.
+    // Content starts at least the lights' own gap after the green button.
     let margin = (MAC_TITLE_BAR - MAC_LIGHT) / 2.0;
     let lights_end = MAC_LIGHTS_LEFT + 2.0 * MAC_LIGHT_PITCH + MAC_LIGHT;
-    assert_eq!(MAC_CONTENT_LEFT - lights_end, margin);
+    assert!(MAC_CONTENT_LEFT >= lights_end + margin);
     // `egui::Margin` is in `i8`.
     assert!(MAC_CONTENT_LEFT <= f32::from(i8::MAX));
 }

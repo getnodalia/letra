@@ -1156,9 +1156,9 @@ fn paste_special_dialog(app: &mut WordApp, ui: &mut Ui, d: &mut Dialog) -> bool 
     ok || cancel
 }
 
-/// About, as every Nodalia app draws it: the icon, the name and version, one line on what the app
-/// is, its links, and the credit to the authors whose work it includes (their notices are in
-/// NOTICE). The licences of the language data are one click further.
+/// About, as every Nodalia app draws it (`nodalia_theme::about`): the icon, the name and version, one
+/// line on what the app is, its links, and the credit to the authors whose work it includes (their
+/// notices are in NOTICE). The licences of the language data are one click further.
 fn about_dialog(ui: &mut Ui, d: &mut Dialog) -> bool {
     let Dialog::About { tab } = d else {
         return false;
@@ -1173,42 +1173,44 @@ fn about_dialog(ui: &mut Ui, d: &mut Dialog) -> bool {
         crate::language_packs::about_tab(ui);
         return super::chrome::close_button(ui);
     }
-    ui.set_width(360.0);
-    ui.vertical_centered(|ui| {
-        ui.add_space(8.0);
-        if let Some(icon) = about_icon(ui.ctx()) {
-            ui.add(egui::Image::new(&icon).fit_to_exact_size(vec2(96.0, 96.0)));
+    ui.set_width(nodalia_theme::about::measures::WIDTH);
+    let look = nodalia_theme::creator::Look::new(crate::theme::palette(if t.dark { nodalia_theme::Mode::Dark } else { nodalia_theme::Mode::Light }))
+        .strong_family(crate::theme::semibold(1.0).family)
+        .medium_family(crate::theme::medium(1.0).family);
+    let build = option_env!("LETRA_BUILD_SHA").map(|s| s.get(..8).unwrap_or(s)).unwrap_or(tl!("development build"));
+    let version = crate::i18n::fmt(tl!("Version {version} ({build})"), &[("version", env!("CARGO_PKG_VERSION")), ("build", build)]);
+    // The last link opens the language data licences inside the dialog; its hover text says what it is.
+    let links = [
+        nodalia_theme::about::Link { label: tl!("Website"), url: "https://getnodalia.com/letra" },
+        nodalia_theme::about::Link { label: tl!("Report a problem"), url: "https://github.com/getnodalia/letra/issues" },
+        nodalia_theme::about::Link { label: tl!("Source code"), url: "https://github.com/getnodalia/letra" },
+        nodalia_theme::about::Link { label: tl!("Licences"), url: tl!("The spelling and hyphenation data Letra uses, and their licences.") },
+    ];
+    let info = nodalia_theme::about::Info {
+        name: tl!("Letra"),
+        version: &version,
+        tagline: tl!("A free word processor, written in Rust."),
+        suite: tl!("Part of Nodalia"),
+        links: &links,
+        footer: tl!("MIT OR Apache-2.0. Includes open-source work by other authors; see NOTICE."),
+    };
+    let icon = about_icon(ui.ctx());
+    let page = nodalia_theme::about::page(ui, &look, &info, |ui, rect| {
+        if let Some(icon) = &icon {
+            egui::Image::new(icon).fit_to_exact_size(rect.size()).paint_at(ui, rect);
         }
-        ui.add_space(10.0);
-        ui.label(egui::RichText::new(tl!("Letra")).font(semibold(26.0)).color(t.text));
-        let build = option_env!("LETRA_BUILD_SHA").map(|s| s.get(..8).unwrap_or(s)).unwrap_or(tl!("development build"));
-        ui.label(
-            egui::RichText::new(crate::i18n::fmt(tl!("Version {version} ({build})"), &[("version", env!("CARGO_PKG_VERSION")), ("build", build)]))
-                .color(t.text_dim),
-        );
-        ui.add_space(10.0);
-        ui.label(tl!("A free word processor, written in Rust."));
-        ui.label(egui::RichText::new(tl!("Part of Nodalia")).font(semibold(13.0)).color(t.accent_text));
-        ui.add_space(14.0);
-        for (label, url) in [
-            (tl!("Website"), "https://getnodalia.com/letra"),
-            (tl!("Report a problem"), "https://github.com/getnodalia/letra/issues"),
-            (tl!("Source code"), "https://github.com/getnodalia/letra"),
-        ] {
-            let b = ui.add(egui::Button::new(label).min_size(vec2(220.0, 30.0)));
-            if b.clicked() {
-                ui.ctx().open_url(egui::OpenUrl::new_tab(url));
-            }
-            ui.add_space(4.0);
-        }
-        if ui.add(egui::Button::new(tl!("Licences")).min_size(vec2(220.0, 30.0))).clicked() {
-            *tab = 1;
-        }
-        ui.add_space(14.0);
-        ui.label(egui::RichText::new(tl!("MIT OR Apache-2.0. Includes open-source work by other authors; see NOTICE.")).small().color(t.text_dim));
     });
-    // One Close button: About has nothing to cancel.
-    super::chrome::close_button(ui)
+    match page.picked {
+        Some(3) => *tab = 1,
+        Some(i) => {
+            if let Some(link) = links.get(i) {
+                ui.ctx().open_url(egui::OpenUrl::new_tab(link.url));
+            }
+        }
+        None => {}
+    }
+    // The window's own round close button closes About; Escape does too.
+    ui.input(|i| i.key_pressed(egui::Key::Escape))
 }
 
 /// The app icon About shows, decoded once.
