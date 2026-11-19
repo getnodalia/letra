@@ -2939,7 +2939,7 @@ checksum = "7a79a3332a6609480d7d0c9eab957bca6b455b91bb84e66d19f5ff66294b85b8"
 
 [[package]]
 name = "letra"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "arboard",
  "chrono",
@@ -2978,7 +2978,7 @@ dependencies = [
 
 [[package]]
 name = "letra-cli"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "image",
  "letra-doc",
@@ -2995,11 +2995,11 @@ dependencies = [
 
 [[package]]
 name = "letra-control-key"
-version = "0.2.0"
+version = "0.3.0"
 
 [[package]]
 name = "letra-doc"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "base64 0.23.1",
  "letra-geom",
@@ -3015,7 +3015,7 @@ dependencies = [
 
 [[package]]
 name = "letra-docbin"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "cfb",
  "letra-doc",
@@ -3027,7 +3027,7 @@ dependencies = [
 
 [[package]]
 name = "letra-docx"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "base64 0.23.1",
  "cfb",
@@ -3046,7 +3046,7 @@ dependencies = [
 
 [[package]]
 name = "letra-engine"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "cfb",
  "chrono",
@@ -3082,7 +3082,7 @@ dependencies = [
 
 [[package]]
 name = "letra-fonts"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "brotli-decompressor 6.3.1",
  "harfrust 0.13.3",
@@ -3097,7 +3097,7 @@ dependencies = [
 
 [[package]]
 name = "letra-formats"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "chardetng",
  "chrono",
@@ -3127,7 +3127,7 @@ dependencies = [
 
 [[package]]
 name = "letra-geom"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "image",
  "nodalia-image-codecs",
@@ -3137,7 +3137,7 @@ dependencies = [
 
 [[package]]
 name = "letra-layout"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "image",
  "js-sys",
@@ -3157,7 +3157,7 @@ dependencies = [
 
 [[package]]
 name = "letra-mcp"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "letra-control-key",
  "letra-doc",
@@ -3170,7 +3170,7 @@ dependencies = [
 
 [[package]]
 name = "letra-pdf"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "chrono",
  "hayro-cmap",
@@ -3191,7 +3191,7 @@ dependencies = [
 
 [[package]]
 name = "letra-render"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "image",
  "letra-doc",
@@ -3205,7 +3205,7 @@ dependencies = [
 
 [[package]]
 name = "letra-ui-egui"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "accesskit_consumer",
  "cfb",
@@ -3239,7 +3239,7 @@ dependencies = [
 
 [[package]]
 name = "letra-web"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "eframe",
  "egui",
@@ -3260,7 +3260,7 @@ dependencies = [
 
 [[package]]
 name = "letra-zotero"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "letra-doc",
  "letra-docx",
@@ -7725,7 +7725,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "serde_json",
 ]

@@ -46,6 +46,26 @@ fn qat_button(ui: &mut Ui, app: &mut WordApp, icon: &str, tip: &str, id: &str, e
     resp
 }
 
+/// The title bar's Home button: back to the start screen (templates and recent files) from a
+/// document, as the Home button of Celdas and Lámina does. It is not a Quick Access Toolbar item,
+/// so hiding or customizing that toolbar never takes it away.
+fn home_button(ui: &mut Ui, app: &mut WordApp) {
+    let t = Tokens::get(ui.ctx());
+    let (r, _) = ui.allocate_exact_size(vec2(26.0, 24.0), Sense::hover());
+    let resp = ui.interact(r, egui::Id::unique("title_home_button"), Sense::click());
+    let on = app.ui.backstage && app.ui.backstage_page == "home";
+    if resp.hovered() || on {
+        ui.painter().rect_filled(r, 4.0, t.hover);
+    }
+    icons::paint(ui.painter(), Rect::from_center_size(r.center(), vec2(16.0, 16.0)), "homeFolder", t.icon, t.accent);
+    let resp = resp.on_hover_text(tl!("Home"));
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, tl!("Home")));
+    if resp.clicked() {
+        app.ui.backstage = true;
+        app.ui.backstage_page = "home".into();
+    }
+}
+
 /// Commands the Quick Access Toolbar's menu offers to show or hide with one click (#376).
 const QAT_MENU: [&str; 10] =
     ["file.new", "file.open", "file.save", "file.print", "edit.undo", "edit.redo", "edit.repeat", "review.spelling", "view.readMode", "insert.table"];
@@ -399,6 +419,7 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                         }
                     }
                     ui.add_space(8.0);
+                    home_button(ui, app);
                     // Hidden (#1945): neither the buttons nor the … menu; the title centres as before.
                     if app.ui.quick_access_toolbar {
                         quick_access(ui, app);

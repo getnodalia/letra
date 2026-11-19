@@ -4370,7 +4370,11 @@ fn clicks_on_ribbon_and_status_bar_chrome_keep_typing_in_the_document() {
     type_after_click(&mut h, "language menu cancelled", " lang");
 
     // Back on Home, a text field still takes the focus: the font size box.
-    h.get_by_role_and_label(Role::Button, "Home").click();
+    // The title bar's own Home button shares the label, so take the lower one: the ribbon tab.
+    h.get_all_by_role_and_label(Role::Button, "Home")
+        .max_by(|a, b| a.rect().center().y.total_cmp(&b.rect().center().y))
+        .expect("the Home tab")
+        .click();
     type_after_click(&mut h, "Home tab", " home");
     let before = body_text(h.state());
     let size_box =
