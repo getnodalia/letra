@@ -1,6 +1,6 @@
 //! File tab (Backstage): Home/New, Open, Info, Save As, Print, Export, Close, Preferences, About.
 
-use egui::{Rect, Sense, Stroke, Ui, pos2, vec2};
+use egui::{Rect, Sense, Stroke, Ui, Vec2, pos2, vec2};
 use serde_json::json;
 
 use nodalia_theme::office;
@@ -317,6 +317,42 @@ pub(crate) fn section_heading(ui: &mut Ui, s: &str) {
     ui.add_space(8.0);
 }
 
+/// Lays tiles out in rows that wrap at the page's width. egui's `horizontal_wrapped` never wraps a
+/// tile that is its own nested layout, which left the gallery as one row cut off at the edge, so
+/// the rows are built here from each tile's measured width.
+fn tile_rows<T>(ui: &mut Ui, items: &[T], gap: Vec2, width: impl Fn(&Ui, &T) -> f32, mut draw: impl FnMut(&mut Ui, &T)) {
+    let avail = ui.available_width();
+    let mut start = 0;
+    while start < items.len() {
+        let mut end = start;
+        let mut used = 0.0_f32;
+        while let Some(item) = items.get(end) {
+            let w = width(ui, item);
+            if end > start && used + gap.x + w > avail {
+                break;
+            }
+            used += if end > start { gap.x + w } else { w };
+            end += 1;
+        }
+        if start > 0 {
+            ui.add_space(gap.y);
+        }
+        ui.horizontal_top(|ui| {
+            ui.spacing_mut().item_spacing.x = gap.x;
+            for item in items.get(start..end).unwrap_or_default() {
+                draw(ui, item);
+            }
+        });
+        start = end;
+    }
+}
+
+/// The width of a built-in template's tile: its caption if that is wider than the thumbnail.
+fn template_tile_width(ui: &Ui, label: &str) -> f32 {
+    let galley = ui.painter().layout_no_wrap(template_caption(label), regular(12.5), ui.visuals().text_color());
+    galley.size().x.max(office::THUMB.x)
+}
+
 /// Draws a template thumbnail and caption as one accessible button, lazily renders and caches a
 /// region-aware page preview, and creates a document from the template on click.
 fn template_tile(ui: &mut Ui, app: &mut WordApp, label: &str, template: &str) {
@@ -419,12 +455,14 @@ fn home_page(app: &mut WordApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     heading(ui, "Home");
     section_heading(ui, "New");
-    ui.horizontal(|ui| {
-        ui.spacing_mut().item_spacing = vec2(18.0, 0.0);
-        for (label, template) in templates().into_iter().take(HOME_TEMPLATES) {
-            template_tile(ui, app, label, template);
-        }
-    });
+    let shown: Vec<_> = templates().into_iter().take(HOME_TEMPLATES).collect();
+    tile_rows(
+        ui,
+        &shown,
+        vec2(18.0, 18.0),
+        |ui, (label, _)| template_tile_width(ui, label),
+        |ui, (label, template)| template_tile(ui, app, label, template),
+    );
     ui.add_space(8.0);
     let more = ui.add(egui::Label::new(egui::RichText::new(tl!("More templates →")).font(medium(13.5)).color(t.accent_text)).sense(Sense::click()));
     if more.on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
@@ -454,12 +492,13 @@ fn new_page(app: &mut WordApp, ui: &mut Ui) {
         return;
     }
     if !found.is_empty() {
-        ui.horizontal_wrapped(|ui| {
-            ui.spacing_mut().item_spacing = vec2(18.0, 18.0);
-            for (label, template) in found {
-                template_tile(ui, app, label, template);
-            }
-        });
+        tile_rows(
+            ui,
+            &found,
+            vec2(18.0, 18.0),
+            |ui, (label, _)| template_tile_width(ui, label),
+            |ui, (label, template)| template_tile(ui, app, label, template),
+        );
     }
     // Personal: the user templates folder's templates; a folder per category, as in Word.
     let Some(folder) = folder else { return };
@@ -497,12 +536,8 @@ fn new_page(app: &mut WordApp, ui: &mut Ui) {
             ui.label(egui::RichText::new(category).font(medium(13.5)).color(t.text));
             ui.add_space(6.0);
         }
-        ui.horizontal_wrapped(|ui| {
-            ui.spacing_mut().item_spacing = vec2(18.0, 18.0);
-            for p in personal_found.iter().filter(|p| p.category == category) {
-                personal_tile(ui, app, p);
-            }
-        });
+        let in_category: Vec<&PersonalTemplate> = personal_found.iter().filter(|p| p.category == category).collect();
+        tile_rows(ui, &in_category, vec2(18.0, 18.0), |_, _| 150.0, |ui, p| personal_tile(ui, app, p));
     }
 }
 

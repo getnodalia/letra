@@ -332,9 +332,12 @@ fn recovery_restore_opens_beside_unsaved_work_without_autosave_permission() {
 #[test]
 fn template_search_matches_labels_case_insensitively() {
     let ids = |q: &str| matching_templates(q).into_iter().map(|(_, id)| id).collect::<Vec<_>>();
-    assert_eq!(ids(""), ["blank", "sample", "letter", "resume", "cover-letter", "report", "minutes", "essay", "invoice", "newsletter"]);
+    assert_eq!(
+        ids(""),
+        ["blank", "sample", "letter", "resume", "cover-letter", "report", "minutes", "essay", "invoice", "newsletter", "proposal", "flyer", "recipe"]
+    );
     assert_eq!(ids("  LETTER "), ["letter", "cover-letter", "newsletter"]);
-    assert_eq!(ids("re"), ["resume", "report"]);
+    assert_eq!(ids("re"), ["resume", "report", "recipe"]);
     assert_eq!(ids("résumé"), ["resume"]);
     assert!(ids("no such template").is_empty());
 }
@@ -1583,4 +1586,31 @@ fn export_error_belongs_to_its_window() {
     assert!(h.state().ui.backstage, "A is still on the Export page");
     assert_eq!(h.state().export_error, err, "B's frames left A's message alone");
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// The gallery wraps its tiles at the page's width instead of running off the edge in one row
+/// that cannot be scrolled to.
+#[test]
+fn template_rows_wrap_at_the_page_width() {
+    let ctx = egui::Context::default();
+    let input = egui::RawInput { screen_rect: Some(egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(420.0, 600.0))), ..Default::default() };
+    let mut rects = Vec::new();
+    let mut out = ctx.run_ui(input, |ui| {
+        let items: Vec<u32> = (0..9).collect();
+        super::tile_rows(
+            ui,
+            &items,
+            egui::vec2(18.0, 18.0),
+            |_, _| 150.0,
+            |ui, _| {
+                let (r, _) = ui.allocate_exact_size(egui::vec2(150.0, 100.0), egui::Sense::hover());
+                rects.push(r);
+            },
+        );
+    });
+    out.textures_delta.clear();
+    assert_eq!(rects.len(), 9, "every tile is drawn");
+    assert!(rects.iter().all(|r| r.max.x <= 420.0 + 0.5), "no tile runs past the width: {rects:?}");
+    let rows = rects.iter().map(|r| r.min.y.round() as i32).collect::<std::collections::BTreeSet<_>>();
+    assert!(rows.len() >= 3, "nine 150-wide tiles take three rows in 420 px, not one: {rows:?}");
 }

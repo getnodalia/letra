@@ -517,3 +517,32 @@ fn the_autosave_knob_sits_right_when_on_and_mirrors_right_to_left() {
     assert_eq!(autosave_knob_x(true, true, track), 108.0, "right to left, on: left");
     assert_eq!(autosave_knob_x(true, false, track), 122.0, "right to left, off: right");
 }
+
+/// The title bar has a Home button that returns to the start screen from a document, as Celdas
+/// and Lámina do, whether or not the Quick Access Toolbar is shown.
+#[test]
+fn the_title_bar_home_button_opens_the_start_screen() {
+    let mut a = WordApp::new(letra_engine::Session::new(letra_doc::Document::new()), crate::Services::default());
+    a.ui.quick_access_toolbar = false;
+    let mut h = egui_kittest::Harness::builder().with_size(egui::vec2(1440.0, 900.0)).build_ui_state(
+        |ui, app: &mut WordApp| {
+            let ctx = ui.ctx().clone();
+            app.logic(&ctx);
+            if app.fonts_frames < 2 {
+                app.fonts_frames += 1;
+                return;
+            }
+            title_bar(app, ui);
+        },
+        a,
+    );
+    h.run_steps(4);
+    assert!(!h.state().ui.backstage, "starts in the editor");
+    let at = h.ctx.read_response(egui::Id::unique("title_home_button")).expect("the Home button is drawn").rect.center();
+    h.event(egui::Event::PointerMoved(at));
+    for pressed in [true, false] {
+        h.event(egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() });
+    }
+    h.run_steps(3);
+    assert!(h.state().ui.backstage && h.state().ui.backstage_page == "home", "Home opens the start page");
+}

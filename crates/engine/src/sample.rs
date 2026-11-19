@@ -80,7 +80,7 @@ impl Template {
 }
 
 /// The built-in templates in gallery order. The first is the blank document.
-pub const TEMPLATES: [Template; 10] = [
+pub const TEMPLATES: [Template; 13] = [
     Template { id: "blank", en: "Blank document", es: "Documento en blanco" },
     Template { id: "sample", en: "Studio handbook (sample)", es: "Manual del taller (ejemplo)" },
     Template { id: "letter", en: "Letter", es: "Carta" },
@@ -91,11 +91,14 @@ pub const TEMPLATES: [Template; 10] = [
     Template { id: "essay", en: "Essay", es: "Ensayo" },
     Template { id: "invoice", en: "Invoice", es: "Factura" },
     Template { id: "newsletter", en: "Newsletter", es: "Boletín" },
+    Template { id: "proposal", en: "Project proposal", es: "Propuesta de proyecto" },
+    Template { id: "flyer", en: "Event flyer", es: "Cartel de evento" },
+    Template { id: "recipe", en: "Recipe", es: "Receta" },
 ];
 
 /// The document a template id names, in `lang`. `blank` and unknown ids are not built here.
 pub fn build(id: &str, lang: Lang) -> Option<Document> {
-    Some(match id {
+    let mut d = match id {
         "sample" => sample_document_in(lang),
         "letter" => letter_in(lang),
         "cover-letter" => cover_letter(lang),
@@ -105,8 +108,16 @@ pub fn build(id: &str, lang: Lang) -> Option<Document> {
         "essay" => essay(lang),
         "invoice" => invoice(lang),
         "newsletter" => newsletter(lang),
+        "proposal" => proposal(lang),
+        "flyer" => flyer(lang),
+        "recipe" => recipe(lang),
         _ => return None,
-    })
+    };
+    // The sample handbook has its own, richer design; every other template shares one look.
+    if id != "sample" {
+        crate::sample_design::polish(id, &mut d);
+    }
+    Some(d)
 }
 
 /// A table of text cells with a header row; the body cells from column `right_from` on are
@@ -430,6 +441,7 @@ pub fn report() -> Document {
 /// [`report`] in `lang`.
 pub fn report_in(lang: Lang) -> Document {
     let mut d = Document::new();
+    d.core.title = lang.pick("Report Title", "Título del informe").into();
     let b: Vec<Block> =
         vec![
             Block::Para(styled(lang.pick("Report Title", "Título del informe"), "Title")),
@@ -444,6 +456,14 @@ pub fn report_in(lang: Lang) -> Document {
             Block::Para(styled(lang.pick("Findings", "Hallazgos"), "Heading1")),
             Block::Para(styled(lang.pick("First finding", "Primer hallazgo"), "Heading2")),
             Block::Para(para(lang.pick("Explain the evidence.", "Explica las pruebas."))),
+            Block::Table(text_table(
+                &match lang {
+                    Lang::En => [&["Measure", "Before", "After"][..], &["Visits per week", "120", "168"], &["Satisfaction", "71 %", "84 %"]],
+                    Lang::Es => [&["Indicador", "Antes", "Después"][..], &["Visitas por semana", "120", "168"], &["Satisfacción", "71 %", "84 %"]],
+                },
+                468.0,
+                1,
+            )),
             Block::Para(styled(lang.pick("Recommendations", "Recomendaciones"), "Heading1")),
             Block::Para(para(lang.pick("List what should happen next.", "Enumera lo que debería ocurrir a continuación."))),
         ];
@@ -656,6 +676,196 @@ pub fn newsletter(lang: Lang) -> Document {
     d
 }
 
+/// A project proposal: the problem, the plan, a timeline table and the budget.
+pub fn proposal(lang: Lang) -> Document {
+    let mut d = Document::new();
+    d.core.title = lang.pick("Project proposal", "Propuesta de proyecto").into();
+    let mut num = (*d.numbering).clone();
+    let bullets = num.add_list(ListKind::Bullet);
+    d.numbering = Arc::new(num);
+    let (summary, problem, goals, plan, budget_table, budget_text, next) = match lang {
+        Lang::En => (
+            "A neighbourhood workshop that lends tools, teaches repairs and keeps good things out of the bin.",
+            "Most households own a drill they use twice a year, and most broken things are thrown away because nobody nearby knows how to mend them. Skills and tools sit idle a few streets apart.",
+            [
+                "Open a shared workshop two evenings a week.",
+                "Teach one repair skill every month.",
+                "Keep a tool library of fifty items by the end of the year.",
+            ],
+            [
+                ["Phase", "What happens", "When"],
+                ["Prepare", "Find the room, gather first tools", "Months 1–2"],
+                ["Open", "Start the two weekly evenings", "Month 3"],
+                ["Grow", "Monthly workshops, tool library", "Months 4–12"],
+            ],
+            [
+                ["Item", "Cost"],
+                ["Room and insurance", "2,400"],
+                ["Tools and shelving", "1,800"],
+                ["Materials and printing", "600"],
+                ["Total", "4,800"],
+            ],
+            "We ask for a one-year grant to cover the first year. Everything left over at the end goes back to the tool library.",
+            "Thank you for reading. We would be glad to show you the room and talk it through.",
+        ),
+        Lang::Es => (
+            "Un taller de barrio que presta herramientas, enseña a reparar y evita que cosas buenas acaben en la basura.",
+            "La mayoría de los hogares tienen un taladro que usan dos veces al año, y casi todo lo que se rompe se tira porque nadie cerca sabe arreglarlo. Las herramientas y los saberes están parados a pocas calles de distancia.",
+            [
+                "Abrir un taller compartido dos tardes por semana.",
+                "Enseñar una habilidad de reparación cada mes.",
+                "Tener una biblioteca de cincuenta herramientas a final de año.",
+            ],
+            [
+                ["Fase", "Qué ocurre", "Cuándo"],
+                ["Preparar", "Buscar el local y reunir las primeras herramientas", "Meses 1–2"],
+                ["Abrir", "Empezar las dos tardes semanales", "Mes 3"],
+                ["Crecer", "Talleres mensuales y biblioteca de herramientas", "Meses 4–12"],
+            ],
+            [
+                ["Concepto", "Coste"],
+                ["Local y seguro", "2.400"],
+                ["Herramientas y estanterías", "1.800"],
+                ["Materiales e impresión", "600"],
+                ["Total", "4.800"],
+            ],
+            "Pedimos una subvención de un año para cubrir el primer ejercicio. Lo que sobre al final volverá a la biblioteca de herramientas.",
+            "Gracias por la lectura. Nos encantaría enseñaros el local y hablarlo con calma.",
+        ),
+    };
+    let plan_rows: Vec<&[&str]> = plan.iter().map(|r| r.as_slice()).collect();
+    let budget_rows: Vec<&[&str]> = budget_table.iter().map(|r| r.as_slice()).collect();
+    let mut b = vec![
+        Block::Para(styled(lang.pick("The Repair Commons", "El Común de las Reparaciones"), "Title")),
+        Block::Para(styled(&format!("{} · {}", lang.pick("Project proposal", "Propuesta de proyecto"), lang.long_date()), "Subtitle")),
+        Block::Para(styled(lang.pick("Summary", "Resumen"), "Heading1")),
+        Block::Para(para(summary)),
+        Block::Para(styled(lang.pick("The problem", "El problema"), "Heading1")),
+        Block::Para(para(problem)),
+        Block::Para(styled(lang.pick("Goals", "Objetivos"), "Heading1")),
+    ];
+    for g in goals {
+        b.push(bullet(g, bullets));
+    }
+    b.push(Block::Para(styled(lang.pick("Plan and timeline", "Plan y calendario"), "Heading1")));
+    b.push(Block::Table(text_table(&plan_rows, 468.0, usize::MAX)));
+    b.push(Block::Para(styled(lang.pick("Budget", "Presupuesto"), "Heading1")));
+    b.push(Block::Table(text_table(&budget_rows, 468.0, 1)));
+    b.push(Block::Para(para("")));
+    b.push(Block::Para(para(budget_text)));
+    b.push(Block::Para(styled(lang.pick("Next steps", "Próximos pasos"), "Heading1")));
+    b.push(Block::Para(para(next)));
+    body(&mut d, b);
+    d
+}
+
+/// A one-page event flyer, centred: what, when, where and how to join.
+pub fn flyer(lang: Lang) -> Document {
+    let mut d = Document::new();
+    d.core.title = lang.pick("Open day at the workshop", "Jornada de puertas abiertas en el taller").into();
+    let (title, sub, when, when_v, wher, wher_v, what, what_v, note) = match lang {
+        Lang::En => (
+            "Open day at the workshop",
+            "Come and make something",
+            "When",
+            "Saturday, 11 am to 4 pm",
+            "Where",
+            "The old print shop, Alder Street 14",
+            "What to expect",
+            "Printing, ceramics and a repair table. Tea and bread all day.",
+            "Free for everyone. Bring a friend, and something that needs mending.",
+        ),
+        Lang::Es => (
+            "Jornada de puertas abiertas en el taller",
+            "Ven a hacer algo con las manos",
+            "Cuándo",
+            "Sábado, de 11:00 a 16:00",
+            "Dónde",
+            "La vieja imprenta, calle del Aliso 14",
+            "Qué encontrarás",
+            "Grabado, cerámica y una mesa de reparaciones. Té y pan todo el día.",
+            "Entrada libre. Trae a alguien, y algo que necesite arreglo.",
+        ),
+    };
+    let b = vec![
+        Block::Para(styled(title, "Title")),
+        Block::Para(styled(sub, "Subtitle")),
+        Block::Para(styled(when, "Heading1")),
+        Block::Para(para(when_v)),
+        Block::Para(styled(wher, "Heading1")),
+        Block::Para(para(wher_v)),
+        Block::Para(styled(what, "Heading1")),
+        Block::Para(para(what_v)),
+        Block::Para(para("")),
+        Block::Para(para(note)),
+    ];
+    body(&mut d, b);
+    d
+}
+
+/// A recipe: a title block, the ingredients as a list, the method as numbered steps and a tip.
+pub fn recipe(lang: Lang) -> Document {
+    let mut d = Document::new();
+    d.core.title = lang.pick("Lemon and olive oil cake", "Bizcocho de limón y aceite de oliva").into();
+    let mut num = (*d.numbering).clone();
+    let bullets = num.add_list(ListKind::Bullet);
+    let steps = num.add_list(ListKind::Numbered);
+    d.numbering = Arc::new(num);
+    let (title, sub, ing_head, ingredients, method_head, method, tip_head, tip) = match lang {
+        Lang::En => (
+            "Lemon and olive oil cake",
+            "Serves 8 · 15 minutes to prepare · 40 minutes to bake",
+            "Ingredients",
+            ["3 eggs", "150 g sugar", "120 ml olive oil", "The zest and juice of 2 lemons", "200 g flour and 2 tsp baking powder", "A pinch of salt"],
+            "Method",
+            [
+                "Heat the oven to 180 °C and oil a 22 cm tin.",
+                "Whisk the eggs and sugar until pale, then stream in the oil.",
+                "Fold in the zest, the juice, then the flour, baking powder and salt.",
+                "Bake for 35 to 40 minutes, until a skewer comes out clean.",
+            ],
+            "A good tip",
+            "It keeps for three days in a tin, and is better on the second.",
+        ),
+        Lang::Es => (
+            "Bizcocho de limón y aceite de oliva",
+            "Para 8 personas · 15 minutos de preparación · 40 minutos de horno",
+            "Ingredientes",
+            [
+                "3 huevos",
+                "150 g de azúcar",
+                "120 ml de aceite de oliva",
+                "La ralladura y el zumo de 2 limones",
+                "200 g de harina y 2 cucharaditas de levadura",
+                "Una pizca de sal",
+            ],
+            "Preparación",
+            [
+                "Calienta el horno a 180 °C y engrasa un molde de 22 cm.",
+                "Bate los huevos con el azúcar hasta que blanqueen y añade el aceite en hilo.",
+                "Incorpora la ralladura, el zumo, y después la harina, la levadura y la sal.",
+                "Hornea de 35 a 40 minutos, hasta que un palillo salga limpio.",
+            ],
+            "Un buen consejo",
+            "Aguanta tres días en una lata, y está mejor al segundo.",
+        ),
+    };
+    let mut b = vec![Block::Para(styled(title, "Title")), Block::Para(styled(sub, "Subtitle")), Block::Para(styled(ing_head, "Heading1"))];
+    for i in ingredients {
+        b.push(bullet(i, bullets));
+    }
+    b.push(Block::Para(styled(method_head, "Heading1")));
+    for m in method {
+        let mut p = para(m).styled("ListParagraph");
+        p.props.numbering = Some(NumRef { num: steps, level: 0 });
+        b.push(Block::Para(p));
+    }
+    b.push(Block::Para(styled(tip_head, "Heading2")));
+    b.push(Block::Para(para(tip)));
+    body(&mut d, b);
+    d
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -691,7 +901,8 @@ mod tests {
     fn the_spanish_documents_are_spanish() {
         assert_eq!(Lang::parse("es-MX"), Lang::Es);
         assert_eq!(Lang::parse("en-GB"), Lang::En);
-        for id in ["sample", "letter", "cover-letter", "resume", "report", "minutes", "essay", "invoice", "newsletter"] {
+        for id in ["sample", "letter", "cover-letter", "resume", "report", "minutes", "essay", "invoice", "newsletter", "proposal", "flyer", "recipe"]
+        {
             let en = build(id, Lang::En).unwrap();
             let es = build(id, Lang::Es).unwrap();
             assert_eq!(en.body.len(), es.body.len(), "{id}: same shape");
