@@ -66,7 +66,7 @@ wl-clipboard-rs = "0.9"
 x11rb = "0.13"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-# The upstream default-apps button opens Windows Settings; printing uses craft-print instead.
+# The upstream default-apps button opens Windows Settings; printing uses nodalia-print instead.
 open = "5"
 # The system's Animation effects setting (Settings › Accessibility › Visual effects), read through
 # the Windows Runtime's UISettings: a safe API, where the Win32 call needs unsafe, which our
@@ -79,9 +79,9 @@ windows = { version = "0.62", features = ["UI_ViewManagement", "System_UserProfi
 clipboard-win = { version = "5.4", features = ["std"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-# Pinned apart from craft-ui, which doesn't depend on it: `printer_queues`, the printer list that
+# Pinned apart from nodalia-ui, which doesn't depend on it: `printer_queues`, the printer list that
 # asks no driver (#5710, storytold/craft-libs#618), and `submit_cancellable` (storytold/craft-libs#622).
-craft-print = { git = "https://github.com/getnodalia/foundation", rev = "a3e0b5a9440d18f19422a9dca13516747b7d3181" }
+nodalia-print = { git = "https://github.com/getnodalia/foundation", rev = "5584b1e434b76bd6790f4083d1aac646caeb5632" }
 rfd = { workspace = true }
 # Waits for an `rfd::AsyncFileDialog` on a background thread (the dialogs don't block the UI, #94);
 # rfd itself already depends on it.

@@ -1,5 +1,5 @@
-// A copy of craft-proof's hand-written Czech fixture (`crates/proof/src/cs/test_dict.rs` in
-// craft-libs, which a dependency's tests can't share); its install helper resolves this parent import.
+// A copy of nodalia-proof's hand-written Czech fixture (`crates/proof/src/cs/test_dict.rs` in
+// nodalia-libs, which a dependency's tests can't share); its install helper resolves this parent import.
 use letra_proof::cs::install_dictionary;
 mod czech_test_dict;
 
@@ -22,17 +22,17 @@ mod typing;
 mod wordart;
 
 /// True, after saying so on stderr, when this build lacks the Language data the proofing tests
-/// need (craft-proof built without `CRAFT_I18N_DIR`). The probes are craft-proof's public
+/// need (nodalia-proof built without `NODALIA_I18N_DIR`). The probes are nodalia-proof's public
 /// `english_source` (the embedded English dictionary) and its American/British variant table
-/// (`colour` → `color`): a craft-i18n checkout without some of the files embeds only the rest,
-/// so both are asked. Without them English still spells from craft-proof's built-in word list,
+/// (`colour` → `color`): a nodalia-i18n checkout without some of the files embeds only the rest,
+/// so both are asked. Without them English still spells from nodalia-proof's built-in word list,
 /// but there are no hyphenation patterns and no variant table, so the tests that check those
-/// return early, as craft-proof's own do; with the data (CI, releases) they all run.
+/// return early, as nodalia-proof's own do; with the data (CI, releases) they all run.
 pub(crate) fn no_language_data(test: &str) -> bool {
     let missing = letra_proof::english_source(letra_proof::ProofLang::En) != Some(letra_proof::EnglishSource::Embedded)
         || letra_proof::en_variants::preferred("colour", letra_proof::ProofLang::En).as_deref() != Some("color");
     if missing {
-        eprintln!("{test}: skipped, needs the Language data (set CRAFT_I18N_DIR to a craft-i18n checkout)");
+        eprintln!("{test}: skipped, needs the Language data (set NODALIA_I18N_DIR to a nodalia-i18n checkout)");
     }
     missing
 }

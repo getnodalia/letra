@@ -569,7 +569,7 @@ pub fn round_island_corners(painter: &egui::Painter, t: &Tokens, rect: Rect) {
     }
 }
 
-/// Install the UI fonts (Inter, JetBrains Mono) and the craft-fonts CJK interface faces if built
+/// Install the UI fonts (Inter, JetBrains Mono) and the nodalia-fonts CJK interface faces if built
 /// in, Japanese first.
 pub fn install_fonts(ctx: &egui::Context) {
     install_fonts_for(ctx, false);
@@ -740,11 +740,11 @@ pub fn font_definitions_language_arabic(
         // The same static bytes the document fonts use: one copy in the binary.
         add_cjk(&mut fonts, format!("{} {}", f.family, f.style), FontData::from_static(f.bytes));
     }
-    // Georgian has no glyphs in Inter, Source Sans or the CJK faces: the craft-fonts Geor face.
+    // Georgian has no glyphs in Inter, Source Sans or the CJK faces: the nodalia-fonts Geor face.
     for f in letra_fonts::georgian_fonts() {
         add_cjk(&mut fonts, format!("{} {}", f.family, f.style), FontData::from_static(f.bytes));
     }
-    // The embedded faces leave interface characters without a glyph (a build without craft-fonts,
+    // The embedded faces leave interface characters without a glyph (a build without nodalia-fonts,
     // without its Chinese face, #241, or with faces lacking catalog characters, #486): an
     // installed CJK font after them, so the menus don't show boxes or `?`.
     #[cfg(not(target_arch = "wasm32"))]
@@ -756,7 +756,7 @@ pub fn font_definitions_language_arabic(
     #[cfg(target_arch = "wasm32")]
     let _ = system_cjk;
     // Arabic-script faces last: the Arabic interface, its name in the language list, Arabic file
-    // names. Without an embedded one (a build without craft-fonts), an installed font, read when
+    // names. Without an embedded one (a build without nodalia-fonts), an installed font, read when
     // `system_arabic` is set: for an Arabic interface.
     let arabic = letra_fonts::ui_arabic_fonts();
     for f in &arabic {

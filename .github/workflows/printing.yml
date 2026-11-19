@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - 'Cargo*'
-      - 'craft-i18n.rev'
+      - 'nodalia-i18n.rev'
       - 'apps/letra/**'
       - 'apps/letra-web/**'
       - 'crates/ui-egui/**'
@@ -15,7 +15,7 @@ on:
     branches: [main]
     paths:
       - 'Cargo*'
-      - 'craft-i18n.rev'
+      - 'nodalia-i18n.rev'
       - 'apps/letra/**'
       - 'apps/letra-web/**'
       - 'crates/ui-egui/**'
@@ -46,40 +46,40 @@ jobs:
         with:
           persist-credentials: false
 
-      # The interface catalogs and craft-proof's Language data come from craft-i18n at the commit in
-      # craft-i18n.rev, so these tests build with the same data as the gate (ci.yml).
-      - name: Read the craft-i18n pin
+      # The interface catalogs and nodalia-proof's Language data come from nodalia-i18n at the commit in
+      # nodalia-i18n.rev, so these tests build with the same data as the gate (ci.yml).
+      - name: Read the nodalia-i18n pin
         id: i18n
         shell: bash
-        run: echo "rev=$(tr -d '[:space:]' < craft-i18n.rev)" >> "$GITHUB_OUTPUT"
-      - name: Check out craft-i18n
+        run: echo "rev=$(tr -d '[:space:]' < nodalia-i18n.rev)" >> "$GITHUB_OUTPUT"
+      - name: Check out nodalia-i18n
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: getnodalia/foundation # vendor/craft-i18n/main
+          repository: getnodalia/foundation # nodalia/i18n
           ref: ${{ steps.i18n.outputs.rev }}
-          path: craft-i18n
+          path: nodalia-i18n
           persist-credentials: false
-      - name: Build with craft-i18n
+      - name: Build with nodalia-i18n
         shell: bash
         run: |
-          echo "CRAFT_I18N_DIR=$GITHUB_WORKSPACE/craft-i18n" >> "$GITHUB_ENV"
-          echo "CRAFT_I18N_REQUIRED=1" >> "$GITHUB_ENV"
+          echo "NODALIA_I18N_DIR=$GITHUB_WORKSPACE/nodalia-i18n" >> "$GITHUB_ENV"
+          echo "NODALIA_I18N_REQUIRED=1" >> "$GITHUB_ENV"
 
       # The catalogs include CJK interface languages, so the UI tests need the suite's fonts, as in
       # the gate (same commit as ci.yml and release.yml).
-      - name: Check out craft-fonts
+      - name: Check out nodalia-fonts
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: getnodalia/foundation # vendor/craft-fonts/main
-          ref: b076417b5880bd4154bd22f00695b1d28c6bea83
-          path: craft-fonts
+          repository: getnodalia/foundation # nodalia/fonts
+          ref: d4f57e6b31d7c7526b539f7aaaa07312c9908bb8
+          path: nodalia-fonts
           persist-credentials: false
 
-      - name: Build with craft-fonts
+      - name: Build with nodalia-fonts
         shell: bash
         run: |
-          echo "CRAFT_FONTS_DIR=$GITHUB_WORKSPACE/craft-fonts" >> "$GITHUB_ENV"
-          echo "CRAFT_FONTS_REQUIRED=1" >> "$GITHUB_ENV"
+          echo "NODALIA_FONTS_DIR=$GITHUB_WORKSPACE/nodalia-fonts" >> "$GITHUB_ENV"
+          echo "NODALIA_FONTS_REQUIRED=1" >> "$GITHUB_ENV"
 
       - name: Install Linux build and software-rendering dependencies
         if: runner.os == 'Linux'

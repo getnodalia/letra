@@ -39,36 +39,36 @@ struct Request {
 
 impl Request {
     /// Preserve all spooler options in a platform-independent wire representation.
-    fn from_job(job: &craft_print::Job) -> Self {
+    fn from_job(job: &nodalia_print::Job) -> Self {
         Self {
             printer: job.printer.clone(),
             copies: job.copies,
             collate: job.collate,
             duplex: job.duplex.map(|d| match d {
-                craft_print::Duplex::Off => Duplex::Off,
-                craft_print::Duplex::LongEdge => Duplex::LongEdge,
-                craft_print::Duplex::ShortEdge => Duplex::ShortEdge,
+                nodalia_print::Duplex::Off => Duplex::Off,
+                nodalia_print::Duplex::LongEdge => Duplex::LongEdge,
+                nodalia_print::Duplex::ShortEdge => Duplex::ShortEdge,
             }),
             grayscale: job.grayscale,
-            shrink: job.scaling == craft_print::Scaling::ShrinkToFit,
+            shrink: job.scaling == nodalia_print::Scaling::ShrinkToFit,
             title: job.title.clone(),
             options: job.options.clone(),
         }
     }
 
     /// Restore the job without substituting printer defaults or changing copy semantics.
-    fn job(self) -> craft_print::Job {
-        craft_print::Job {
+    fn job(self) -> nodalia_print::Job {
+        nodalia_print::Job {
             printer: self.printer,
             copies: self.copies,
             collate: self.collate,
             duplex: self.duplex.map(|d| match d {
-                Duplex::Off => craft_print::Duplex::Off,
-                Duplex::LongEdge => craft_print::Duplex::LongEdge,
-                Duplex::ShortEdge => craft_print::Duplex::ShortEdge,
+                Duplex::Off => nodalia_print::Duplex::Off,
+                Duplex::LongEdge => nodalia_print::Duplex::LongEdge,
+                Duplex::ShortEdge => nodalia_print::Duplex::ShortEdge,
             }),
             grayscale: self.grayscale,
-            scaling: if self.shrink { craft_print::Scaling::ShrinkToFit } else { craft_print::Scaling::Exact },
+            scaling: if self.shrink { nodalia_print::Scaling::ShrinkToFit } else { nodalia_print::Scaling::Exact },
             title: self.title,
             options: self.options,
         }
@@ -138,7 +138,7 @@ impl Submission {
 
     #[cfg(windows)]
     /// Submit through this executable's private helper mode and await its final receipt.
-    pub(crate) fn submit(&self, pdf: &[u8], job: &craft_print::Job) -> Result<String, String> {
+    pub(crate) fn submit(&self, pdf: &[u8], job: &nodalia_print::Job) -> Result<String, String> {
         self.submit_with(pdf, job, |directory| {
             let mut command = Command::new(std::env::current_exe()?);
             command.arg(FLAG).arg(directory);
@@ -147,7 +147,7 @@ impl Submission {
     }
 
     /// Publish a terminal state on every result, waking a cancellation caller awaiting an ack.
-    fn submit_with(&self, pdf: &[u8], job: &craft_print::Job, command: impl FnOnce(&Path) -> std::io::Result<Command>) -> Result<String, String> {
+    fn submit_with(&self, pdf: &[u8], job: &nodalia_print::Job, command: impl FnOnce(&Path) -> std::io::Result<Command>) -> Result<String, String> {
         let result = self.run(pdf, job, command);
         let mut state = self.state();
         if !matches!(*state, State::Cancelled) {
@@ -158,7 +158,7 @@ impl Submission {
     }
 
     /// Own the private inputs and child until receipt, acknowledged cancellation or failure.
-    fn run(&self, pdf: &[u8], job: &craft_print::Job, command: impl FnOnce(&Path) -> std::io::Result<Command>) -> Result<String, String> {
+    fn run(&self, pdf: &[u8], job: &nodalia_print::Job, command: impl FnOnce(&Path) -> std::io::Result<Command>) -> Result<String, String> {
         if matches!(*self.state(), State::Cancelled) {
             return Err(CANCELLED.into());
         }
@@ -288,15 +288,15 @@ fn remove_inputs(directory: &Path) -> Result<(), String> {
 /// Load and erase the private inputs before driver work, while an independent listener can cancel.
 fn helper(
     directory: &Path,
-    cancel_request: impl Fn(&craft_print::Cancel) -> bool + Send + 'static,
-    submit: impl FnOnce(&[u8], &craft_print::Job, &craft_print::Cancel) -> Result<String, String>,
+    cancel_request: impl Fn(&nodalia_print::Cancel) -> bool + Send + 'static,
+    submit: impl FnOnce(&[u8], &nodalia_print::Job, &nodalia_print::Cancel) -> Result<String, String>,
 ) -> Result<(), String> {
     let mut input = BufReader::new(std::io::stdin());
     emit(&Event::Ready)?;
     if line(&mut input)?.as_deref() != Some("start") {
         return Err("print helper requires a start acknowledgement".into());
     }
-    let cancel = craft_print::Cancel::new();
+    let cancel = nodalia_print::Cancel::new();
     let listener = cancel.clone();
     std::thread::Builder::new()
         .name("print-cancel".into())
@@ -338,8 +338,8 @@ pub(crate) fn helper_mode() -> Option<i32> {
         return None;
     }
     let result = args.next().ok_or_else(|| "print helper directory missing".to_owned()).and_then(|dir| {
-        helper(Path::new(&dir), craft_print::Cancel::cancel, |pdf, job, cancel| {
-            craft_print::submit_cancellable(pdf, job, &mut |_, _| {}, cancel).map_err(error)
+        helper(Path::new(&dir), nodalia_print::Cancel::cancel, |pdf, job, cancel| {
+            nodalia_print::submit_cancellable(pdf, job, &mut |_, _| {}, cancel).map_err(error)
         })
     });
     if let Err(message) = &result {
@@ -405,8 +405,8 @@ mod tests {
     }
 
     /// Give the child a literal printer identity to verify transport.
-    fn job() -> craft_print::Job {
-        craft_print::Job { printer: Some("test queue".into()), ..Default::default() }
+    fn job() -> nodalia_print::Job {
+        nodalia_print::Job { printer: Some("test queue".into()), ..Default::default() }
     }
 
     #[test]
@@ -465,13 +465,13 @@ mod tests {
     #[test]
     /// Job transport preserves every explicit setting, including Unicode and duplex direction.
     fn job_options_survive_the_process_boundary() {
-        let expected = craft_print::Job {
+        let expected = nodalia_print::Job {
             printer: Some("Office λ".into()),
             copies: 3,
             collate: false,
-            duplex: Some(craft_print::Duplex::ShortEdge),
+            duplex: Some(nodalia_print::Duplex::ShortEdge),
             grayscale: true,
-            scaling: craft_print::Scaling::ShrinkToFit,
+            scaling: nodalia_print::Scaling::ShrinkToFit,
             title: "A document".into(),
             options: vec![("media".into(), "iso_a4_210x297mm".into())],
         };

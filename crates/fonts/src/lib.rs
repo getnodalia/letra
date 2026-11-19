@@ -29,9 +29,9 @@ pub use ui_fallback::{
     ui_uncovered_cjk,
 };
 
-/// A font from the optional craft-fonts build input (https://github.com/getnodalia/foundation/tree/vendor/craft-fonts/main;
-/// empty unless built with `CRAFT_FONTS_DIR`, see `build.rs`).
-pub struct CraftFont {
+/// A font from the optional nodalia-fonts build input (https://github.com/getnodalia/foundation/tree/nodalia/fonts;
+/// empty unless built with `NODALIA_FONTS_DIR`, see `build.rs`).
+pub struct NodaliaFont {
     pub family: &'static str,
     pub style: &'static str,
     /// ISO 15924 scripts the font is for, e.g. `"Jpan"`.
@@ -39,16 +39,16 @@ pub struct CraftFont {
     pub bytes: &'static [u8],
 }
 
-include!(concat!(env!("OUT_DIR"), "/craft_fonts.rs"));
+include!(concat!(env!("OUT_DIR"), "/nodalia_fonts.rs"));
 
-/// The craft-fonts faces for Japanese (`"Jpan"`), in manifest order. Empty without craft-fonts.
-pub fn japanese_fonts() -> impl Iterator<Item = &'static CraftFont> {
-    CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Jpan"))
+/// The nodalia-fonts faces for Japanese (`"Jpan"`), in manifest order. Empty without nodalia-fonts.
+pub fn japanese_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
+    NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Jpan"))
 }
 
 /// Japanese faces in document-fallback order: Mincho (serif) families first, matching the
 /// serif default text font, then the others; Regular before other styles.
-pub fn japanese_document_fonts() -> Vec<&'static CraftFont> {
+pub fn japanese_document_fonts() -> Vec<&'static NodaliaFont> {
     let mut v: Vec<_> = japanese_fonts().collect();
     v.sort_by_key(|f| (!f.family.contains("Mincho"), f.style != "Regular"));
     v
@@ -56,39 +56,39 @@ pub fn japanese_document_fonts() -> Vec<&'static CraftFont> {
 
 /// Japanese faces in UI order: BIZ UDPGothic first (the UI face), then the others; `bold` puts
 /// bold styles before regular ones.
-pub fn japanese_ui_fonts(bold: bool) -> Vec<&'static CraftFont> {
+pub fn japanese_ui_fonts(bold: bool) -> Vec<&'static NodaliaFont> {
     let mut v: Vec<_> = japanese_fonts().collect();
     v.sort_by_key(|f| (f.family != "BIZ UDPGothic", (f.style == "Bold") != bold));
     v
 }
 
-/// The craft-fonts faces for Simplified Chinese (`"Hans"`), in manifest order. Empty without
-/// craft-fonts.
-pub fn chinese_fonts() -> impl Iterator<Item = &'static CraftFont> {
-    CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Hans"))
+/// The nodalia-fonts faces for Simplified Chinese (`"Hans"`), in manifest order. Empty without
+/// nodalia-fonts.
+pub fn chinese_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
+    NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Hans"))
 }
 
-/// The craft-fonts faces for Korean (`"Kore"`), in manifest order. Empty without craft-fonts.
-pub fn korean_fonts() -> impl Iterator<Item = &'static CraftFont> {
-    CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Kore"))
+/// The nodalia-fonts faces for Korean (`"Kore"`), in manifest order. Empty without nodalia-fonts.
+pub fn korean_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
+    NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Kore"))
 }
 
-/// The craft-fonts Georgian (`"Geor"`) Regular face for the interface. Empty without craft-fonts.
-pub fn georgian_fonts() -> impl Iterator<Item = &'static CraftFont> {
-    CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Geor") && f.style == "Regular")
+/// The nodalia-fonts Georgian (`"Geor"`) Regular face for the interface. Empty without nodalia-fonts.
+pub fn georgian_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
+    NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Geor") && f.style == "Regular")
 }
 
 /// The CJK interface faces, Regular styles only (the UI fakes no bold), with the Japanese UI,
 /// Chinese, and Korean faces ordered for the selected interface language. Mixing the faces within
 /// a line would mix glyph styles, so the first face should cover the interface language. Empty
-/// without craft-fonts.
-pub fn ui_cjk_fonts(prefer_hans: bool) -> Vec<&'static CraftFont> {
+/// without nodalia-fonts.
+pub fn ui_cjk_fonts(prefer_hans: bool) -> Vec<&'static NodaliaFont> {
     ui_cjk_fonts_for(prefer_hans, false)
 }
 
 /// The CJK interface faces in the preferred writing system's order.
-pub fn ui_cjk_fonts_for(prefer_hans: bool, prefer_korean: bool) -> Vec<&'static CraftFont> {
-    let regular = |f: &&CraftFont| f.style == "Regular";
+pub fn ui_cjk_fonts_for(prefer_hans: bool, prefer_korean: bool) -> Vec<&'static NodaliaFont> {
+    let regular = |f: &&NodaliaFont| f.style == "Regular";
     let ja = japanese_ui_fonts(false).into_iter().filter(regular).take(1);
     let zh = chinese_fonts().filter(regular).take(1);
     let ko = korean_fonts().filter(regular).take(1);
@@ -101,15 +101,15 @@ pub fn ui_cjk_fonts_for(prefer_hans: bool, prefer_korean: bool) -> Vec<&'static 
     }
 }
 
-/// The craft-fonts faces for Arabic script (`"Arab"`), in manifest order: the document fallback
-/// for Arabic text. Empty without craft-fonts.
-pub fn arabic_fonts() -> impl Iterator<Item = &'static CraftFont> {
-    CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Arab"))
+/// The nodalia-fonts faces for Arabic script (`"Arab"`), in manifest order: the document fallback
+/// for Arabic text. Empty without nodalia-fonts.
+pub fn arabic_fonts() -> impl Iterator<Item = &'static NodaliaFont> {
+    NODALIA_FONTS.iter().filter(|f| f.scripts.contains(&"Arab"))
 }
 
-/// The craft-fonts faces for Arabic script (`"Arab"`), Regular styles only: the interface's
-/// fallback for an Arabic interface and for Arabic file names. Empty without craft-fonts.
-pub fn ui_arabic_fonts() -> Vec<&'static CraftFont> {
+/// The nodalia-fonts faces for Arabic script (`"Arab"`), Regular styles only: the interface's
+/// fallback for an Arabic interface and for Arabic file names. Empty without nodalia-fonts.
+pub fn ui_arabic_fonts() -> Vec<&'static NodaliaFont> {
     arabic_fonts().filter(|f| f.style == "Regular").collect()
 }
 
@@ -546,13 +546,13 @@ mod tests {
     }
 
     #[test]
-    fn craft_fonts_japanese_faces_cover_japanese_and_have_vertical_forms() {
-        if CRAFT_FONTS.is_empty() {
-            eprintln!("skipped: built without craft-fonts (set CRAFT_FONTS_DIR to a checkout)");
+    fn nodalia_fonts_japanese_faces_cover_japanese_and_have_vertical_forms() {
+        if NODALIA_FONTS.is_empty() {
+            eprintln!("skipped: built without nodalia-fonts (set NODALIA_FONTS_DIR to a checkout)");
             return;
         }
         let fonts = japanese_document_fonts();
-        assert!(!fonts.is_empty(), "craft-fonts has Japanese fonts");
+        assert!(!fonts.is_empty(), "nodalia-fonts has Japanese fonts");
         assert!(fonts[0].family.contains("Mincho"), "documents fall back to a Mincho first");
         assert_eq!(japanese_ui_fonts(false)[0].family, "BIZ UDPGothic");
         assert_eq!(japanese_ui_fonts(true)[0].style, "Bold");
@@ -571,18 +571,18 @@ mod tests {
             assert_eq!(horizontal.len(), vertical.len());
             assert!(horizontal.iter().zip(&vertical).any(|(h, v)| h.gid != v.gid), "{} has vertical forms", cf.family);
         }
-        // Japanese in a Latin face falls back to a craft-fonts Mincho, without system fonts.
+        // Japanese in a Latin face falls back to a nodalia-fonts Mincho, without system fonts.
         let latin = db.face(DEFAULT_FAMILY, "Regular");
         let fb = db.fallback_for('語', latin.id()).unwrap();
         assert!(fb.family.contains("Mincho"), "{fb:?}");
     }
 
-    /// Arabic text in a document needs no system font: the craft-fonts Arabic face is the
+    /// Arabic text in a document needs no system font: the nodalia-fonts Arabic face is the
     /// fallback (the browser build has no other), and its letters join when shaped.
     #[test]
-    fn craft_fonts_arabic_face_is_the_document_fallback_for_arabic() {
+    fn nodalia_fonts_arabic_face_is_the_document_fallback_for_arabic() {
         if arabic_fonts().next().is_none() {
-            eprintln!("skipped: built without a craft-fonts Arabic face (set CRAFT_FONTS_DIR to a checkout)");
+            eprintln!("skipped: built without a nodalia-fonts Arabic face (set NODALIA_FONTS_DIR to a checkout)");
             return;
         }
         let db = FontDb::with_font_dirs(Vec::new());
@@ -607,7 +607,7 @@ mod tests {
         let db = FontDb::with_font_dirs(Vec::new());
         db.set_system_fallback(false);
         let latin = db.face(DEFAULT_FAMILY, "Regular");
-        if CRAFT_FONTS.is_empty() {
+        if NODALIA_FONTS.is_empty() {
             // No bundled CJK font and no system fallback: nothing can draw the run.
             assert!(db.fallback_for_run(&['分', '类'], latin.id(), false, false).is_none());
             return;
@@ -627,10 +627,10 @@ mod tests {
     }
 
     #[test]
-    fn arabic_and_persian_fall_back_to_the_craft_fonts_arabic_face() {
+    fn arabic_and_persian_fall_back_to_the_nodalia_fonts_arabic_face() {
         // #1652: with no system fonts (a headless CLI), Arabic and Persian drew as empty boxes.
-        let Some(arabic) = CRAFT_FONTS.iter().find(|f| f.scripts.contains(&"Arab")) else {
-            eprintln!("skipped: no Arabic face in the optional craft-fonts input");
+        let Some(arabic) = NODALIA_FONTS.iter().find(|f| f.scripts.contains(&"Arab")) else {
+            eprintln!("skipped: no Arabic face in the optional nodalia-fonts input");
             return;
         };
         let db = FontDb::with_font_dirs(Vec::new());
@@ -643,13 +643,13 @@ mod tests {
     }
 
     #[test]
-    fn works_without_craft_fonts() {
-        // Always true without CRAFT_FONTS_DIR; with it, the bundled fonts must still all load.
+    fn works_without_nodalia_fonts() {
+        // Always true without NODALIA_FONTS_DIR; with it, the bundled fonts must still all load.
         let db = FontDb::with_font_dirs(Vec::new());
         db.set_system_fallback(false);
         assert_eq!(db.face(DEFAULT_FAMILY, "Regular").family, DEFAULT_FAMILY);
         assert!(!shape(&db.face(DEFAULT_FAMILY, "Regular"), "Hello", &[], |c| c).is_empty());
-        if CRAFT_FONTS.is_empty() {
+        if NODALIA_FONTS.is_empty() {
             assert!(japanese_fonts().next().is_none() && japanese_document_fonts().is_empty());
             let latin = db.face(DEFAULT_FAMILY, "Regular");
             assert!(db.fallback_for('語', latin.id()).is_none(), "no bundled Japanese font");

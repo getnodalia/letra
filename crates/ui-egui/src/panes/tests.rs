@@ -1,5 +1,5 @@
 use super::{Content, Pane};
-use craft_ui::panes::PaneContent;
+use nodalia_ui::panes::PaneContent;
 use egui::vec2;
 
 /// #1902: Clipboard Delete returns focus to the document like paste does.
@@ -168,7 +168,7 @@ fn escape_during_a_pane_drag_keeps_full_screen() {
     h.input_mut().events.push(button(away, false));
     h.run_steps(2);
     assert!(h.state().session.view.full_screen);
-    let docked = craft_ui::panes::Place::Docked(craft_ui::panes::Edge::Start);
+    let docked = nodalia_ui::panes::Place::Docked(nodalia_ui::panes::Edge::Start);
     assert_eq!(super::pane_state(h.state(), Pane::Navigation).place, docked, "the drag was cancelled");
 }
 
@@ -310,7 +310,7 @@ fn pane_bodies_fit_the_narrowest_pane() {
 }
 
 /// #4482: at the 200 pt minimum width every Navigation tab is whole, in the longest labels. The
-/// fixture puts the longest translation of each tab in craft-i18n (at `craft-i18n.rev`) side by
+/// fixture puts the longest translation of each tab in nodalia-i18n (at `nodalia-i18n.rev`) side by
 /// side; with the catalogs built in, every interface language is checked too, and none may have
 /// a wider tab than the fixture (else the fixture needs the new longest label).
 #[test]
@@ -331,7 +331,7 @@ fn navigation_tabs_fit_the_narrowest_pane_in_every_language() {
     let mut widest = Vec::new();
     let mut langs = vec![longest];
     if crate::i18n::catalogs_embedded() {
-        // Chinese, Japanese and Korean need a craft-fonts build (their labels are short anyway).
+        // Chinese, Japanese and Korean need a nodalia-fonts build (their labels are short anyway).
         let cjk = !letra_fonts::ui_cjk_fonts(false).is_empty();
         langs.extend(crate::i18n::Lang::all().filter(|l| cjk || !l.uses_cjk()));
     }
@@ -386,7 +386,7 @@ fn navigation_tabs_fit_the_narrowest_pane_in_every_language() {
 #[test]
 #[cfg(not(target_arch = "wasm32"))]
 fn a_floated_pane_floats_again_after_a_restart() {
-    use craft_ui::panes::Place;
+    use nodalia_ui::panes::Place;
     use egui_kittest::kittest::Queryable;
     let mut app = crate::WordApp::new(letra_engine::Session::new(letra_doc::Document::from_text("")), crate::Services::default());
     app.run("view.navigationPane", serde_json::json!({"value": true})).unwrap();
@@ -425,7 +425,7 @@ fn a_floated_pane_floats_again_after_a_restart() {
 /// (#1756); Styles goes through `view.stylesPaneDock`; junk is refused and changes nothing.
 #[test]
 fn pane_dock_command_docks_floats_and_reads_each_pane() {
-    use craft_ui::panes::{Edge, Place};
+    use nodalia_ui::panes::{Edge, Place};
     use serde_json::json;
     let mut app = crate::WordApp::new(letra_engine::Session::new(letra_doc::Document::from_text("")), crate::Services::default());
     assert_eq!(app.run("ui.paneDock", json!({"pane": "navigation"})).unwrap(), json!({"pane": "navigation", "dock": "left"}));
@@ -454,7 +454,7 @@ fn pane_dock_command_docks_floats_and_reads_each_pane() {
 /// defaults still flip to the reading-start side. Covers `ui.paneDock` and `view.stylesPaneDock`.
 #[test]
 fn pane_dock_left_and_right_are_physical_in_rtl() {
-    use craft_ui::panes::{Edge, Place};
+    use nodalia_ui::panes::{Edge, Place};
     use serde_json::json;
     let arabic = crate::i18n::fixture_lang("ar", "\tHome\tالرئيسية\n");
     crate::i18n::set_current(arabic);
@@ -475,7 +475,7 @@ fn pane_dock_left_and_right_are_physical_in_rtl() {
     assert_eq!(app.run("view.stylesPaneDock", json!({"dock": "right"})).unwrap()["dock"], "right");
     assert_eq!(super::pane_state(&app, Pane::Styles).place, Place::Docked(Edge::End));
     // A host Place request (Dock Left menu / drag) saves physical left without flipping.
-    super::apply(&mut app, craft_ui::panes::PaneRequest::Place(Pane::Clipboard, Place::Docked(Edge::Start)));
+    super::apply(&mut app, nodalia_ui::panes::PaneRequest::Place(Pane::Clipboard, Place::Docked(Edge::Start)));
     assert_eq!(app.ui.pane_places.get("clipboard").and_then(|p| p.dock), Some(super::SavedDock::Left));
     assert_eq!(super::pane_state(&app, Pane::Clipboard).place, Place::Docked(Edge::Start));
     crate::i18n::set_current(crate::i18n::Lang::EN);

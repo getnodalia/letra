@@ -1,26 +1,26 @@
 //! Interface languages (#8). Strings in the code stay English and are the lookup keys; the
-//! craft-i18n catalogs map them to display text when the UI is drawn. Command ids, document text,
+//! nodalia-i18n catalogs map them to display text when the UI is drawn. Command ids, document text,
 //! file names, the control channel, the CLI and MCP never see translated text, so scripts and
 //! agents are unaffected. A string without a translation shows in English, so coverage can grow
 //! one entry at a time, and a missing translation never fails a build, a test or a release.
 //!
-//! The catalogs live in [getnodalia/foundation (vendor/craft-i18n)](https://github.com/getnodalia/foundation/tree/vendor/craft-i18n/main)
-//! (`locales/<locale>/common.tsv` and `wordcraft.tsv`), not in this repository. `build.rs` embeds
-//! them from `CRAFT_I18N_DIR` (CI and releases check out the SHA in `craft-i18n.rev`); without it
+//! The catalogs live in [getnodalia/foundation (vendor/nodalia-i18n)](https://github.com/getnodalia/foundation/tree/nodalia/i18n)
+//! (`locales/<locale>/common.tsv` and `letra.tsv`), not in this repository. `build.rs` embeds
+//! them from `NODALIA_I18N_DIR` (CI and releases check out the SHA in `nodalia-i18n.rev`); without it
 //! the build is English only. Lookup, fallback (`pt-br` → `pt` → English, app rows over shared
-//! ones), plurals, language names and locale matching are the `craft-i18n` crate's (craft-libs).
+//! ones), plurals, language names and locale matching are the `nodalia-i18n` crate's (nodalia-libs).
 //!
 //! The `language` setting is `auto` by default: the UI follows the operating system's language
 //! (Windows display language, macOS preferred languages, `LANG`/`LC_*` elsewhere) when there is a
 //! catalog for it, and English otherwise. File ▸ Options ▸ Interface language picks one by hand.
 //!
 //! # Adding or changing a translation
-//! In craft-i18n: add rows to `locales/<locale>/wordcraft.tsv` (its `docs/integration.md`); they
-//! show here once `craft-i18n.rev` moves to a commit that has them. A feature PR here adds the
+//! In nodalia-i18n: add rows to `locales/<locale>/letra.tsv` (its `docs/integration.md`); they
+//! show here once `nodalia-i18n.rev` moves to a commit that has them. A feature PR here adds the
 //! English only.
 //!
 //! # Adding a language
-//! 1. craft-i18n gets `locales/<code>/wordcraft.tsv` and the language's `@id language.name` row.
+//! 1. nodalia-i18n gets `locales/<code>/letra.tsv` and the language's `@id language.name` row.
 //! 2. Add one row to [`LANGUAGES`]. Set its `editing_lang` only when `letra-proof` can proof
 //!    the language (Polish: `pl-PL`): new documents are then written in it.
 //!
@@ -37,17 +37,17 @@
 use std::cell::Cell;
 use std::sync::{LazyLock, OnceLock};
 
-use craft_i18n::I18n;
+use nodalia_i18n::I18n;
 
-pub use craft_i18n::{fmt, fmt_plain};
+pub use nodalia_i18n::{fmt, fmt_plain};
 
-include!(concat!(env!("OUT_DIR"), "/craft_i18n.rs"));
+include!(concat!(env!("OUT_DIR"), "/nodalia_i18n.rs"));
 
 /// The embedded catalogs, offering exactly the languages in [`LANGUAGES`]. Built on first use;
 /// a locale is parsed on its first lookup.
 static I18N: LazyLock<I18n> = LazyLock::new(|| {
     let offered: Vec<&str> = LANGUAGES.iter().map(|l| l.code).collect();
-    let (i18n, problems) = I18n::new(CRAFT_I18N, &offered);
+    let (i18n, problems) = I18n::new(NODALIA_I18N, &offered);
     problems.iter().for_each(|p| log::warn!("interface catalogs: {p}"));
     i18n
 });
@@ -56,10 +56,10 @@ static I18N: LazyLock<I18n> = LazyLock::new(|| {
 pub const AUTO: &str = "auto";
 
 /// One interface language Letra offers: what the app needs beyond the catalogs. Its name and
-/// translations come from craft-i18n.
+/// translations come from nodalia-i18n.
 pub struct LangInfo {
     /// BCP 47 code, lowercase (`ja`, `zh-hans`). Also the `language` setting's value and the
-    /// craft-i18n locale.
+    /// nodalia-i18n locale.
     pub code: &'static str,
     /// Which CJK interface face comes first (Chinese text wants the Chinese face).
     pub prefer_hans: bool,
@@ -139,7 +139,7 @@ const RTL_LANGUAGES: [&str; 1] = ["ar"];
 /// A language the UI can be shown in: English, or an offered language whose catalogs are embedded.
 #[derive(Clone, Copy)]
 pub struct Lang {
-    lang: craft_i18n::Lang,
+    lang: nodalia_i18n::Lang,
     /// The catalogs it is looked up in: the embedded ones ([`I18N`]), or a test fixture's.
     catalogs: Option<&'static I18n>,
 }
@@ -159,7 +159,7 @@ impl PartialEq for Lang {
 impl Eq for Lang {}
 
 impl Lang {
-    pub const EN: Lang = Lang { lang: craft_i18n::Lang::EN, catalogs: None };
+    pub const EN: Lang = Lang { lang: nodalia_i18n::Lang::EN, catalogs: None };
 
     fn i18n(self) -> &'static I18n {
         self.catalogs.unwrap_or_else(|| LazyLock::force(&I18N))
@@ -210,7 +210,7 @@ impl Lang {
     /// The embedded catalogs (shared, then Letra's) this language reads; none for English.
     fn catalog_texts(self) -> impl Iterator<Item = &'static str> {
         let code = self.code();
-        CRAFT_I18N.iter().filter(move |(c, ..)| c.eq_ignore_ascii_case(code)).flat_map(|(_, shared, app)| [*shared, *app])
+        NODALIA_I18N.iter().filter(move |(c, ..)| c.eq_ignore_ascii_case(code)).flat_map(|(_, shared, app)| [*shared, *app])
     }
 
     /// The CJK interface text the fonts must cover with the Chinese (`hans`) or other CJK fallback
@@ -249,7 +249,7 @@ impl Lang {
     }
 
     /// Every language the interface can be shown in: [`LANGUAGES`] in order, those with embedded
-    /// catalogs (English only in a build without craft-i18n).
+    /// catalogs (English only in a build without nodalia-i18n).
     pub fn all() -> impl Iterator<Item = Lang> {
         LANGUAGES.iter().filter_map(|l| Lang::from_code(l.code))
     }
@@ -361,7 +361,7 @@ pub fn t(s: &str) -> &str {
 pub fn tn(n: u64, one: &str, other: &str) -> String {
     #[cfg(test)]
     if pseudo::on() {
-        return I18N.trn(craft_i18n::Lang::PSEUDO, n, one, other);
+        return I18N.trn(nodalia_i18n::Lang::PSEUDO, n, one, other);
     }
     let lang = current();
     lang.i18n().trn(lang.lang, n, one, other)
@@ -377,7 +377,7 @@ pub fn tc<'a>(context: &str, s: &'a str) -> &'a str {
 pub fn trc<'a>(lang: Lang, context: &str, s: &'a str) -> &'a str {
     #[cfg(test)]
     if pseudo::on() {
-        return I18N.tc(craft_i18n::Lang::PSEUDO, context, s);
+        return I18N.tc(nodalia_i18n::Lang::PSEUDO, context, s);
     }
     lang.i18n().tc(lang.lang, context, s)
 }
@@ -388,7 +388,7 @@ pub fn trc<'a>(lang: Lang, context: &str, s: &'a str) -> &'a str {
 pub fn get<'a>(context: &str, s: &'a str) -> Option<&'a str> {
     #[cfg(test)]
     if pseudo::on() {
-        return I18N.get(craft_i18n::Lang::PSEUDO, context, s);
+        return I18N.get(nodalia_i18n::Lang::PSEUDO, context, s);
     }
     let lang = current();
     lang.i18n().get(lang.lang, context, s)
@@ -417,7 +417,7 @@ pub fn lowercase(s: &str) -> String {
 pub fn tr(lang: Lang, s: &str) -> &str {
     #[cfg(test)]
     if pseudo::on() {
-        return I18N.t(craft_i18n::Lang::PSEUDO, s);
+        return I18N.t(nodalia_i18n::Lang::PSEUDO, s);
     }
     lang.i18n().t(lang.lang, s)
 }
@@ -508,21 +508,21 @@ pub fn prefixed(prefix: &str, rest: &str) -> String {
 /// Turkish casing.
 #[cfg(test)]
 pub(crate) fn fixture_lang(code: &'static str, source: &'static str) -> Lang {
-    let embedded: &'static craft_i18n::Embedded = Box::leak(Box::new([(code, "", source)]));
+    let embedded: &'static nodalia_i18n::Embedded = Box::leak(Box::new([(code, "", source)]));
     let (i18n, _) = I18n::new(embedded, &[code]);
     let i18n: &'static I18n = Box::leak(Box::new(i18n));
-    let lang = i18n.from_code(code).unwrap_or(craft_i18n::Lang::EN);
+    let lang = i18n.from_code(code).unwrap_or(nodalia_i18n::Lang::EN);
     Lang { lang, catalogs: Some(i18n) }
 }
 
 /// For a test that needs the embedded catalogs: `false`, with a note, when none were embedded
-/// (`CRAFT_I18N_DIR` unset), so the test can skip; the interface is then English only.
+/// (`NODALIA_I18N_DIR` unset), so the test can skip; the interface is then English only.
 #[cfg(test)]
 pub(crate) fn catalogs_embedded() -> bool {
-    if CRAFT_I18N.is_empty() {
-        eprintln!("skipped: built without craft-i18n (CRAFT_I18N_DIR); the interface is English only");
+    if NODALIA_I18N.is_empty() {
+        eprintln!("skipped: built without nodalia-i18n (NODALIA_I18N_DIR); the interface is English only");
     }
-    !CRAFT_I18N.is_empty()
+    !NODALIA_I18N.is_empty()
 }
 
 #[cfg(test)]

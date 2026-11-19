@@ -227,7 +227,7 @@ fn general(app: &mut WordApp, ui: &mut Ui) {
         use letra_engine::cmd::view::PaperColor;
         let label = ui.label(tl!("Screen paper color:"));
         let selected = app.session.prefs.paper_color;
-        let combo = craft_ui::ComboBox::from_id_salt("screen_paper_color").selected_text(tl!(selected.label())).width(220.0).show_ui(ui, |ui| {
+        let combo = nodalia_ui::ComboBox::from_id_salt("screen_paper_color").selected_text(tl!(selected.label())).width(220.0).show_ui(ui, |ui| {
             for color in PaperColor::ALL {
                 if ui.selectable_label(selected == color, tl!(color.label())).clicked() {
                     let _ = app.run("view.paperColor", json!({"value": color}));
@@ -604,7 +604,7 @@ fn advanced(app: &mut WordApp, ui: &mut Ui) {
                 let auto = app.session.prefs.units.is_none();
                 let name = UNITS.iter().find(|(u, _)| *u == units).map_or("Inches", |(_, n)| n);
                 let shown = if auto { format!("{} ({})", tl!("Automatic"), tl!(name)) } else { tl!(name).to_string() };
-                let combo = craft_ui::ComboBox::from_id_salt("options_units").selected_text(shown).width(200.0).show_ui(ui, |ui| {
+                let combo = nodalia_ui::ComboBox::from_id_salt("options_units").selected_text(shown).width(200.0).show_ui(ui, |ui| {
                     if ui.selectable_label(auto, tl!("Automatic")).clicked() {
                         set(app, json!({"units": "auto"}));
                     }
@@ -628,7 +628,7 @@ fn advanced(app: &mut WordApp, ui: &mut Ui) {
                     if system.territory.is_empty() { system.language.clone() } else { format!("{}-{}", system.language, system.territory) };
                 let automatic = crate::i18n::fmt(tl!("Automatic ({region})"), &[("region", system_tag.as_str())]);
                 let shown = chosen.clone().unwrap_or_else(|| automatic.clone());
-                let combo = craft_ui::ComboBox::from_id_salt("options_region").selected_text(shown).width(200.0).show_ui(ui, |ui| {
+                let combo = nodalia_ui::ComboBox::from_id_salt("options_region").selected_text(shown).width(200.0).show_ui(ui, |ui| {
                     if ui.selectable_label(chosen.is_none(), automatic.as_str()).clicked() {
                         set(app, json!({"region": "auto"}));
                     }
@@ -724,7 +724,7 @@ fn agents(ui: &mut Ui) {
 fn theme_picker(app: &mut WordApp, ui: &mut Ui) {
     use crate::theme::Appearance;
     let label = ui.label(tl!("Interface theme:"));
-    let combo = craft_ui::ComboBox::from_id_salt("interface_theme").selected_text(tl!(app.ui.theme.label())).width(220.0).show_ui(ui, |ui| {
+    let combo = nodalia_ui::ComboBox::from_id_salt("interface_theme").selected_text(tl!(app.ui.theme.label())).width(220.0).show_ui(ui, |ui| {
         for a in Appearance::ALL {
             if ui.selectable_label(app.ui.theme == a, tl!(a.label())).clicked() {
                 let _ = app.run("ui.theme", json!({"value": a.code()}));
@@ -745,7 +745,7 @@ fn window_controls_picker(app: &mut WordApp, ui: &mut Ui) {
     }
     let label = ui.label(tl!("Window controls:"));
     let combo =
-        craft_ui::ComboBox::from_id_salt("window_controls").selected_text(tl!(app.ui.window_controls.label())).width(220.0).show_ui(ui, |ui| {
+        nodalia_ui::ComboBox::from_id_salt("window_controls").selected_text(tl!(app.ui.window_controls.label())).width(220.0).show_ui(ui, |ui| {
             for c in WindowControls::ALL {
                 if ui.selectable_label(app.ui.window_controls == c, tl!(c.label())).clicked() {
                     let _ = app.run("ui.windowControls", json!({"value": c.code()}));
@@ -763,7 +763,7 @@ fn status_count_picker(app: &mut WordApp, ui: &mut Ui) {
     use crate::StatusCount;
     ui.horizontal(|ui| {
         let label = ui.label(tl!("Status bar count:"));
-        let combo = craft_ui::ComboBox::from_id_salt("status_count").selected_text(tl!(app.ui.status_count.label())).width(220.0).show_ui(ui, |ui| {
+        let combo = nodalia_ui::ComboBox::from_id_salt("status_count").selected_text(tl!(app.ui.status_count.label())).width(220.0).show_ui(ui, |ui| {
             for c in StatusCount::ALL {
                 if ui.selectable_label(app.ui.status_count == c, tl!(c.label())).clicked() {
                     let _ = app.run("ui.statusCount", json!({"value": c.code()}));
@@ -787,7 +787,7 @@ fn interface_size_picker(app: &mut WordApp, ui: &mut Ui) {
         .replace("\u{2069}%", "%\u{2069}");
     let selected = size.percent().map_or_else(|| auto.clone(), |pct| format!("{pct}%"));
     let label = ui.label(tl!("Interface size:"));
-    let combo = craft_ui::ComboBox::from_id_salt("interface_size").selected_text(selected).width(220.0).show_ui(ui, |ui| {
+    let combo = nodalia_ui::ComboBox::from_id_salt("interface_size").selected_text(selected).width(220.0).show_ui(ui, |ui| {
         if ui.selectable_label(size.is_auto(), auto).clicked() {
             let _ = app.run("ui.interfaceSize", json!({"value": "auto"}));
         }
@@ -808,7 +808,7 @@ fn animations_picker(app: &mut WordApp, ui: &mut Ui) {
     ui.horizontal(|ui| {
         let label = ui.label(tl!("Animation effects:"));
         let combo =
-            craft_ui::ComboBox::from_id_salt("animation_effects").selected_text(tl!(app.ui.animations.label())).width(220.0).show_ui(ui, |ui| {
+            nodalia_ui::ComboBox::from_id_salt("animation_effects").selected_text(tl!(app.ui.animations.label())).width(220.0).show_ui(ui, |ui| {
                 for a in Animations::ALL {
                     if ui.selectable_label(app.ui.animations == a, tl!(a.label())).clicked() {
                         let _ = app.run("ui.animations", json!({"value": a.code()}));
@@ -835,7 +835,7 @@ fn display_server_picker(app: &mut WordApp, ui: &mut Ui) {
     let name = |d: DisplayServer| if d == DisplayServer::Auto { tl!(d.label()) } else { d.label() };
     ui.horizontal(|ui| {
         let label = ui.label(tl!("Display server:"));
-        let combo = craft_ui::ComboBox::from_id_salt("display_server").selected_text(name(app.ui.display_server)).width(220.0).show_ui(ui, |ui| {
+        let combo = nodalia_ui::ComboBox::from_id_salt("display_server").selected_text(name(app.ui.display_server)).width(220.0).show_ui(ui, |ui| {
             for d in DisplayServer::ALL {
                 if ui.selectable_label(app.ui.display_server == d, name(d)).clicked() {
                     let _ = app.run("ui.displayServer", json!({"value": d.code()}));
@@ -857,7 +857,7 @@ fn language_picker(app: &mut WordApp, ui: &mut Ui) {
     let auto_label = crate::i18n::fmt(tl!("Automatic ({language})"), &[("language", system.name())]);
     let current = if app.ui.language == AUTO { auto_label.clone() } else { Lang::from_pref(&app.ui.language).name().to_string() };
     let label = ui.label(tl!("Interface language:"));
-    let combo = craft_ui::ComboBox::from_id_salt("interface_language").selected_text(current).width(220.0).show_ui(ui, |ui| {
+    let combo = nodalia_ui::ComboBox::from_id_salt("interface_language").selected_text(current).width(220.0).show_ui(ui, |ui| {
         if ui.selectable_label(app.ui.language == AUTO, auto_label.as_str()).clicked() {
             let _ = app.run("ui.language", json!({"value": AUTO}));
         }
@@ -967,7 +967,7 @@ fn numeral_picker(app: &mut WordApp, ui: &mut Ui) {
     ui.horizontal(|ui| {
         let label = ui.label(tl!("Numerals:"));
         let mut sel = app.session.view.numeral;
-        let combo = craft_ui::ComboBox::from_id_salt("numerals").selected_text(tl!(sel.label())).width(220.0).show_ui(ui, |ui| {
+        let combo = nodalia_ui::ComboBox::from_id_salt("numerals").selected_text(tl!(sel.label())).width(220.0).show_ui(ui, |ui| {
             for m in [NumeralMode::Arabic, NumeralMode::Hindi, NumeralMode::Context, NumeralMode::System] {
                 ui.selectable_value(&mut sel, m, tl!(m.label()));
             }

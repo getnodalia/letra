@@ -104,7 +104,7 @@ pub(crate) fn lenient_places<'de, D: serde::Deserializer<'de>>(d: D) -> Result<B
         .collect())
 }
 
-/// Four finite numbers as `[x, y, width, height]`; `craft_ui::panes` brings a saved rect back
+/// Four finite numbers as `[x, y, width, height]`; `nodalia_ui::panes` brings a saved rect back
 /// inside the window.
 pub(crate) fn float_rect(v: &Value) -> Option<[f32; 4]> {
     let [x, y, w, h] = v.as_array().map(Vec::as_slice)? else { return None };

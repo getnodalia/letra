@@ -43,12 +43,12 @@ fn json_input(d: &Path, text: &str) -> PathBuf {
     path
 }
 
-/// Built without craft-fonts, the host's own fonts decide what is drawable: skip, as the layout
+/// Built without nodalia-fonts, the host's own fonts decide what is drawable: skip, as the layout
 /// tests do.
 fn without_fonts() -> bool {
-    let missing = option_env!("CRAFT_FONTS_DIR").is_none_or(str::is_empty);
+    let missing = option_env!("NODALIA_FONTS_DIR").is_none_or(str::is_empty);
     if missing {
-        eprintln!("skipped: built without craft-fonts (set CRAFT_FONTS_DIR to a checkout)");
+        eprintln!("skipped: built without nodalia-fonts (set NODALIA_FONTS_DIR to a checkout)");
     }
     missing
 }
