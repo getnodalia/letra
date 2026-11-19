@@ -11,18 +11,9 @@ name: Release macOS
 # land on main, and publishes the release once every platform is attached. Run it by hand with
 # tag=vX.Y.Z to rebuild a release's files; without a tag it only uploads workflow artifacts.
 
+# Runs only when a release calls it (release-auto.yml) or by hand (workflow_dispatch), never on pull
+# requests or pushes: the organization's 5 macOS slots are kept for releases.
 on:
-  # Also on every change to the app, like the other Nodalia apps' macOS builds: artifacts only.
-  push:
-    branches: [main]
-  pull_request:
-    paths:
-      - "apps/**"
-      - "crates/**"
-      - "assets/**"
-      - "packaging/macos/**"
-      - "Cargo.lock"
-      - ".github/workflows/release-macos.yml"
   workflow_dispatch:
     inputs:
       tag:
