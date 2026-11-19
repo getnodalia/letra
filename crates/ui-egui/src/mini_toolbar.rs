@@ -454,7 +454,7 @@ pub(crate) fn highlight_menu(ui: &mut egui::Ui, app: &mut WordApp) {
 fn font_color_menu(ui: &mut egui::Ui, app: &mut WordApp) {
     egui::ScrollArea::vertical().max_height(280.0).show(ui, |ui| {
         let auto_in_effect = widgets::current_pick(ui.ctx()).is_some_and(|cur| cur == "auto");
-        let automatic = ui.selectable_label(auto_in_effect, "Automatic");
+        let automatic = ui.selectable_label(auto_in_effect, tl!("Automatic"));
         if automatic.hovered() {
             widgets::note_hover(ui.ctx(), "auto".to_string());
         }
