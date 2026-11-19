@@ -72,7 +72,7 @@ nodalia-pdf = { git = "https://github.com/getnodalia/foundation", rev = "adf9bf9
 nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "114848a2ff1a7c29c9a5432fb12e955fbe0aeef2", features = ["egui"] }
 nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "44bfd0a37e6bd2837c473b4e5607b70e8d169e61", features = ["egui", "creator"] }
 quick-xml = "0.41"
-zip = { version = "3", default-features = false, features = ["deflate"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
 # zlib streams (compressed metafile pictures in `.doc` drawings); already in the lock as a dependency of other crates.
 miniz_oxide = "0.9"
 cfb = "0.15"
