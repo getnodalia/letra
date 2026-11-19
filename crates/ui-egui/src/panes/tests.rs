@@ -1,6 +1,6 @@
 use super::{Content, Pane};
-use nodalia_ui::panes::PaneContent;
 use egui::vec2;
+use nodalia_ui::panes::PaneContent;
 
 /// #1902: Clipboard Delete returns focus to the document like paste does.
 #[test]
@@ -386,8 +386,8 @@ fn navigation_tabs_fit_the_narrowest_pane_in_every_language() {
 #[test]
 #[cfg(not(target_arch = "wasm32"))]
 fn a_floated_pane_floats_again_after_a_restart() {
-    use nodalia_ui::panes::Place;
     use egui_kittest::kittest::Queryable;
+    use nodalia_ui::panes::Place;
     let mut app = crate::WordApp::new(letra_engine::Session::new(letra_doc::Document::from_text("")), crate::Services::default());
     app.run("view.navigationPane", serde_json::json!({"value": true})).unwrap();
     let mut h = pane_harness(app);
