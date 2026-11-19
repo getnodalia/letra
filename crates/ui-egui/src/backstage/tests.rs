@@ -1231,18 +1231,18 @@ fn file_page_harness(rtl: bool, mac: bool, height: f32) -> egui_kittest::Harness
     h
 }
 
-/// The rectangle of the side menu's button named `label`, a 200 point wide row (the page itself
+/// The rectangle of the side menu's button named `label`, a menu row (`office::NAV_WIDTH` wide) (the page itself
 /// may have a control with the same name).
 fn side_menu_button(h: &egui_kittest::Harness<'static, WordApp>, label: &str) -> egui::Rect {
     let label = crate::i18n::t(label).to_string();
     h.query_all_by_label(&label)
         .map(|n| n.rect())
-        .find(|r| (r.width() - 200.0).abs() < 0.5)
+        .find(|r| (r.width() - nodalia_theme::office::NAV_WIDTH).abs() < 0.5)
         .unwrap_or_else(|| panic!("the side menu's {label} button"))
 }
 
 /// #6639: in a window too short for the File page's side menu, the wheel over the menu scrolls
-/// it, so Options and About can be reached. Checked left to right and right to left, where the
+/// it, so Preferences and About can be reached. Checked left to right and right to left, where the
 /// menu is on the right.
 #[test]
 fn the_side_menu_scrolls_with_the_wheel_in_a_short_window() {
@@ -1256,7 +1256,7 @@ fn the_side_menu_scrolls_with_the_wheel_in_a_short_window() {
         let mut h = file_page_harness(rtl, false, height);
         let menu = side_menu_button(&h, "Home");
         assert!(menu.min.x <= x && x <= menu.max.x, "{language}: the menu is under the pointer: {menu:?}");
-        for label in ["Options", "About"] {
+        for label in ["Preferences", "About"] {
             let r = side_menu_button(&h, label);
             assert!(r.max.y > bottom, "{language}: {label} starts below the window's bottom edge: {r:?}");
         }
@@ -1269,7 +1269,7 @@ fn the_side_menu_scrolls_with_the_wheel_in_a_short_window() {
             source: egui::MouseWheelSource::Unknown,
         });
         h.run_steps(4);
-        for label in ["Options", "About"] {
+        for label in ["Preferences", "About"] {
             let r = side_menu_button(&h, label);
             if r.max.y > bottom + 0.5 {
                 misses.push(format!("{language}: the wheel did not bring {label} into the window: {r:?}"));
@@ -1290,7 +1290,9 @@ fn tab_to_about_scrolls_it_into_a_short_window() {
         let bottom = 360.0 - 8.0;
         let mut h = file_page_harness(rtl, false, 360.0);
         let about_focused = |h: &egui_kittest::Harness<'static, WordApp>| {
-            h.query_all_by_label("About").find(|n| (n.rect().width() - 200.0).abs() < 0.5 && n.is_focused()).map(|n| n.rect())
+            h.query_all_by_label("About")
+                .find(|n| (n.rect().width() - nodalia_theme::office::NAV_WIDTH).abs() < 0.5 && n.is_focused())
+                .map(|n| n.rect())
         };
         let mut about = None;
         for _ in 0..40 {
@@ -1311,15 +1313,15 @@ fn tab_to_about_scrolls_it_into_a_short_window() {
     assert!(misses.is_empty(), "{misses:#?}");
 }
 
-/// #6639: when the whole side menu fits, About stays at the menu's bottom, above its 12 point
-/// margin, as it was before the menu could scroll, with and without the macOS title bar.
+/// #6639: when the whole side menu fits, About stays at the menu's bottom, above the island's
+/// 10 point padding, as it was before the menu could scroll, with and without the macOS title bar.
 #[test]
 fn about_stays_at_the_bottom_of_a_side_menu_that_fits() {
     for (rtl, mac) in [(false, false), (true, false), (false, true), (true, true)] {
         let language = if rtl { "right to left" } else { "left to right" };
         let h = file_page_harness(rtl, mac, 900.0);
         let about = side_menu_button(&h, "About");
-        let bottom = 900.0 - 8.0 - 12.0;
+        let bottom = 900.0 - 8.0 - crate::theme::ISLAND_GAP - 10.0;
         assert!((about.max.y - bottom).abs() < 0.5, "{language}, mac {mac}: About sits at the bottom of the menu: {about:?}");
     }
 }
@@ -1338,6 +1340,9 @@ fn collect_shapes(shape: &egui::Shape, rects: &mut Vec<egui::Rect>, texts: &mut 
     }
 }
 
+/// The gap between a template's thumbnail and its caption.
+const TILE_GAP: f32 = 6.0;
+
 /// #6151: in an RTL interface (Arabic), template titles on the Start/Home page
 /// and New page are right-aligned to their preview thumbnails rather than left-aligned.
 #[test]
@@ -1346,6 +1351,8 @@ fn rtl_template_titles_are_right_aligned() {
     a.ui.language = "ar".into();
     a.ui.backstage = true;
     a.ui.backstage_page = "home".into();
+    // A fixture right-to-left language, so the test does not need the embedded translations.
+    let ar = crate::i18n::fixture_lang("ar", "\tHome\tHome\n");
     let ctx = egui::Context::default();
     let mut last_shapes = Vec::new();
     for frame in 0..4 {
@@ -1356,7 +1363,9 @@ fn rtl_template_titles_are_right_aligned() {
         };
         let mut out = ctx.run_ui(input, |ui| {
             a.logic(&ctx.clone());
-            a.ui(ui);
+            crate::i18n::set_current(ar);
+            crate::rtl::sync(&ctx);
+            super::show(&mut a, ui);
         });
         out.textures_delta.clear();
         if frame == 3 {
@@ -1374,7 +1383,11 @@ fn rtl_template_titles_are_right_aligned() {
     let (_, pos, width) = texts.iter().find(|(t, _, _)| t == blank_caption).expect("blank template caption drawn");
     let thumbnail = rects
         .iter()
-        .find(|r| (r.width() - 150.0).abs() < 1.0 && (r.height() - 194.0).abs() < 1.0 && (r.max.y - pos.y).abs() < 1.0)
+        .find(|r| {
+            (r.width() - nodalia_theme::office::THUMB.x).abs() < 1.0
+                && (r.height() - nodalia_theme::office::THUMB.y).abs() < 1.0
+                && (pos.y - r.max.y - TILE_GAP).abs() < 1.0
+        })
         .expect("blank template thumbnail rect");
 
     let text_right = pos.x + width;
@@ -1397,7 +1410,9 @@ fn rtl_template_titles_are_right_aligned() {
         },
         |ui| {
             a.logic(&ctx.clone());
-            a.ui(ui);
+            crate::i18n::set_current(ar);
+            crate::rtl::sync(&ctx);
+            super::show(&mut a, ui);
         },
     );
     new_out.textures_delta.clear();
@@ -1411,14 +1426,14 @@ fn rtl_template_titles_are_right_aligned() {
         if let Some((_, new_pos, new_width)) = new_texts.iter().find(|(t, _, _)| t == caption) {
             let right = new_pos.x + new_width;
             let has_matching_thumbnail = new_rects.iter().any(|r| {
-                (r.width() - 150.0).abs() < 1.0
-                    && (r.height() - 194.0).abs() < 1.0
-                    && (r.max.y - new_pos.y).abs() < 1.0
+                (r.width() - nodalia_theme::office::THUMB.x).abs() < 1.0
+                    && (r.height() - nodalia_theme::office::THUMB.y).abs() < 1.0
+                    && (new_pos.y - r.max.y - TILE_GAP).abs() < 1.0
                     && (r.max.x - right).abs() < 1.0
             });
             assert!(
                 has_matching_thumbnail,
-                "New page: caption '{caption}' must be right-aligned with its 150pt thumbnail (right={right}, y={})",
+                "New page: caption '{caption}' must be right-aligned with its thumbnail (right={right}, y={})",
                 new_pos.y
             );
         }
@@ -1426,6 +1441,8 @@ fn rtl_template_titles_are_right_aligned() {
 
     // Also verify that a template tile with a wide caption (>150 pt) aligns both the thumbnail
     // and caption to the right edge in RTL.
+    crate::i18n::set_current(ar);
+    crate::rtl::sync(&ctx);
     let wide_label = "A very long template title that exceeds 150 points width";
     let mut wide_out = ctx.run_ui(
         egui::RawInput {
@@ -1446,10 +1463,14 @@ fn rtl_template_titles_are_right_aligned() {
         collect_shapes(&s.shape, &mut wide_rects, &mut wide_texts);
     }
     let (_, wide_pos, wide_width) = wide_texts.iter().find(|(t, _, _)| t == wide_label).expect("wide template caption drawn");
-    assert!(*wide_width > 150.0, "wide caption should exceed 150 points: {wide_width}");
+    assert!(*wide_width > nodalia_theme::office::THUMB.x, "wide caption should exceed the thumbnail's width: {wide_width}");
     let wide_thumbnail = wide_rects
         .iter()
-        .find(|r| (r.width() - 150.0).abs() < 1.0 && (r.height() - 194.0).abs() < 1.0 && (r.max.y - wide_pos.y).abs() < 1.0)
+        .find(|r| {
+            (r.width() - nodalia_theme::office::THUMB.x).abs() < 1.0
+                && (r.height() - nodalia_theme::office::THUMB.y).abs() < 1.0
+                && (wide_pos.y - r.max.y - TILE_GAP).abs() < 1.0
+        })
         .expect("wide template thumbnail rect");
     let wide_text_right = wide_pos.x + wide_width;
     assert!(
@@ -1458,6 +1479,7 @@ fn rtl_template_titles_are_right_aligned() {
         wide_thumbnail.max.x,
         wide_text_right,
     );
+    crate::i18n::set_current(crate::i18n::Lang::EN);
 }
 
 /// A refused Word XML export (the typed name's `.xml` twin already exists) is said on the Export

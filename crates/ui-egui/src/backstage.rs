@@ -85,23 +85,34 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
                 app.canvas.want_focus = true;
             }
             ui.add_space(10.0);
-            for (id, label, icon) in PAGES {
-                page_row(app, ui, has_document, id, label, icon);
-                if id == SEPARATOR_AFTER {
-                    separator(ui, &t);
-                }
-            }
-            ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
-                for (id, label, icon) in BOTTOM.into_iter().rev() {
-                    if id == "about" {
-                        let row = nav_row(ui, icon, tl!(label), Row { selected: false, enabled: true, keytip: None });
-                        if row.clicked() {
-                            app.dialog = crate::dialogs::Dialog::open("about", app);
-                        }
-                    } else {
-                        page_row(app, ui, has_document, id, label, icon);
+            // A window too short for the whole menu scrolls it below the back button (#6639). When the
+            // menu fits, Preferences and About stay at its bottom.
+            let rows_h = office::NAV_ROW * BOTTOM.len() as f32;
+            let fits = ui.available_height();
+            egui::ScrollArea::vertical().id_salt("backstage_nav_scroll").auto_shrink([false, false]).show(ui, |ui| {
+                let top = ui.cursor().top();
+                for (id, label, icon) in PAGES {
+                    page_row(app, ui, has_document, id, label, icon);
+                    if id == SEPARATOR_AFTER {
+                        separator(ui, &t);
                     }
                 }
+                let gap = top + fits - ui.cursor().top() - rows_h;
+                if gap > 0.0 {
+                    ui.add_space(gap);
+                }
+                ui.allocate_ui_with_layout(vec2(office::NAV_WIDTH, rows_h), egui::Layout::bottom_up(egui::Align::Min), |ui| {
+                    for (id, label, icon) in BOTTOM.into_iter().rev() {
+                        if id == "about" {
+                            let row = nav_row(ui, icon, tl!(label), Row { selected: false, enabled: true, keytip: None });
+                            if row.clicked() {
+                                app.dialog = crate::dialogs::Dialog::open("about", app);
+                            }
+                        } else {
+                            page_row(app, ui, has_document, id, label, icon);
+                        }
+                    }
+                });
             });
         });
     // The menu keeps no gap on its inner side, so the page keeps one on both.
@@ -159,6 +170,10 @@ fn nav_row(ui: &mut Ui, icon: &str, label: &str, row: Row) -> egui::Response {
     let rtl = crate::rtl::on();
     let (r, resp) = ui.add_enabled_ui(row.enabled, |ui| ui.allocate_exact_size(vec2(office::NAV_WIDTH, office::NAV_ROW), Sense::click())).inner;
     resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, row.enabled, row.selected, label));
+    // A row reached with Tab scrolls into view (#6639).
+    if resp.gained_focus() {
+        resp.scroll_to_me(None);
+    }
     let ink = if !row.enabled {
         t.text_disabled
     } else if row.selected {
@@ -316,7 +331,9 @@ fn template_tile(ui: &mut Ui, app: &mut WordApp, label: &str, template: &str) {
         let (tile, resp) = ui.allocate_exact_size(vec2(galley.size().x.max(thumb.x), thumb.y + 6.0 + galley.size().y), Sense::click());
         resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), caption.as_str()));
         // The top of the page, in the landscape thumbnail every Nodalia office app's Home shows.
-        let r = Rect::from_min_size(tile.min, thumb);
+        // In a right-to-left interface the thumbnail and its caption share the tile's right edge (#6151).
+        let flows = crate::rtl::on();
+        let r = Rect::from_min_size(pos2(if flows { tile.max.x - thumb.x } else { tile.min.x }, tile.min.y), thumb);
         ui.painter().rect_filled(r, 6.0, egui::Color32::WHITE);
         let ppp = ui.ctx().pixels_per_point();
         let lang = template_lang();
@@ -347,7 +364,8 @@ fn template_tile(ui: &mut Ui, app: &mut WordApp, label: &str, template: &str) {
         }
         let edge = if resp.hovered() { Stroke::new(2.0, t.accent) } else { Stroke::new(1.0, t.border) };
         ui.painter().rect_stroke(r, 6.0, edge, egui::StrokeKind::Inside);
-        ui.painter().galley(pos2(r.min.x, r.max.y + 6.0), galley, ui.visuals().text_color());
+        let caption_x = if flows { r.max.x - galley.size().x } else { r.min.x };
+        ui.painter().galley(pos2(caption_x, r.max.y + 6.0), galley, ui.visuals().text_color());
         if resp.clicked() {
             let _ = app.run("file.new", json!({"template": template, "lang": lang_param(template_lang())}));
             app.ui.backstage = false;

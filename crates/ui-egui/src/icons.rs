@@ -151,6 +151,7 @@ pub fn ndl_name(name: &str) -> Option<&'static str> {
         "file" => "file",
         "find" => "search",
         "finish" => "send",
+        "fitOnePage" => "fit",
         "first" => "skip-previous",
         "focus" => "focus-mode",
         "folder" => "folder",

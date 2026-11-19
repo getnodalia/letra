@@ -1068,8 +1068,10 @@ fn clicking_and_dragging_outside_scrollbar_does_not_page() {
 
     let button = |at: Pos2, pressed: bool| Event::PointerButton { pos: at, button: PointerButton::Primary, pressed, modifiers: Default::default() };
 
-    // Point just to the left of the scrollbar track (outside egui's scrollbar hit rect).
-    let just_outside = pos2(bar.min.x - 2.0, bar.bottom() - 20.0);
+    // Point just to the left of the scrollbar track. The scrollbar's hit rect starts with its inner
+    // margin, so "outside" is measured from the canvas viewport's edge, not the bar's own.
+    let edge = h.state().canvas.viewport.expect("the canvas viewport").max.x;
+    let just_outside = pos2(edge - 2.0, bar.bottom() - 20.0);
     h.event(Event::PointerMoved(just_outside));
     h.step();
     h.event(button(just_outside, true));
@@ -1082,8 +1084,8 @@ fn clicking_and_dragging_outside_scrollbar_does_not_page() {
     assert_eq!(h.state().canvas.scroll_offset.y, 0.0, "clicking outside the scrollbar track does not page");
 
     // Dragging just outside the scrollbar does not page.
-    let drag_from = pos2(bar.min.x - 3.0, 300.0);
-    let drag_to = pos2(bar.min.x - 3.0, 350.0);
+    let drag_from = pos2(edge - 3.0, 300.0);
+    let drag_to = pos2(edge - 3.0, 350.0);
     h.event(Event::PointerMoved(drag_from));
     h.step();
     h.event(button(drag_from, true));

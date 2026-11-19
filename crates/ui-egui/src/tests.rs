@@ -6715,7 +6715,8 @@ fn the_full_screen_button_toggles_out() {
         h.step();
     }
     h.state_mut().run("ui.tab", json!({ "tab": "View" })).unwrap();
-    for _ in 0..3 {
+    // Measure, plan, measure the planned levels, plan again (#662).
+    for _ in 0..10 {
         h.step();
     }
     // The View tab's Window group folds into a drop-down when the window is narrow (#662),
