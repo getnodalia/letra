@@ -11,7 +11,7 @@
 use skrifa::MetadataProvider;
 use skrifa::raw::FileRef;
 
-use crate::CraftFont;
+use crate::NodaliaFont;
 
 /// An installed font file chosen for the interface.
 pub struct SystemUiFont {
@@ -42,7 +42,7 @@ pub fn is_cjk(c: char) -> bool {
 /// The distinct CJK characters of `texts` (see [`is_cjk`]) that none of the `embedded` faces
 /// maps, in code point order. A nodalia-fonts face may lack characters the interface catalogs use
 /// (an older or subset file), and those would draw as boxes or `?` (#486).
-pub fn ui_uncovered_cjk(texts: &[&str], embedded: &[&CraftFont]) -> Vec<char> {
+pub fn ui_uncovered_cjk(texts: &[&str], embedded: &[&NodaliaFont]) -> Vec<char> {
     let faces: Vec<_> = embedded.iter().filter_map(|f| skrifa::FontRef::from_index(f.bytes, 0).ok()).map(|f| f.charmap()).collect();
     let chars: std::collections::BTreeSet<char> = texts.iter().flat_map(|t| t.chars()).filter(|c| is_cjk(*c)).collect();
     chars.into_iter().filter(|c| !faces.iter().any(|m| m.map(*c).is_some())).collect()
@@ -53,7 +53,7 @@ pub fn ui_uncovered_cjk(texts: &[&str], embedded: &[&CraftFont]) -> Vec<char> {
 /// installed CJK font goes after them. No embedded face (a build without nodalia-fonts) leaves
 /// every CJK character uncovered; a Japanese face alone lacks the simplified-only hanzi (页, 选,
 /// 删 …, #241) and some traditional ones (啟, 內 …, #486).
-pub fn ui_needs_system_cjk(texts: &[&str], embedded: &[&CraftFont]) -> bool {
+pub fn ui_needs_system_cjk(texts: &[&str], embedded: &[&NodaliaFont]) -> bool {
     !ui_uncovered_cjk(texts, embedded).is_empty()
 }
 
@@ -414,7 +414,7 @@ mod tests {
         // Latin, Cyrillic and symbols are the Latin faces' business.
         assert!(!ui_needs_system_cjk(&["Українська Español → ¶"], &[]));
         // A damaged embedded face counts as covering nothing; it never panics.
-        let broken = CraftFont { family: "x", style: "Regular", scripts: &["Hans"], bytes: b"OTTO" };
+        let broken = NodaliaFont { family: "x", style: "Regular", scripts: &["Hans"], bytes: b"OTTO" };
         assert!(ui_needs_system_cjk(&["页"], &[&broken]));
         // The real faces, when built with nodalia-fonts: the Chinese face covers simplified and
         // traditional hanzi the Japanese one lacks (#241, #486).

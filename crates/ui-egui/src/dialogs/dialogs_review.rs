@@ -667,7 +667,8 @@ fn setup_ui(app: &mut WordApp, ui: &mut Ui, st: &mut RestrictPane) {
                 for (i, (_, label)) in EDIT_MODES.iter().enumerate() {
                     ui.selectable_value(&mut st.mode, i, tl!(label));
                 }
-            });
+            },
+        );
         combo.response.labelled_by(editing.id);
     });
     let mode = EDIT_MODES.get(st.mode).map(|m| m.0).unwrap_or("readOnly");

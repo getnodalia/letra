@@ -447,8 +447,7 @@ fn recipient_filter(ui: &mut Ui, fields: &[String], filter: &mut RecipientFilter
                             |ui| {
                                 ui.selectable_value(&mut rule.or, false, tl!("And"));
                                 ui.selectable_value(&mut rule.or, true, tl!("Or"));
-                            },
-                        );
+                            });
                     }
                 });
                 r.cell(|ui| field_combo(ui, ("rf_field", i), &mut rule.field, false));

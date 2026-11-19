@@ -772,8 +772,7 @@ fn status_count_picker(app: &mut WordApp, ui: &mut Ui) {
                 if ui.selectable_label(app.ui.status_count == c, tl!(c.label())).clicked() {
                     let _ = app.run("ui.statusCount", json!({"value": c.code()}));
                 }
-            }
-        });
+            });
         combo.response.labelled_by(label.id);
     });
     note(ui, "You can also right-click the count in the status bar to change it.");

@@ -310,22 +310,23 @@ fn template_tile(ui: &mut Ui, app: &mut WordApp, label: &str, template: &str) {
         // The thumbnail and its caption are one button named by the caption, so a screen reader
         // announces "Blank document, button" rather than unnamed text (#3176); the caption opens
         // the template too, as in Word.
-        let caption = crate::i18n::tc("template", label);
-        let galley = ui.painter().layout_no_wrap(caption.to_string(), regular(12.5), ui.visuals().text_color());
+        let caption = template_caption(label);
+        let galley = ui.painter().layout_no_wrap(caption.clone(), regular(12.5), ui.visuals().text_color());
         let thumb = office::THUMB;
         let (tile, resp) = ui.allocate_exact_size(vec2(galley.size().x.max(thumb.x), thumb.y + 6.0 + galley.size().y), Sense::click());
-        resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), caption));
+        resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), caption.as_str()));
         // The top of the page, in the landscape thumbnail every Nodalia office app's Home shows.
         let r = Rect::from_min_size(tile.min, thumb);
         ui.painter().rect_filled(r, 6.0, egui::Color32::WHITE);
         let ppp = ui.ctx().pixels_per_point();
-        let key = format!("tpl:{template}:{ppp}");
+        let lang = template_lang();
+        let key = format!("tpl:{template}:{lang:?}:{ppp}");
         let region = app.session.region();
         let tex = ui.ctx().data(|d| d.get_temp::<egui::TextureHandle>(egui::Id::unique(&key))).or_else(|| {
             let mut s = letra_engine::Session::new(letra_doc::Document::new());
             // The blank tile shows the region's paper (#838).
             s.system_region = region;
-            let _ = s.run("file.new", &json!({"template": template}));
+            let _ = s.run("file.new", &json!({"template": template, "lang": lang_param(lang)}));
             let l = s.export_layout();
             let page = l.pages.first()?;
             let img = letra_render::render_page(&s.doc, page, 150.0 / page.w * ppp, &crate::canvas::screen_render_options());
@@ -348,16 +349,36 @@ fn template_tile(ui: &mut Ui, app: &mut WordApp, label: &str, template: &str) {
         ui.painter().rect_stroke(r, 6.0, edge, egui::StrokeKind::Inside);
         ui.painter().galley(pos2(r.min.x, r.max.y + 6.0), galley, ui.visuals().text_color());
         if resp.clicked() {
-            let _ = app.run("file.new", json!({"template": template}));
+            let _ = app.run("file.new", json!({"template": template, "lang": lang_param(template_lang())}));
             app.ui.backstage = false;
             app.canvas.want_focus = true;
         }
     });
 }
 
-/// The built-in templates in gallery order: display label and the `file.new` template id.
-const TEMPLATES: [(&str, &str); 5] =
-    [("Blank document", "blank"), ("Studio handbook (sample)", "sample"), ("Letter", "letter"), ("Résumé", "resume"), ("Report", "report")];
+/// The `lang` value `file.new` takes for a template language.
+fn lang_param(lang: letra_engine::sample::Lang) -> &'static str {
+    lang.pick("en", "es")
+}
+
+/// The built-in templates in gallery order: English label and the `file.new` template id.
+fn templates() -> Vec<(&'static str, &'static str)> {
+    letra_engine::sample::TEMPLATES.iter().map(|t| (t.en, t.id)).collect()
+}
+
+/// The language built-in templates are written in: Spanish in a Spanish interface, else English.
+fn template_lang() -> letra_engine::sample::Lang {
+    letra_engine::sample::Lang::parse(crate::i18n::current().code())
+}
+
+/// A built-in template's name as shown: its own Spanish name in a Spanish interface, otherwise
+/// the interface catalog's translation of the English one.
+fn template_caption(label: &str) -> String {
+    match letra_engine::sample::TEMPLATES.iter().find(|t| t.en == label) {
+        Some(t) if template_lang() == letra_engine::sample::Lang::Es => t.es.to_string(),
+        _ => crate::i18n::tc("template", label).to_string(),
+    }
+}
 
 /// How many templates Home shows before "More templates" (the rest are on New).
 const HOME_TEMPLATES: usize = 4;
@@ -366,10 +387,10 @@ const HOME_TEMPLATES: usize = 4;
 /// the id lets "resume" find "Résumé"); all of them for an empty query.
 fn matching_templates(query: &str) -> Vec<(&'static str, &'static str)> {
     let q = query.trim().to_lowercase();
-    TEMPLATES
+    templates()
         .into_iter()
         .filter(|(label, id)| {
-            q.is_empty() || id.contains(&q) || label.to_lowercase().contains(&q) || crate::i18n::tc("template", label).to_lowercase().contains(&q)
+            q.is_empty() || id.contains(&q) || label.to_lowercase().contains(&q) || template_caption(label).to_lowercase().contains(&q)
         })
         .collect()
 }
@@ -382,7 +403,7 @@ fn home_page(app: &mut WordApp, ui: &mut Ui) {
     section_heading(ui, "New");
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing = vec2(18.0, 0.0);
-        for (label, template) in TEMPLATES.into_iter().take(HOME_TEMPLATES) {
+        for (label, template) in templates().into_iter().take(HOME_TEMPLATES) {
             template_tile(ui, app, label, template);
         }
     });

@@ -453,8 +453,7 @@ fn field_options(ui: &mut Ui, f: &mut FieldForm, t: &Tokens) {
                     for (v, l) in NUMBER_FORMATS {
                         ui.selectable_value(&mut f.number_format, (*v).to_string(), if *l == "(none)" { tl!(l) } else { l });
                     }
-                },
-            );
+                });
         }
         FieldKind::Bookmark => {
             ui.label(tl!("Bookmark name:"));

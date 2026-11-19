@@ -67,7 +67,7 @@ fn nodalia_fonts(dir: &std::path::Path) -> Result<(String, Vec<String>), String>
         let scripts: Vec<String> = scripts.split(',').map(|s| format!("{:?}", s.trim())).collect();
         let _ = writeln!(
             out,
-            "    CraftFont {{ family: {family:?}, style: {style:?}, scripts: &[{}], bytes: include_bytes!({:?}) }},",
+            "    NodaliaFont {{ family: {family:?}, style: {style:?}, scripts: &[{}], bytes: include_bytes!({:?}) }},",
             scripts.join(", "),
             path.display().to_string(),
         );

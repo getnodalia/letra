@@ -49,7 +49,7 @@ pub fn japanese_fonts() -> impl Iterator<Item = &'static CraftFont> {
 
 /// Japanese faces in document-fallback order: Mincho (serif) families first, matching the
 /// serif default text font, then the others; Regular before other styles.
-pub fn japanese_document_fonts() -> Vec<&'static CraftFont> {
+pub fn japanese_document_fonts() -> Vec<&'static NodaliaFont> {
     let mut v: Vec<_> = japanese_fonts().collect();
     v.sort_by_key(|f| (!f.family.contains("Mincho"), f.style != "Regular"));
     v
@@ -57,7 +57,7 @@ pub fn japanese_document_fonts() -> Vec<&'static CraftFont> {
 
 /// Japanese faces in UI order: BIZ UDPGothic first (the UI face), then the others; `bold` puts
 /// bold styles before regular ones.
-pub fn japanese_ui_fonts(bold: bool) -> Vec<&'static CraftFont> {
+pub fn japanese_ui_fonts(bold: bool) -> Vec<&'static NodaliaFont> {
     let mut v: Vec<_> = japanese_fonts().collect();
     v.sort_by_key(|f| (f.family != "BIZ UDPGothic", (f.style == "Bold") != bold));
     v
@@ -88,8 +88,8 @@ pub fn ui_cjk_fonts(prefer_hans: bool) -> Vec<&'static CraftFont> {
 }
 
 /// The CJK interface faces in the preferred writing system's order.
-pub fn ui_cjk_fonts_for(prefer_hans: bool, prefer_korean: bool) -> Vec<&'static CraftFont> {
-    let regular = |f: &&CraftFont| f.style == "Regular";
+pub fn ui_cjk_fonts_for(prefer_hans: bool, prefer_korean: bool) -> Vec<&'static NodaliaFont> {
+    let regular = |f: &&NodaliaFont| f.style == "Regular";
     let ja = japanese_ui_fonts(false).into_iter().filter(regular).take(1);
     let zh = chinese_fonts().filter(regular).take(1);
     let ko = korean_fonts().filter(regular).take(1);
@@ -628,7 +628,7 @@ mod tests {
     }
 
     #[test]
-    fn arabic_and_persian_fall_back_to_the_craft_fonts_arabic_face() {
+    fn arabic_and_persian_fall_back_to_the_nodalia_fonts_arabic_face() {
         // #1652: with no system fonts (a headless CLI), Arabic and Persian drew as empty boxes.
         let Some(arabic) = NODALIA_FONTS.iter().find(|f| f.scripts.contains(&"Arab")) else {
             eprintln!("skipped: no Arabic face in the optional nodalia-fonts input");

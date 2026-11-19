@@ -245,13 +245,16 @@ pub const MAC_TITLE_BAR: f32 = 28.0;
 /// The traffic lights as AppKit lays them out: button diameter, centre-to-centre pitch and the
 /// first button's left edge (8–10 pt depending on the macOS version; the larger value keeps the
 /// gap after them from shrinking).
+#[cfg(test)]
 const MAC_LIGHT: f32 = 12.0;
+#[cfg(test)]
 const MAC_LIGHT_PITCH: f32 = 20.0;
+#[cfg(test)]
 const MAC_LIGHTS_LEFT: f32 = 10.0;
 /// Where title-bar content starts to the right of the traffic lights (the title bar here, the
-/// Backstage back button, #222): the end of the three lights plus the same gap the lights keep
-/// from the top of the window.
-pub const MAC_CONTENT_LEFT: f32 = MAC_LIGHTS_LEFT + 2.0 * MAC_LIGHT_PITCH + MAC_LIGHT + (MAC_TITLE_BAR - MAC_LIGHT) / 2.0;
+/// Backstage back button, #222): nodalia-design's room for the lights, so the first control keeps
+/// its distance from the green one in every Nodalia app.
+pub const MAC_CONTENT_LEFT: f32 = nodalia_theme::titlebar::MAC_LIGHTS;
 
 /// The macOS title bar as laid out around the traffic lights: its height and where content starts
 /// after the lights. The app measures the real buttons (they grew in macOS 26); until then, or if it
@@ -314,10 +317,16 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
     let left = if mac { bar.content_left as i8 } else { 8 };
     let control_h = if mac { 22.0 } else { 28.0 };
     let captions = crate::window_controls::reserved(app);
+    let captions_left = crate::window_controls::side(app) == Some(nodalia_theme::titlebar::Side::Left);
     egui::Panel::top("title_bar")
         .exact_size(if mac { bar.height } else { 44.0 })
         .show_separator_line(false)
-        .frame(egui::Frame::NONE.fill(t.title_bar).inner_margin(egui::Margin { left, right: if captions > 0.0 { 0 } else { 10 }, top: 0, bottom: 0 }))
+        .frame(egui::Frame::NONE.fill(t.title_bar).inner_margin(egui::Margin {
+            left: if captions_left { 0 } else { left },
+            right: if captions > 0.0 && !captions_left { 0 } else { 10 },
+            top: 0,
+            bottom: 0,
+        }))
         .show(ui, |ui| {
             let full = ui.max_rect();
             // Drag the window by the title bar (integrated title bar on macOS, and Letra's own
@@ -331,7 +340,12 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                 note_title_drag(ui.ctx(), full);
             }
             crate::window_controls::caption_buttons(app, ui, full);
-            let full = Rect::from_min_max(full.min, pos2(full.max.x - captions, full.max.y));
+            // The buttons take one end of the bar: the content keeps to the rest.
+            let full = if captions_left {
+                Rect::from_min_max(pos2(full.min.x + captions + f32::from(left), full.min.y), full.max)
+            } else {
+                Rect::from_min_max(full.min, pos2(full.max.x - captions, full.max.y))
+            };
             if drag.double_clicked() {
                 let max = ui.ctx().input(|i| i.viewport().maximized.unwrap_or(false));
                 ui.ctx().send_viewport_cmd(egui::ViewportCommand::Maximized(!max));

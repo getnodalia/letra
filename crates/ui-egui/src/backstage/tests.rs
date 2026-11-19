@@ -1,7 +1,7 @@
 use egui_kittest::kittest::Queryable;
 use serde_json::json;
 
-use super::{HOME_TEMPLATES, TEMPLATES, matching_templates};
+use super::{HOME_TEMPLATES, matching_templates, templates};
 use crate::{Services, WordApp};
 
 /// #1714: every side-menu item has its own icon, a drawn one (an unknown name would fall back
@@ -332,8 +332,8 @@ fn recovery_restore_opens_beside_unsaved_work_without_autosave_permission() {
 #[test]
 fn template_search_matches_labels_case_insensitively() {
     let ids = |q: &str| matching_templates(q).into_iter().map(|(_, id)| id).collect::<Vec<_>>();
-    assert_eq!(ids(""), ["blank", "sample", "letter", "resume", "report"]);
-    assert_eq!(ids("  LETTER "), ["letter"]);
+    assert_eq!(ids(""), ["blank", "sample", "letter", "resume", "cover-letter", "report", "minutes", "essay", "invoice", "newsletter"]);
+    assert_eq!(ids("  LETTER "), ["letter", "cover-letter", "newsletter"]);
     assert_eq!(ids("re"), ["resume", "report"]);
     assert_eq!(ids("résumé"), ["resume"]);
     assert!(ids("no such template").is_empty());
@@ -593,7 +593,7 @@ fn templates_and_recent_documents_are_named_buttons() {
     a.ui.recent = vec![path("notes", "Quarterly notes.docx"), spring.clone(), autumn.clone()];
     a.run("ui.backstage", json!({"value": true, "page": "home"})).unwrap();
     let mut h = a11y_harness(a);
-    for (label, _) in TEMPLATES.into_iter().take(HOME_TEMPLATES) {
+    for (label, _) in templates().into_iter().take(HOME_TEMPLATES) {
         assert!(h.query_by_role_and_label(Role::Button, label).is_some(), "{label} is a named button");
     }
     assert!(h.query_by_role_and_label(Role::Button, "Quarterly notes.docx").is_some(), "a recent document is a named button");
