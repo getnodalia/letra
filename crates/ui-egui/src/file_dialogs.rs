@@ -49,7 +49,7 @@ pub fn open_filters(purpose: &str) -> &'static [(&'static str, &'static [&'stati
     match purpose {
         "picture" => &[("Pictures", PICTURES)],
         "font" => &[("Fonts", letra_fonts::FONT_FILE_EXTS)],
-        "sources" => &[("Word sources", &["xml"]), ("All files", &["*"])],
+        "sources" => &[("Bibliographies", &["bib", "bibtex", "ris", "json", "xml"]), ("All files", &["*"])],
         "recipients" => &[("Recipient lists", letra_engine::cmd::mailings::RECIPIENT_EXTENSIONS), ("All files", &["*"])],
         _ => &[("Documents", DOCUMENTS), ("Word document", &["docx"]), ("All files", &["*"])],
     }
@@ -75,11 +75,27 @@ pub(crate) enum AfterPick {
     /// document through Manage Sources (#2640).
     #[cfg(not(target_arch = "wasm32"))]
     Sources,
+    /// Import the picked bibliography (BibTeX, RIS, CSL-JSON or a Word file) into My Library.
+    #[cfg(not(target_arch = "wasm32"))]
+    SourcesLibrary,
+    /// Write the document's (or My Library's) sources to the picked file; its extension picks the
+    /// format (`.bib`, `.ris`, `.json`).
+    #[cfg(not(target_arch = "wasm32"))]
+    SourcesExport { library: bool },
     /// Hand the picked path to the open dialog (`WordApp::dialog_pick`): Templates and Add-ins,
     /// Organizer (#377).
     ForDialog,
     /// Put the picked document into the Compare dialog (original or revised, #412).
     ComparePath { revised: bool },
+}
+
+/// The status line after sources were imported: how many were new.
+pub(crate) fn imported_message(added: usize) -> String {
+    match added {
+        0 => tl!("No new sources in that file").to_string(),
+        1 => tl!("Imported 1 source").to_string(),
+        n => crate::i18n::fmt(tl!("Imported {n} sources"), &[("n", &n.to_string())]),
+    }
 }
 
 /// What to do once Save As has written the document.
@@ -266,20 +282,21 @@ impl WordApp {
                 self.add_fonts(vec![path])
             }
             #[cfg(not(target_arch = "wasm32"))]
-            AfterPick::Sources => {
+            AfterPick::Sources | AfterPick::SourcesLibrary => {
                 let Some(path) = picked else { return Ok(json!({"cancelled": true})) };
-                let before = self.session.doc.sources.len();
-                let r = self.run("references.sources", json!({"import": path}));
-                if r.is_ok() {
-                    let added = self.session.doc.sources.len().saturating_sub(before);
-                    let msg = match added {
-                        0 => tl!("No new sources in that file").to_string(),
-                        1 => tl!("Imported 1 source").to_string(),
-                        n => crate::i18n::fmt(tl!("Imported {n} sources"), &[("n", &n.to_string())]),
-                    };
-                    self.status(msg);
-                }
-                r
+                let to = if matches!(after, AfterPick::SourcesLibrary) { "library" } else { "document" };
+                let r = self.run("references.import", json!({"path": path, "to": to}))?;
+                self.status(imported_message(r[to]["added"].as_array().map_or(0, Vec::len)));
+                Ok(r)
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            AfterPick::SourcesExport { library } => {
+                let Some(path) = picked else { return Ok(json!({"cancelled": true})) };
+                let scope = if library { "library" } else { "document" };
+                let r = self.run("references.export", json!({"path": path, "scope": scope}))?;
+                let n = r["count"].as_u64().unwrap_or(0);
+                self.status(crate::i18n::fmt(tl!("Exported {n} sources"), &[("n", &n.to_string())]));
+                Ok(r)
             }
             AfterPick::ForDialog => {
                 let picked = picked.filter(|p| !p.is_empty());

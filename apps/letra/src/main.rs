@@ -230,6 +230,11 @@ fn user_dict_path() -> Option<std::path::PathBuf> {
     letra_control_key::settings_dir().map(|b| b.join(letra_engine::Session::USER_DICT_FILE))
 }
 
+/// `library.json` in the settings folder: My Library, the sources kept across documents.
+fn library_path() -> Option<std::path::PathBuf> {
+    letra_control_key::settings_dir().map(|b| b.join(letra_engine::Session::LIBRARY_FILE))
+}
+
 /// Runs without preferences (`LETRA_NO_PREFS`, agents' test runs) neither read nor write them.
 fn prefs_enabled() -> bool {
     std::env::var_os("LETRA_NO_PREFS").is_none()
@@ -246,6 +251,7 @@ fn load_prefs(app: &mut WordApp) {
         return;
     }
     let loaded = load_prefs_from(app, prefs_path().as_deref(), user_dict_path());
+    app.session.library.set_path(library_path());
     if let Ok(mut slot) = LOADED_PREFS.lock() {
         *slot = loaded;
     }

@@ -24,7 +24,7 @@ fn by_author(x: &Source) -> &str {
 /// The stem of a new source's tag, before `1`, `2`… are added while it is taken: the first three
 /// alphanumerics of the first author's name or the corporate author (nothing of the author's,
 /// `Src`) and the last two digits of the year.
-fn auto_tag_base(src: &Source) -> String {
+pub(super) fn auto_tag_base(src: &Source) -> String {
     let first = corporate(src).map(str::to_string).or_else(|| authors(&src.author).first().map(|x| x.0.clone())).unwrap_or_default();
     let name: String = first.chars().filter(|c| c.is_alphanumeric()).take(3).collect();
     let name = if name.is_empty() { "Src".to_string() } else { name };
@@ -58,7 +58,14 @@ pub(super) fn sources(s: &mut Session, v: &Value) -> CmdResult {
         s.doc.sources.retain(|x| x.tag != t);
     }
     if let Some(path) = p::str(v, "import") {
-        import_sources(s, path)?;
+        // BibTeX, RIS and CSL-JSON by their names; anything else is Word's own file.
+        match super::import::Format::of_path(path) {
+            Some(_) => super::transfer::import_path(s, path)?,
+            None => import_sources(s, path)?,
+        }
+    }
+    if let Some(which) = v.get("fromLibrary") {
+        super::transfer::from_library(s, which).map(drop)?;
     }
     Ok(serde_json::to_value(&s.doc.sources).unwrap_or(Value::Null))
 }
@@ -129,7 +136,17 @@ pub(super) fn citation(s: &mut Session, v: &Value) -> CmdResult {
     if v.get("source").is_some() {
         sources(s, &json!({"add": v.get("source")}))?;
     }
-    let tag = match p::str(v, "tag") {
+    // A source of My Library is added to the document (once) and cited from there.
+    let from_library = match v.get("fromLibrary").and_then(Value::as_str) {
+        Some(t) => Some(
+            super::transfer::from_library(s, &Value::String(t.to_string()))?
+                .into_iter()
+                .next()
+                .ok_or_else(|| CmdError::Params(format!("no source `{t}` in My Library")))?,
+        ),
+        None => None,
+    };
+    let tag = match from_library.as_deref().or(p::str(v, "tag")) {
         Some(t) => t.to_string(),
         None => match v.get("source") {
             Some(_) => s.doc.sources.last().map(|x| x.tag.clone()).unwrap_or_default(),

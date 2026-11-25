@@ -150,6 +150,7 @@ impl Session {
             building_blocks: Default::default(),
             autosave,
             bib_style,
+            library: Default::default(),
             merge,
             ui_requests: Vec::new(),
             math,

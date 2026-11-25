@@ -125,6 +125,8 @@ impl Session {
             building_blocks: _,
             autosave: _,
             bib_style: _,
+            // My Library: the person's, shared by every document.
+            library: _,
             merge: _,
             ui_requests: _,
             document_id: _,

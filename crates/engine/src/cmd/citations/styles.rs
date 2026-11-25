@@ -26,6 +26,8 @@ pub enum Name {
     UpperLastFirst,
     /// RIVERA A
     UpperLastBareInitials,
+    /// Rivera AB (Vancouver)
+    LastCompactInitials,
 }
 
 /// The author list of a bibliography entry.
@@ -56,7 +58,8 @@ pub enum Cite {
 
 /// A citation and bibliography style, as data. Entry templates fill `{n}`, `{names}`, `{year}`,
 /// `{title}`, `{city}`, `{publisher}`, `{pub}` (city: publisher), `{journal}`, `{volume}`,
-/// `{pages}`, `{url}` and `{type}` (GB/T 7714 document type code); text between `⟦` and `⟧` is
+/// `{issue}`, `{edition}`, `{month}`, `{accessed}`, `{pages}`, `{url}`, `{doi}` (the bare DOI), `{link}` (the URL, else the
+/// DOI as a link) and `{type}` (GB/T 7714 document type code); `{*field}` is a field in italics; text between `⟦` and `⟧` is
 /// left out when a field in it is empty, and a full stop never doubles up.
 #[derive(Debug)]
 pub struct CiteStyle {
@@ -92,9 +95,9 @@ const fn names(first: Name, rest: Name, sep: &'static str, two: &'static str, la
 
 const AUTHOR_DATE: Cite = Cite::AuthorDate { year_sep: " ", pages_sep: ", p. " };
 
-/// Every style, in picker order (alphabetical). Formats follow the published style guides'
+/// Every style, in picker order (alphabetical, APA first: it is the default). Formats follow the published style guides'
 /// rules for the source types Letra records, written in our own words.
-pub static STYLES: [CiteStyle; 12] = [
+pub static STYLES: [CiteStyle; 15] = [
     CiteStyle {
         name: "APA",
         aliases: &["apa"],
@@ -105,8 +108,21 @@ pub static STYLES: [CiteStyle; 12] = [
         names: names(Name::LastInitials, Name::LastInitials, ", ", ", & ", ", & "),
         // The names end with a full stop: an initial's, or one added after a group author or a
         // name without initials ("World Health Organization. (2021).", #4848).
-        book: "⟦{names}. ⟧({year}). {title}.⟦ {publisher}.⟧⟦ {url}⟧",
-        article: "⟦{names}. ⟧({year}). {title}. {journal}⟦, {volume}⟧⟦, {pages}⟧.⟦ {url}⟧",
+        book: "⟦{names}. ⟧({year}). {*title}⟦ ({edition} ed.)⟧.⟦ {publisher}.⟧⟦ {link}⟧",
+        article: "⟦{names}. ⟧({year}). {title}. {*journal}⟦, {*volume}⟧⟦({issue})⟧⟦, {pages}⟧.⟦ {link}⟧",
+        bib_title: "References",
+    },
+    // ACM Reference Format: numbered in the alphabetical order of the list, full names.
+    CiteStyle {
+        name: "ACM",
+        aliases: &["acm"],
+        cite: Cite::Number { open: "[", close: "]", pages_sep: Some(", p. ") },
+        and: "and",
+        et_al_from: 3,
+        order: Order::Author,
+        names: names(Name::FirstLast, Name::FirstLast, ", ", " and ", ", and "),
+        book: "[{n}] ⟦{names}. ⟧{year}. {*title}.⟦ {edition} ed.⟧⟦ {pub}.⟧⟦ {link}⟧",
+        article: "[{n}] ⟦{names}. ⟧{year}. {title}. {*journal}⟦ {*volume}⟧⟦, {issue}⟧⟦, {pages}⟧.⟦ {link}⟧",
         bib_title: "References",
     },
     CiteStyle {
@@ -117,8 +133,8 @@ pub static STYLES: [CiteStyle; 12] = [
         et_al_from: 3,
         order: Order::Author,
         names: names(Name::LastFirst, Name::FirstLast, ", ", ", and ", ", and "),
-        book: "⟦{names}. ⟧{year}. {title}.⟦ {pub}.⟧⟦ {url}⟧",
-        article: "⟦{names}. ⟧{year}. {title}. {journal}⟦, {volume}⟧⟦, {pages}⟧.⟦ {url}⟧",
+        book: "⟦{names}. ⟧{year}. {*title}.⟦ {edition} ed.⟧⟦ {pub}.⟧⟦ {link}⟧",
+        article: "⟦{names}. ⟧{year}. “{title}.” {*journal}⟦ {volume}⟧⟦ ({issue})⟧⟦: {pages}⟧.⟦ {link}⟧",
         bib_title: "References",
     },
     // GB/T 7714 sequence-coding: numbered by first citation, surnames in capitals with bare
@@ -170,9 +186,22 @@ pub static STYLES: [CiteStyle; 12] = [
         et_al_from: 4,
         order: Order::Author,
         names: names(Name::LastInitials, Name::LastInitials, ", ", " and ", " and "),
-        book: "⟦{names}, ⟧{year}. {title}.⟦ {pub}.⟧⟦ Available at: <{url}>.⟧",
-        article: "⟦{names}, ⟧{year}. {title}. {journal}⟦, {volume}⟧⟦, pp. {pages}⟧.⟦ Available at: <{url}>.⟧",
+        book: "⟦{names}, ⟧{year}. {*title}.⟦ {pub}.⟧⟦ Available at: <{link}>.⟧",
+        article: "⟦{names}, ⟧{year}. {title}. {*journal}⟦, {*volume}⟧⟦({issue})⟧⟦, pp. {pages}⟧.⟦ Available at: <{link}>.⟧",
         bib_title: "References",
+    },
+    // Harvard as in Cite Them Right: "Surname, I. (Year) Title. Edition. Place: Publisher."
+    CiteStyle {
+        name: "Harvard (Cite Them Right)",
+        aliases: &["harvardcite", "citethemright"],
+        cite: Cite::AuthorDate { year_sep: ", ", pages_sep: ", p. " },
+        and: "and",
+        et_al_from: 4,
+        order: Order::Author,
+        names: names(Name::LastInitials, Name::LastInitials, ", ", " and ", " and "),
+        book: "⟦{names} ⟧({year}) {*title}.⟦ {edition} edn.⟧⟦ {pub}.⟧⟦ Available at: {link}⟧⟦ (Accessed: {accessed}).⟧",
+        article: "⟦{names} ⟧({year}) ‘{title}’, {*journal}⟦, {*volume}⟧⟦({issue})⟧⟦, pp. {pages}⟧.⟦ doi: {doi}.⟧⟦ Available at: {url}⟧⟦ (Accessed: {accessed}).⟧",
+        bib_title: "Reference list",
     },
     CiteStyle {
         name: "IEEE",
@@ -182,8 +211,8 @@ pub static STYLES: [CiteStyle; 12] = [
         et_al_from: 3,
         order: Order::Cited,
         names: names(Name::InitialsLast, Name::InitialsLast, ", ", ", ", ", "),
-        book: "[{n}] ⟦{names}, ⟧“{title},”⟦ {pub},⟧ {year}.⟦ {url}⟧",
-        article: "[{n}] ⟦{names}, ⟧“{title},” {journal}⟦, {volume}⟧⟦, {pages}⟧, {year}.⟦ {url}⟧",
+        book: "[{n}] ⟦{names}, ⟧{*title}⟦, {edition} ed⟧.⟦ {pub},⟧ {year}.⟦ {link}⟧",
+        article: "[{n}] ⟦{names}, ⟧“{title},” {*journal}⟦, vol. {volume}⟧⟦, no. {issue}⟧⟦, pp. {pages}⟧, {year}.⟦ doi: {doi}.⟧",
         bib_title: "References",
     },
     // ISO 690 first element and date: surnames in capitals, the year after the names.
@@ -195,8 +224,8 @@ pub static STYLES: [CiteStyle; 12] = [
         et_al_from: 4,
         order: Order::Author,
         names: names(Name::UpperLastFirst, Name::UpperLastFirst, ", ", " and ", " and "),
-        book: "⟦{names}, ⟧{year}. {title}.⟦ {pub}.⟧⟦ Available from: {url}⟧",
-        article: "⟦{names}, ⟧{year}. {title}. {journal}⟦, {volume}⟧⟦, {pages}⟧.⟦ Available from: {url}⟧",
+        book: "⟦{names}, ⟧{year}. {*title}.⟦ {edition} ed.⟧⟦ {pub}.⟧⟦ Available from: {link}⟧",
+        article: "⟦{names}, ⟧{year}. {title}. {*journal}⟦, {volume}⟧⟦({issue})⟧⟦, {pages}⟧.⟦ Available from: {link}⟧",
         bib_title: "References",
     },
     // ISO 690 numeric reference: numbered by first citation, the year with the imprint.
@@ -208,8 +237,8 @@ pub static STYLES: [CiteStyle; 12] = [
         et_al_from: 4,
         order: Order::Cited,
         names: names(Name::UpperLastFirst, Name::UpperLastFirst, ", ", " and ", " and "),
-        book: "{n}. ⟦{names}. ⟧{title}.⟦ {pub},⟧ {year}.⟦ Available from: {url}⟧",
-        article: "{n}. ⟦{names}. ⟧{title}. {journal}. {year}⟦, {volume}⟧⟦, {pages}⟧.⟦ Available from: {url}⟧",
+        book: "{n}. ⟦{names}. ⟧{*title}.⟦ {edition} ed.⟧⟦ {pub},⟧ {year}.⟦ Available from: {link}⟧",
+        article: "{n}. ⟦{names}. ⟧{title}. {*journal}. {year}⟦, {volume}⟧⟦({issue})⟧⟦, {pages}⟧.⟦ Available from: {link}⟧",
         bib_title: "References",
     },
     CiteStyle {
@@ -220,8 +249,8 @@ pub static STYLES: [CiteStyle; 12] = [
         et_al_from: 3,
         order: Order::Author,
         names: Names { max: 1, et_al: ", et al.", ..names(Name::LastFirst, Name::LastFirst, ", ", ", ", ", ") },
-        book: "⟦{names}. ⟧“{title}.”⟦ {publisher},⟧ {year}.⟦ {url}⟧",
-        article: "⟦{names}. ⟧“{title}.” {journal}⟦, {volume}⟧⟦, {pages}⟧, {year}.⟦ {url}⟧",
+        book: "⟦{names}. ⟧{*title}.⟦ {publisher},⟧ {year}.⟦ {link}⟧",
+        article: "⟦{names}. ⟧“{title}.” {*journal}⟦, vol. {volume}⟧⟦, no. {issue}⟧, {year}⟦, pp. {pages}⟧.⟦ {link}⟧",
         bib_title: "Works Cited",
     },
     // SIST 02: numbered by first citation, full names separated by semicolons.
@@ -246,9 +275,23 @@ pub static STYLES: [CiteStyle; 12] = [
         et_al_from: 4,
         order: Order::Author,
         names: names(Name::LastFirst, Name::FirstLast, ", ", ", and ", ", and "),
-        book: "⟦{names}. ⟧{title}.⟦ {pub},⟧ {year}.⟦ {url}.⟧",
-        article: "⟦{names}. ⟧“{title}.” {journal}⟦ {volume}⟧ ({year})⟦: {pages}⟧.⟦ {url}.⟧",
+        book: "⟦{names}. ⟧{*title}.⟦ {pub},⟧ {year}.⟦ {link}.⟧",
+        article: "⟦{names}. ⟧“{title}.” {*journal}⟦ {volume}⟧⟦, no. {issue}⟧ ({year})⟦: {pages}⟧.⟦ {link}.⟧",
         bib_title: "Bibliography",
+    },
+    // Vancouver (ICMJE/NLM): numbered by first citation, "Surname AB" without dots, six authors
+    // and then "et al.", the year after the journal.
+    CiteStyle {
+        name: "Vancouver",
+        aliases: &["vancouver", "nlm", "icmje"],
+        cite: Cite::Number { open: "[", close: "]", pages_sep: Some(", p. ") },
+        and: "and",
+        et_al_from: 3,
+        order: Order::Cited,
+        names: Names { max: 6, et_al: ", et al", ..names(Name::LastCompactInitials, Name::LastCompactInitials, ", ", ", ", ", ") },
+        book: "{n}. ⟦{names}. ⟧{title}.⟦ {edition} ed.⟧⟦ {pub};⟧ {year}.⟦ Available from: {link}⟧",
+        article: "{n}. ⟦{names}. ⟧{title}. {journal}. {year}⟦;{volume}⟧⟦({issue})⟧⟦:{pages}⟧.⟦ doi:{doi}⟧",
+        bib_title: "References",
     },
 ];
 
