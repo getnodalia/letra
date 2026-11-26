@@ -14,6 +14,7 @@ mod fields;
 mod notes;
 mod numbers;
 mod properties;
+mod theorems;
 mod toc;
 
 use fields::caption;
@@ -91,6 +92,9 @@ pub fn specs() -> Vec<CommandSpec> {
         .pure(),
         CommandSpec::new("references.caption", "Insert Caption", "References › Captions", caption)
             .params(r#"{"label"?: "Figure|Table|Equation|any label", "text"?: string, "position"?: "below|above", "excludeLabel"?: bool, "format"?: "ARABIC|alphabetic|ALPHABETIC|roman|ROMAN", "chapter"?: heading level 1-9, "separator"?: "-|.|:|—|–"}"#),
+        CommandSpec::new("references.theorem", "Insert Theorem", "References › Theorems", theorems::theorem).params(
+            r#"{"kind"?: "theorem|lemma|proposition|corollary|definition|example|remark|proof", "label"?: string (the word shown, in the document's language), "title"?: string, "text"?: string, "chapter"?: heading level 1-9 (numbers like 2.1), "shared"?: bool (one count for every kind), "format"?: "ARABIC|alphabetic|ALPHABETIC|roman|ROMAN", "qed"?: bool (a proof ends with ∎)}"#,
+        ),
         // F9: update fields; the selected ones that showed their code show their result again.
         CommandSpec::new("references.updateFields", "Update Field", "References", |s, v| {
             update_fields_in(s, v.get("all").and_then(Value::as_bool).unwrap_or(false))?;

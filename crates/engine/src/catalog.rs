@@ -258,6 +258,7 @@ References|Captions|Insert Caption|references.caption
 References|Captions|Insert Table of Figures|references.tableOfFigures
 References|Captions|Update Table of Figures|references.updateFigures
 References|Captions|Cross-reference|insert.crossReference
+References|Theorems|Insert Theorem|references.theorem
 References|Index|Mark Entry|references.markEntry
 References|Index|Insert Index|references.index
 References|Index|Update Index|references.updateIndex

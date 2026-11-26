@@ -72,8 +72,11 @@ Priority order; each ships as its own pull request with tests, screenshots and r
 ### P2. Scientific writing (0.5.0)
 
 - Numbered equations that follow the chapter (`(2.3)`), with a list of equations.
-- Theorem, lemma, definition, example, remark and proof blocks: styled, numbered by chapter or by
-  document, cross-referenceable, listed on demand.
+- Theorem, lemma, proposition, corollary, definition, example, remark and proof blocks: styled,
+  numbered by chapter or by document, cross-referenceable, listed on demand. **Done**: References ›
+  Theorems › Insert Theorem (`references.theorem`). A block is a Caption-based paragraph, so Insert
+  Cross-reference lists it under its label and a table of figures of that label is a list of
+  theorems.
 - Figure and table captions with chapter-aware numbers, subfigures.
 - Units and symbols: a quick list, siunitx-style spacing between number and unit.
 - Abbreviation and symbol lists generated from the text.

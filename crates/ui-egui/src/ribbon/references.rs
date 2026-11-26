@@ -136,6 +136,34 @@ pub(super) fn references(app: &mut WordApp, ui: &mut Ui) {
             );
         });
     });
+    group(ui, "Theorems", None, app, |ui, app| {
+        // Numbers follow the chapter (2.1) when the document has chapter headings.
+        let chapters = has_chapters(app);
+        menu_button(
+            ui,
+            app,
+            crate::widgets::MenuButtonOptions::new("equation", Some("Insert\nTheorem"), "Insert Theorem", true, "references.theorem"),
+            |ui, app| {
+                for (kind, label) in [
+                    ("theorem", tl!("Theorem")),
+                    ("lemma", tl!("Lemma")),
+                    ("proposition", tl!("Proposition")),
+                    ("corollary", tl!("Corollary")),
+                    ("definition", tl!("Definition")),
+                    ("example", tl!("Example")),
+                    ("remark", tl!("Remark")),
+                    ("proof", tl!("Proof")),
+                ] {
+                    // The block's label is written in the interface language.
+                    let mut params = json!({"kind": kind, "label": label});
+                    if chapters {
+                        params["chapter"] = json!(1);
+                    }
+                    mi_text(ui, app, label, "references.theorem", params);
+                }
+            },
+        );
+    });
     group(ui, "Index", None, app, |ui, app| {
         big(ui, app, "markEntry", "Mark\nEntry", "references.markEntry", json!({}), false);
         stack(ui, |ui| {
@@ -188,4 +216,14 @@ pub(super) fn zotero(app: &mut WordApp, ui: &mut Ui) {
         big(ui, app, "docPrefs", "Document\nPreferences", "ui.zotero.setDocPrefs", json!({}), false);
         big(ui, app, "unlinkCitations", "Unlink\nCitations", "ui.zotero.removeCodes", json!({}), false);
     });
+}
+
+/// Whether the body has a chapter heading (a Heading 1 paragraph), so theorem numbers can follow it.
+fn has_chapters(app: &WordApp) -> bool {
+    let doc = &app.session.doc;
+    doc.para_paths(letra_doc::StoryRef::Body).into_iter().any(|path| {
+        doc.para(letra_doc::StoryRef::Body, &path).is_some_and(|p| {
+            doc.styles.resolve_para(&letra_doc::ParaProps { style: p.props.style.clone(), ..Default::default() }).outline_level == Some(0)
+        })
+    })
 }
