@@ -43,6 +43,9 @@ Windows, and works with `.docx` documents.
 - **Sources and citations:** a Source Manager with My Library shared by every document, import and
   export of BibTeX, RIS, CSL-JSON and Word sources, a dozen citation styles (APA, IEEE, Vancouver,
   Chicago, Harvard, ACM, ISO 690…) and an automatic bibliography, built for theses and papers.
+- **Long documents, ready to write:** File > New starts a thesis, a scientific paper (one or two
+  columns), a book with mirrored margins and an index, or a school textbook with goal, example and
+  summary boxes. Theorems and chapter-numbered equations can be cross-referenced.
 - **Review:** spelling and grammar in several languages, comments, track changes and document
   comparison.
 - **Files:** `.docx` first, plus ODT, RTF, HTML, Markdown and plain text; exports to PDF.
