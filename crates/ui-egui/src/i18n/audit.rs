@@ -119,6 +119,26 @@ fn english_words(text: &str) -> bool {
 /// its own text, in Spanish and English, so it never goes through this app's catalog.
 const SHARED_UPDATE_WINDOW: [&str; 4] = ["Checking for Updates", "Looking for the latest version…", "Close", "No Updates"];
 
+/// What Options › Assistant draws. `nodalia-assistant` translates its own text, in Spanish and
+/// English, so it never goes through this app's catalog; "Claude" and the model are a provider's
+/// own names.
+const SHARED_ASSISTANT: [&str; 14] = [
+    "API key",
+    "Ask before changing the document",
+    "Assistant",
+    "Check connection",
+    "Claude",
+    "Get a key",
+    "Model",
+    "No key saved.",
+    "Paste your key",
+    "Provider",
+    "Save key",
+    "Show the assistant button",
+    "The system keychain could not be read.",
+    "claude-sonnet-5-5",
+];
+
 /// The shared window's "up to date" sentence: `Letra <version> is the latest version.`
 fn is_shared_up_to_date(plain: &str) -> bool {
     plain
@@ -244,6 +264,7 @@ impl<'a> Exempt<'a> {
             || matches!(plain, "Letra" | "Letra User" | "Discord" | "https://" | "auto" | "I. II. III." | "i. ii. iii." | "I, II, III, …" | "i, ii, iii, …")
             || plain == "CONFIDENTIAL" // the watermark dialog's text: document content, kept as typed
             || plain == "Figure 1" // the caption dialog's sample: the label goes into the document as is
+            || SHARED_ASSISTANT.contains(&plain) || plain.starts_with("Your key stays on this computer")
             || app.updates_rt.shared_window_open() && (SHARED_UPDATE_WINDOW.contains(&plain) || is_shared_up_to_date(plain))
             || crate::dialogs_insert::date_time_preview_matches(plain)
     }

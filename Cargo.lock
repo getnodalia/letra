@@ -232,6 +232,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
+name = "apple-native-keyring-store"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02e465454e78fda6f7cd9dab7eb47518ca28c59b1bc392ca865af61452741dd3"
+dependencies = [
+ "keyring-core",
+ "log",
+ "security-framework",
+]
+
+[[package]]
 name = "arboard"
 version = "3.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -572,6 +583,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "block-padding"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "710f1dd022ef4e93f8a438b4ba958de7f64308434fa6a87104481645cc30068b"
+dependencies = [
+ "hybrid-array",
+]
+
+[[package]]
 name = "block2"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -684,6 +704,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "byteorder"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
+
+[[package]]
 name = "byteorder-lite"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -761,6 +787,15 @@ dependencies = [
  "rustix-linux-procfs",
  "windows-sys 0.61.2",
  "winx",
+]
+
+[[package]]
+name = "cbc"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce2dc9ee5f88d11e0beb842c88b33c8a5cf0d1329c4b19494af42b07dbfe8896"
+dependencies = [
+ "cipher",
 ]
 
 [[package]]
@@ -2317,6 +2352,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
+name = "hkdf"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4aaa26c720c68b866f2c96ef5c1264b3e6f473fe5d4ce61cd44bbe913e553018"
+dependencies = [
+ "hmac",
+]
+
+[[package]]
 name = "hmac"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2709,6 +2753,7 @@ version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4250ce6452e92010fdf7268ccc5d14faa80bb12fc741938534c58f16804e03c7"
 dependencies = [
+ "block-padding",
  "hybrid-array",
 ]
 
@@ -2860,6 +2905,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "keyring"
+version = "4.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2270074a3d26bcac93c1dc5d2845eb4c089e8d761ccf6e0ea266a16004640627"
+dependencies = [
+ "apple-native-keyring-store",
+ "keyring-core",
+ "windows-native-keyring-store",
+ "zbus-secret-service-keyring-store",
+]
+
+[[package]]
+name = "keyring-core"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "281c851dbae0de36d405299dd463126df4826dc32665c1314e931696b8cdee77"
+dependencies = [
+ "log",
+]
+
+[[package]]
 name = "khronos-egl"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2939,7 +3005,7 @@ checksum = "7a79a3332a6609480d7d0c9eab957bca6b455b91bb84e66d19f5ff66294b85b8"
 
 [[package]]
 name = "letra"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "arboard",
  "chrono",
@@ -2978,7 +3044,7 @@ dependencies = [
 
 [[package]]
 name = "letra-cli"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "image",
  "letra-doc",
@@ -2995,11 +3061,11 @@ dependencies = [
 
 [[package]]
 name = "letra-control-key"
-version = "0.4.1"
+version = "0.5.1"
 
 [[package]]
 name = "letra-doc"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "base64 0.23.1",
  "letra-geom",
@@ -3015,7 +3081,7 @@ dependencies = [
 
 [[package]]
 name = "letra-docbin"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "cfb",
  "letra-doc",
@@ -3027,7 +3093,7 @@ dependencies = [
 
 [[package]]
 name = "letra-docx"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "base64 0.23.1",
  "cfb",
@@ -3046,7 +3112,7 @@ dependencies = [
 
 [[package]]
 name = "letra-engine"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "cfb",
  "chrono",
@@ -3082,7 +3148,7 @@ dependencies = [
 
 [[package]]
 name = "letra-fonts"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "brotli-decompressor 6.3.1",
  "harfrust 0.13.3",
@@ -3097,7 +3163,7 @@ dependencies = [
 
 [[package]]
 name = "letra-formats"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "chardetng",
  "chrono",
@@ -3127,7 +3193,7 @@ dependencies = [
 
 [[package]]
 name = "letra-geom"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "image",
  "nodalia-image-codecs",
@@ -3137,7 +3203,7 @@ dependencies = [
 
 [[package]]
 name = "letra-layout"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "image",
  "js-sys",
@@ -3157,7 +3223,7 @@ dependencies = [
 
 [[package]]
 name = "letra-mcp"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "letra-control-key",
  "letra-doc",
@@ -3170,7 +3236,7 @@ dependencies = [
 
 [[package]]
 name = "letra-pdf"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "chrono",
  "hayro-cmap",
@@ -3191,7 +3257,7 @@ dependencies = [
 
 [[package]]
 name = "letra-render"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "image",
  "letra-doc",
@@ -3205,7 +3271,7 @@ dependencies = [
 
 [[package]]
 name = "letra-ui-egui"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "accesskit_consumer",
  "cfb",
@@ -3223,6 +3289,7 @@ dependencies = [
  "letra-render",
  "letra-zotero",
  "log",
+ "nodalia-assistant",
  "nodalia-i18n",
  "nodalia-theme",
  "nodalia-ui",
@@ -3238,7 +3305,7 @@ dependencies = [
 
 [[package]]
 name = "letra-web"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "eframe",
  "egui",
@@ -3259,7 +3326,7 @@ dependencies = [
 
 [[package]]
 name = "letra-zotero"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "letra-doc",
  "letra-docx",
@@ -3552,6 +3619,18 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
+]
+
+[[package]]
+name = "nodalia-assistant"
+version = "0.1.0-alpha.1"
+source = "git+https://github.com/danielmigueltejedor/nodalia-design?rev=7966cac1e786a14ca7e58b201fa6dd084b39f0a7#7966cac1e786a14ca7e58b201fa6dd084b39f0a7"
+dependencies = [
+ "egui",
+ "keyring",
+ "nodalia-theme",
+ "serde_json",
+ "ureq",
 ]
 
 [[package]]
@@ -3946,7 +4025,7 @@ source = "git+https://github.com/getnodalia/foundation?rev=cc4a0d8d7e54ccbc4de88
 [[package]]
 name = "nodalia-theme"
 version = "0.1.0-alpha.1"
-source = "git+https://github.com/danielmigueltejedor/nodalia-design?rev=44bfd0a37e6bd2837c473b4e5607b70e8d169e61#44bfd0a37e6bd2837c473b4e5607b70e8d169e61"
+source = "git+https://github.com/danielmigueltejedor/nodalia-design?rev=7966cac1e786a14ca7e58b201fa6dd084b39f0a7#7966cac1e786a14ca7e58b201fa6dd084b39f0a7"
 dependencies = [
  "egui",
 ]
@@ -3983,7 +4062,7 @@ dependencies = [
 [[package]]
 name = "nodalia-update"
 version = "0.1.0-alpha.1"
-source = "git+https://github.com/danielmigueltejedor/nodalia-design?rev=114848a2ff1a7c29c9a5432fb12e955fbe0aeef2#114848a2ff1a7c29c9a5432fb12e955fbe0aeef2"
+source = "git+https://github.com/danielmigueltejedor/nodalia-design?rev=7966cac1e786a14ca7e58b201fa6dd084b39f0a7#7966cac1e786a14ca7e58b201fa6dd084b39f0a7"
 dependencies = [
  "egui",
  "serde_json",
@@ -4102,6 +4181,69 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df9761775871bdef83bee530e60050f7e54b1105350d6884eb0fb4f46c2f9405"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "num"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35bd024e8b2ff75562e5f34e7f4905839deb4b22955ef5e73d2fea1b9813cb23"
+dependencies = [
+ "num-bigint",
+ "num-complex",
+ "num-integer",
+ "num-iter",
+ "num-rational",
+ "num-traits",
+]
+
+[[package]]
+name = "num-bigint"
+version = "0.4.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c89e69e7e0f03bea5ef08013795c25018e101932225a656383bd384495ecc367"
+dependencies = [
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-complex"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-integer"
+version = "0.1.47"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ce2d95d4b3734dc35aa2f45e1aa22cd416814592a4f9d9205e11affd5b8e10b"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-iter"
+version = "0.1.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c92800bd69a1eac91786bcfe9da64a897eb72911b8dc3095decbd07429e8048b"
+dependencies = [
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f83d14da390562dca69fc84082e73e548e1ad308d24accdedd2720017cb37824"
+dependencies = [
+ "num-bigint",
+ "num-integer",
+ "num-traits",
 ]
 
 [[package]]
@@ -5511,6 +5653,25 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
+
+[[package]]
+name = "secret-service"
+version = "5.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5107b24b91445dd2aa449a258a1807b63240942157292354dc5bfdbeb8bc6db8"
+dependencies = [
+ "aes",
+ "cbc",
+ "futures-util",
+ "getrandom 0.4.3",
+ "hkdf",
+ "hybrid-array",
+ "num",
+ "once_cell",
+ "serde",
+ "sha2 0.11.1",
+ "zbus",
+]
 
 [[package]]
 name = "security-framework"
@@ -7304,6 +7465,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5"
 
 [[package]]
+name = "windows-native-keyring-store"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "063426e76fdec7438d56bb777f67e318a84a25c707b07e575cb8b78e10c028f8"
+dependencies = [
+ "byteorder",
+ "keyring-core",
+ "regex",
+ "windows-sys 0.61.2",
+ "zeroize",
+]
+
+[[package]]
 name = "windows-numerics"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7724,7 +7898,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "serde_json",
 ]
@@ -7820,6 +7994,17 @@ dependencies = [
  "zbus-lockstep",
  "zbus_xml",
  "zvariant",
+]
+
+[[package]]
+name = "zbus-secret-service-keyring-store"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74801d001b9e7729adb4f1825b67b398185fed424749aa3d8bacf70417137d9a"
+dependencies = [
+ "keyring-core",
+ "secret-service",
+ "zbus",
 ]
 
 [[package]]

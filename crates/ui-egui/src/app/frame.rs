@@ -114,6 +114,9 @@ impl WordApp {
                 }
                 crate::language_packs::bar(self, ui);
                 chrome::status_bar(self, ui);
+                // Outermost on the right, so the task panes stay beside the page.
+                #[cfg(not(target_arch = "wasm32"))]
+                crate::assistant::panel(self, ui);
                 panes::show(self, ui);
             }
             if moved(self) {
