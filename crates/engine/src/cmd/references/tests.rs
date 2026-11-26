@@ -1086,3 +1086,17 @@ fn numbered_equations_follow_the_chapter_and_are_cross_referenceable() {
     // Numbering twice, or without an equation, is refused.
     assert!(s.run("references.numberEquation", &json!({})).is_err());
 }
+
+/// In a two-column section the number sits at the right edge of the column, not of the page.
+#[test]
+fn numbered_equations_in_columns_put_the_number_at_the_column_edge() {
+    let mut s = Session::new(letra_doc::Document::from_text("intro"));
+    s.doc.last_section.columns = letra_doc::section::Columns { count: 2, space: 20.0, ..Default::default() };
+    s.run("caret.end", &json!({})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("insert.equation", &json!({"latex": "a=b", "display": false, "edit": false})).unwrap();
+    s.run("references.numberEquation", &json!({})).unwrap();
+    let column = (s.doc.last_section.text_width() - 20.0) / 2.0;
+    let tabs = s.doc.body.iter().filter_map(|b| b.as_para()).find_map(|p| p.props.tabs.clone()).unwrap();
+    assert_eq!(tabs.iter().map(|t| t.pos).collect::<Vec<_>>(), [column / 2.0, column]);
+}

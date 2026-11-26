@@ -80,7 +80,7 @@ impl Template {
 }
 
 /// The built-in templates in gallery order. The first is the blank document.
-pub const TEMPLATES: [Template; 14] = [
+pub const TEMPLATES: [Template; 18] = [
     Template { id: "blank", en: "Blank document", es: "Documento en blanco" },
     Template { id: "sample", en: "Studio handbook (sample)", es: "Manual del taller (ejemplo)" },
     Template { id: "letter", en: "Letter", es: "Carta" },
@@ -95,6 +95,10 @@ pub const TEMPLATES: [Template; 14] = [
     Template { id: "flyer", en: "Event flyer", es: "Cartel de evento" },
     Template { id: "recipe", en: "Recipe", es: "Receta" },
     Template { id: "thesis", en: "Thesis / final project", es: "Tesis / TFG" },
+    Template { id: "paper", en: "Scientific paper", es: "Artículo científico" },
+    Template { id: "paper-2col", en: "Scientific paper (two columns)", es: "Artículo científico (dos columnas)" },
+    Template { id: "book", en: "Book", es: "Libro" },
+    Template { id: "textbook", en: "School textbook", es: "Libro de texto" },
 ];
 
 /// The document a template id names, in `lang`. `blank` and unknown ids are not built here.
@@ -113,6 +117,10 @@ pub fn build(id: &str, lang: Lang) -> Option<Document> {
         "flyer" => flyer(lang),
         "recipe" => recipe(lang),
         "thesis" => crate::sample_long::thesis(lang),
+        "book" => crate::sample_long::book(lang),
+        "textbook" => crate::sample_long::textbook(lang),
+        "paper" => crate::sample_long::paper(lang, false),
+        "paper-2col" => crate::sample_long::paper(lang, true),
         _ => return None,
     };
     // The sample handbook and the long templates have their own, richer design; every other

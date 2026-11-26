@@ -24,7 +24,7 @@ pub fn specs() -> Vec<CommandSpec> {
         )
         .key(super::non_mac("Alt+Shift+X")),
         CommandSpec::new("references.index", "Insert Index", "References › Index", insert_index).params(
-            r#"{"type"?: "indented|runIn", "columns"?: 1-4, "rightAlign"?: bool, "tabLeader"?: "dot|hyphen|underscore|none", "headings"?: bool (letter headings)} (replaces an existing index's settings)"#,
+            r#"{"type"?: "indented|runIn", "columns"?: 1-4, "rightAlign"?: bool, "tabLeader"?: "dot|hyphen|underscore|none", "headings"?: bool (letter headings), "title"?: string (the heading above a new index, "Index" by default, "" for none)} (replaces an existing index's settings)"#,
         ),
         CommandSpec::new("references.updateIndex", "Update Index", "References › Index", |s, _| {
             super::citations::update_generated(s)?;
@@ -150,7 +150,10 @@ fn insert_index(s: &mut Session, v: &Value) -> CmdResult {
             }
             para.touch();
         }
-        None => super::citations::generated_list(s, &instr, "Index")?,
+        None => {
+            let title = p::str(v, "title").map(|t| clean(t, 200));
+            super::citations::generated_list(s, &instr, title.as_deref().unwrap_or("Index"))?
+        }
     }
     if let Some((i, _)) = index_field(s) {
         rebuild(s, i, p::str(v, "tabLeader").map(leader))?;

@@ -357,7 +357,7 @@ fn new_page_harness(templates: Option<std::path::PathBuf>) -> egui_kittest::Harn
     let services = Services { templates_dir: templates, ..Default::default() };
     let mut a = WordApp::new(letra_engine::Session::new(letra_doc::Document::new()), services);
     a.run("ui.backstage", json!({"value": true, "page": "new"})).unwrap();
-    let mut h = egui_kittest::Harness::builder().with_size(egui::vec2(1440.0, 1100.0)).build_ui_state(
+    let mut h = egui_kittest::Harness::builder().with_size(egui::vec2(1440.0, 1500.0)).build_ui_state(
         |ui, app: &mut WordApp| {
             let ctx = ui.ctx().clone();
             app.logic(&ctx);
