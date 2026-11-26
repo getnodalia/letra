@@ -428,6 +428,12 @@ pub fn title_bar(app: &mut WordApp, ui: &mut Ui) {
                     ui.with_layout(crate::rtl::far_side(ui, egui::Align::Center), |ui| {
                         ui.add_space(captions + 4.0);
                         search_box(app, ui, control_h);
+                        // The assistant sits beside the search box, as in the other Office apps.
+                        #[cfg(not(target_arch = "wasm32"))]
+                        if app.assistant_offered() {
+                            ui.add_space(6.0);
+                            crate::assistant::button(app, ui);
+                        }
                         right_start = if rtl { ui.min_rect().max.x } else { ui.min_rect().min.x };
                     });
                 })

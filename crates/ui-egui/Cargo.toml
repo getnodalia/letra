@@ -47,6 +47,9 @@ zbus = "=5.19.0"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 chrono = { version = "0.4.45", default-features = false, features = ["clock"] }
 nodalia-update = { workspace = true }
+# The AI assistant chat: one shared component for the Office apps (nodalia-design, packages/assistant).
+# Native only: it talks to the provider the person chose over HTTPS and keeps the key in the OS keychain.
+nodalia-assistant = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # The browser clock (`SystemTime::now()`/`Instant::now()` panic on wasm32).
