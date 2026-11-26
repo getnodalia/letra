@@ -25,10 +25,10 @@ writes a new key. `LETRA_PROFILE_DIR` overrides the whole profile folder for iso
 including recovery copies. See [local recovery](recovery.md). `<settings>` is the folder that holds the preferences: on Linux
 `$XDG_CONFIG_HOME/letra` (by default `~/.config/letra`), on macOS
 `~/Library/Application Support/Letra`, on Windows `%APPDATA%\Letra`. `<instance>` is the
-Flatpak instance id inside Flatpak, and `local-<port>` otherwise. On Unix the file has mode 0600.
+Flatpak instance id inside and `local-<port>` otherwise. On Unix the file has mode 0600.
 
 ```sh
-cat ~/.config/letra/control-key.local-7981   # Linux, outside Flatpak, port 7981
+cat ~/.config/letra/control-key.local-7981   # Linux, outside port 7981
 ```
 
 - Send the key as top-level `"key"` with every request, or once per connection with

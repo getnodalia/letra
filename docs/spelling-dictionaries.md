@@ -111,12 +111,6 @@ The first folder holding a matching pair wins:
 | macOS | `~/Library/Application Support/Letra/dictionaries`, `~/Library/Spelling`, `/Library/Spelling`, `/opt/homebrew/share/hunspell`, `/usr/local/share/hunspell`, `/Applications/LibreOffice.app/Contents/Resources/extensions/dict-*` |
 | Linux and BSD | `$XDG_DATA_HOME/letra/dictionaries` (default `~/.local/share/letra/dictionaries`), `~/.local/share/hunspell`, `/usr/share/hunspell`, `/usr/share/myspell`, `/usr/share/myspell/dicts`, `/usr/local/share/hunspell`, `/usr/local/share/myspell`, LibreOffice's `share/extensions/dict-*` under `/usr/lib/libreoffice` or `/opt/libreoffice` |
 
-The Flatpak runs in a sandbox: its `$XDG_DATA_HOME` is
-`~/.var/app/dev.danielmiguelt.Letra/data`, so its own folder is
-`~/.var/app/dev.danielmiguelt.Letra/data/letra/dictionaries`, and it can't see the host's
-`/usr/share/hunspell` or `~/.local/share/hunspell` (the paths above are for the other builds).
-Put dictionaries in that folder.
-
 The web version can't read these folders, so these languages aren't spell-checked there.
 
 ## Example: Brazilian Portuguese (`pt_BR`)
