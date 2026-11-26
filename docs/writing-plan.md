@@ -71,7 +71,10 @@ Priority order; each ships as its own pull request with tests, screenshots and r
 
 ### P2. Scientific writing (0.5.0)
 
-- Numbered equations that follow the chapter (`(2.3)`), with a list of equations.
+- Numbered equations that follow the chapter (`(2.3)`), with a list of equations. **Done**:
+  References › Equations › Number Equation (`references.numberEquation`) centres the equation on its
+  line and puts `(chapter.SEQ)` at the right margin; the paragraph is Caption-based, so
+  cross-references and a table of figures of the label `Equation` list them.
 - Theorem, lemma, proposition, corollary, definition, example, remark and proof blocks: styled,
   numbered by chapter or by document, cross-referenceable, listed on demand. **Done**: References ›
   Theorems › Insert Theorem (`references.theorem`). A block is a Caption-based paragraph, so Insert

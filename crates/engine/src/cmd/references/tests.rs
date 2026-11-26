@@ -1050,3 +1050,39 @@ fn theorem_blocks_are_numbered_by_chapter_and_cross_referenceable() {
     assert!(proof.starts_with("Proof. Obvious.") && proof.ends_with('\u{220E}'), "{proof:?}");
     assert!(matches!(s.run("references.theorem", &json!({"kind": "axiom"})), Err(crate::CmdError::Params(_))));
 }
+
+#[test]
+fn numbered_equations_follow_the_chapter_and_are_cross_referenceable() {
+    let mut s = Session::new(letra_doc::Document::from_text("Rivers\nintro\nLakes\nmore\nend"));
+    for t in ["Rivers", "Lakes"] {
+        s.run("select.text", &json!({"text": t})).unwrap();
+        s.run("styles.apply", &json!({"style": "Heading 1"})).unwrap();
+    }
+    for (at, latex) in [("intro", "a=b"), ("more", "c=d")] {
+        s.run("select.text", &json!({"text": at})).unwrap();
+        s.run("caret.end", &json!({})).unwrap();
+        s.run("text.newParagraph", &json!({})).unwrap();
+        s.run("insert.equation", &json!({"latex": latex, "display": false, "edit": false})).unwrap();
+        s.run("references.numberEquation", &json!({"chapter": 1})).unwrap();
+    }
+    let results: Vec<String> = fields(&s).into_iter().filter(|f| f.0.starts_with("SEQ")).map(|f| f.1).collect();
+    assert_eq!(results, ["1", "1"], "the count restarts at each chapter: {results:?}");
+    let texts: Vec<String> = s.doc.body.iter().filter_map(|b| b.as_para()).map(|p| p.plain_text()).collect();
+    assert!(texts.iter().any(|t| t.starts_with('\t') && t.ends_with("(1.1)") && t.matches('\t').count() == 2), "{texts:?}");
+    assert_eq!(crate::cmd::citations::ref_targets(&s, "label:Equation").len(), 2);
+
+    // A reference to the second equation (in chapter 2) reads its number, and asking twice reuses the bookmark.
+    s.run("select.text", &json!({"text": "end"})).unwrap();
+    s.run("caret.end", &json!({})).unwrap();
+    for _ in 0..2 {
+        let list = s.run("insert.crossReference", &json!({"to": "label:Equation"})).unwrap();
+        let second = list.as_array().unwrap()[1].as_str().unwrap().to_string();
+        s.run("insert.crossReference", &json!({"to": "label:Equation", "target": second, "show": "number"})).unwrap();
+    }
+    let refs: Vec<(String, String)> = fields(&s).into_iter().filter(|f| f.0.starts_with("REF")).collect();
+    assert_eq!(refs.len(), 2);
+    assert!(refs.iter().all(|r| r.1 == "(2.1)" && r.0 == refs[0].0), "{refs:?}");
+
+    // Numbering twice, or without an equation, is refused.
+    assert!(s.run("references.numberEquation", &json!({})).is_err());
+}

@@ -136,6 +136,11 @@ pub(super) fn references(app: &mut WordApp, ui: &mut Ui) {
             );
         });
     });
+    group(ui, "Equations", None, app, |ui, app| {
+        // The number follows the chapter (2.3) when the document has chapter headings.
+        let params = if has_chapters(app) { json!({"chapter": 1}) } else { json!({}) };
+        big(ui, app, "equation", "Number\nEquation", "references.numberEquation", params, false);
+    });
     group(ui, "Theorems", None, app, |ui, app| {
         // Numbers follow the chapter (2.1) when the document has chapter headings.
         let chapters = has_chapters(app);
