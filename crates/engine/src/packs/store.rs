@@ -14,8 +14,8 @@ use super::{Cancel, Pack};
 /// `NODALIA_LANGUAGE_PACK_INDEX` (read by the font store itself) points Letra at a local or test
 /// index instead, for trying packs before they are released.
 pub const PACK_INDEX: PackIndexPin = PackIndexPin {
-    url: "https://github.com/storytold/craft-i18n/releases/download/language-packs-2/index.json",
-    sha256: "b35c7aef0591177f18233b551da16035dcd615549ff874e169ffd19f16fea74b",
+    url: "https://github.com/getnodalia/foundation/releases/download/language-packs-2/index.json",
+    sha256: "0c5028810b1bd576afae542eac2576740a2e0f31bbb68e3553491272dd5191ba",
 };
 
 pub(super) struct FontStoreBackend {

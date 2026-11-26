@@ -1040,7 +1040,7 @@ impl FixedBackend {
             locale: locale.into(),
             name: name.into(),
             version: "0000000".into(),
-            url: format!("https://github.com/storytold/craft-i18n/releases/download/language-packs-2/{locale}.tar.zst"),
+            url: format!("https://github.com/getnodalia/foundation/releases/download/language-packs-2/{locale}.tar.zst"),
             source: Some("https://github.com/LibreOffice/dictionaries".into()),
             size,
             licence: licence.into(),
