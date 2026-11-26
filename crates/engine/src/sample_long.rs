@@ -502,15 +502,21 @@ pub fn thesis(lang: Lang) -> Document {
         "Pon aquí lo que respalda el trabajo pero lo interrumpiría: tablas largas, cuestionarios, listados, demostraciones.",
     ));
 
-    let body_footer = footer(&mut d);
-    let header = chapter_header(&mut d);
-    d.last_section = SectionProps {
+    d.last_section = chapter_body_section(&mut d, page(lang));
+    finish(d, b, lang, &Numbering { preset: "headings", chapters: true })
+}
+
+/// The last section of a document with numbered chapters: page numbers from 1, the chapter's title
+/// in the header and the page number in the footer.
+fn chapter_body_section(d: &mut Document, page: SectionProps) -> SectionProps {
+    let footer = footer(d);
+    let header = chapter_header(d);
+    SectionProps {
         page_num_start: Some(1),
         headers: letra_doc::section::HeaderSet { default: Some(header), ..Default::default() },
-        footers: letra_doc::section::HeaderSet { default: Some(body_footer), ..Default::default() },
-        ..page(lang)
-    };
-    finish(d, b, lang, &Numbering { preset: "headings", chapters: true })
+        footers: letra_doc::section::HeaderSet { default: Some(footer), ..Default::default() },
+        ..page
+    }
 }
 
 fn thesis_sources() -> Vec<Source> {
@@ -1123,40 +1129,27 @@ fn finish(mut d: Document, b: Draft, lang: Lang, numbering: &Numbering) -> Docum
         let (command, params): (&str, Value) = match make {
             Make::Toc { title, levels } => ("references.toc", json!({"levels": levels, "title": title})),
             Make::Figures { label, title } => {
-                // The list's own title is a heading of the front matter, above it.
-                let heading = styled(title, "FrontHeading");
-                let _ = s.doc.insert_block(letra_doc::StoryRef::Body, &letra_doc::Path::top(*at), Block::Para(heading));
-                s.sel = crate::Selection::caret(letra_doc::Pos::body(at + 1, 0));
+                heading_above(&mut s, *at, title);
                 ("references.tableOfFigures", json!({"label": localised_label(label, lang)}))
             }
             Make::Bibliography { title } => {
-                let heading = styled(title, "FrontHeading");
-                let _ = s.doc.insert_block(letra_doc::StoryRef::Body, &letra_doc::Path::top(*at), Block::Para(heading));
-                s.sel = crate::Selection::caret(letra_doc::Pos::body(at + 1, 0));
+                heading_above(&mut s, *at, title);
                 ("references.bibliography", json!({"title": ""}))
             }
             Make::Index { title } => {
-                let heading = styled(title, "FrontHeading");
-                let _ = s.doc.insert_block(letra_doc::StoryRef::Body, &letra_doc::Path::top(*at), Block::Para(heading));
-                s.sel = crate::Selection::caret(letra_doc::Pos::body(at + 1, 0));
+                heading_above(&mut s, *at, title);
                 ("references.index", json!({"columns": 2, "headings": true, "title": ""}))
             }
             Make::Caption { label, text, above } => {
-                let mut params = json!({"label": localised_label(label, lang), "text": text, "position": if *above { "above" } else { "below" }});
-                if numbering.chapters {
-                    params["chapter"] = json!(1);
-                    params["separator"] = json!(".");
-                }
+                let params = chapter_numbered(
+                    json!({"label": localised_label(label, lang), "text": text, "position": if *above { "above" } else { "below" }}),
+                    numbering,
+                );
                 ("references.caption", params)
             }
             Make::Equation { latex } => {
                 let _ = s.run("insert.equation", &json!({"latex": latex, "display": false, "edit": false}));
-                let mut params = json!({"label": localised_label("Equation", lang)});
-                if numbering.chapters {
-                    params["chapter"] = json!(1);
-                    params["separator"] = json!(".");
-                }
-                ("references.numberEquation", params)
+                ("references.numberEquation", chapter_numbered(json!({"label": localised_label("Equation", lang)}), numbering))
             }
         };
         let _ = s.run(command, &params);
@@ -1171,6 +1164,23 @@ fn finish(mut d: Document, b: Draft, lang: Lang, numbering: &Numbering) -> Docum
     let mut doc = s.doc.clone();
     doc.core.creator = "Letra".into();
     doc
+}
+
+/// A heading of the front or back matter at block `at`, with the caret left on the block after it
+/// where a generated list goes.
+fn heading_above(s: &mut Session, at: usize, title: &str) {
+    let _ = s.doc.insert_block(letra_doc::StoryRef::Body, &letra_doc::Path::top(at), Block::Para(styled(title, "FrontHeading")));
+    s.sel = crate::Selection::caret(letra_doc::Pos::body(at + 1, 0));
+}
+
+/// `params` of a caption or equation number, counting from 1 in each chapter when the document
+/// numbers its chapters.
+fn chapter_numbered(mut params: Value, numbering: &Numbering) -> Value {
+    if numbering.chapters {
+        params["chapter"] = json!(1);
+        params["separator"] = json!(".");
+    }
+    params
 }
 
 /// Remove the empty paragraph a generated list leaves before the next heading: with the page
@@ -1244,7 +1254,6 @@ pub fn textbook(lang: Lang) -> Document {
     let page = SectionProps { margin_left: 70.0, margin_right: 62.0, ..page(lang) };
     let mut num = (*d.numbering).clone();
     let exercise_lists: Vec<u32> = (0..4).map(|_| num.add_list(letra_doc::ListKind::Numbered)).collect();
-    let answer_list = num.add_list(letra_doc::ListKind::Numbered);
     d.numbering = Arc::new(num);
     let mut b = Draft::new();
 
@@ -1462,16 +1471,8 @@ pub fn textbook(lang: Lang) -> Document {
     for t in [lang.pick("2 : 3.", "2 : 3."), lang.pick("750 g.", "750 g."), lang.pick("10 km.", "10 km.")] {
         b.push(numbered(t, exercise_lists[3]));
     }
-    let _ = answer_list;
 
-    let body_footer = footer(&mut d);
-    let header = chapter_header(&mut d);
-    d.last_section = SectionProps {
-        page_num_start: Some(1),
-        headers: letra_doc::section::HeaderSet { default: Some(header), ..Default::default() },
-        footers: letra_doc::section::HeaderSet { default: Some(body_footer), ..Default::default() },
-        ..page
-    };
+    d.last_section = chapter_body_section(&mut d, page);
     finish(d, b, lang, &Numbering { preset: "headings", chapters: true })
 }
 
