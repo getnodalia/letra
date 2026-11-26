@@ -33,6 +33,16 @@ fn block_style() -> Style {
     }
 }
 
+/// The width of a column of the section that holds body block `block`: the numbers sit at its
+/// right edge, so in a two-column section they sit at the column's edge and not the page's.
+fn column_width(doc: &letra_doc::Document, block: usize) -> f32 {
+    let sections = doc.sections();
+    let section = sections.iter().find(|(end, _)| block <= *end).or(sections.last()).map(|(_, sp)| *sp);
+    let Some(sp) = section else { return crate::io::text_width(doc) };
+    let n = sp.columns.count.clamp(1, 12) as f32;
+    ((sp.text_width() - sp.columns.space.max(0.0) * (n - 1.0)) / n).clamp(36.0, 4000.0)
+}
+
 /// `references.numberEquation`: set the equation in the caret's paragraph on its own line with a
 /// number at the right margin, and put the caret after the number.
 pub(super) fn number_equation(s: &mut Session, v: &Value) -> CmdResult {
@@ -66,7 +76,7 @@ pub(super) fn number_equation(s: &mut Session, v: &Value) -> CmdResult {
     if s.doc.styles.get(STYLE_ID).is_none() {
         std::sync::Arc::make_mut(&mut s.doc.styles).upsert(block_style());
     }
-    let width = crate::io::text_width(&s.doc);
+    let width = column_width(&s.doc, at.0.first().copied().unwrap_or(0) as usize);
     let plain = CharProps::default();
     let field = |instr: String| InlineObject::Field { instr, result: String::new(), locked: false, dirty: false, code: false, form: String::new() };
 

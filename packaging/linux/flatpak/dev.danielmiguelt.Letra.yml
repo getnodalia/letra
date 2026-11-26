@@ -130,6 +130,6 @@ modules:
       # the two equal).
       - type: git
         url: https://github.com/getnodalia/foundation
-        commit: c941b5887003c69377133d7a6d8d7ad405b36729
+        commit: d9a6c1c0bb8fc5d73dcfc2e91781c3ec82197468
         dest: nodalia-i18n
       - cargo-sources.json

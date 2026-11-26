@@ -33,7 +33,7 @@ publishers can still open it.
 Already there: Word's source manager (per document), 12 citation styles from a fixed table,
 `CITATION`/`BIBLIOGRAPHY` fields, Zotero over its desktop protocol, footnotes and endnotes,
 captions with `SEQ` fields and cross-references, tables of contents and figures, an equation
-editor with Unicode-math and LaTeX input and equation numbers, and 13 templates (14 with the thesis).
+editor with Unicode-math and LaTeX input and equation numbers, and 13 templates (18 with the thesis, the papers, the book and the textbook).
 
 What is missing, and why it hurts a writer:
 
@@ -45,7 +45,7 @@ What is missing, and why it hurts a writer:
 | No Vancouver, AMA, Nature, ACS | Health, medicine and science students have no style for their field |
 | No theorem/definition/proof blocks | Maths, physics and engineering text is typed by hand and renumbered by hand |
 | Equation numbers do not follow chapters, no list of equations | `(2.3)` style numbering and a list of equations need manual work |
-| No thesis, paper, book or textbook templates | The first hour goes into styles, page numbers, front matter and chapter openers |
+| No thesis, paper, book or textbook templates (now in File › New) | The first hour goes into styles, page numbers, front matter and chapter openers |
 
 ## Increments
 
@@ -89,12 +89,18 @@ Priority order; each ships as its own pull request with tests, screenshots and r
 - **Thesis / TFG** (done, in File › New): cover, title page, declaration, abstract in two languages, acknowledgements,
   contents, lists of figures, tables and abbreviations, numbered chapters, bibliography,
   appendices, with roman front-matter numbering and arabic body numbering.
-- **Scientific paper**: single and two-column layouts, abstract, keywords, numbered sections,
-  references, an IEEE-like and a general journal variant.
-- **Book**: half-title, title page, copyright page, dedication, parts and chapters opening
-  on a right-hand page, running heads, index, colophon; trim sizes and mirrored margins.
-- **School textbook**: units with objectives, margin notes, worked examples, exercises,
-  summary boxes, a glossary, answer key.
+- **Scientific paper** (done, two entries in File › New): a general journal layout in one column
+  (sections 1, 1.1) and an IEEE-like one with the title across the page and the body in two
+  columns (sections I., A.), each with abstract, keywords, a figure, a table, a numbered equation,
+  citations and the references they make.
+- **Book** (done): half-title, title page, copyright page, dedication, contents and preface in
+  roman numerals, parts and chapters that open on a right-hand page, mirrored margins, running
+  heads that differ on left and right pages, drop caps on chapter openers, acknowledgements, an
+  index made from marked words, and a colophon. The trim size is a trade 6×9 in (A5 in Spanish).
+- **School textbook** (done): units that open with what the student will learn, lessons with
+  worked-example, remember and summary boxes, a numbered equation and table, exercises numbered
+  from 1 in each unit, a glossary and the answers. Margin notes are not there yet: they need
+  floating side text that follows the page, so the boxes carry that material for now.
 
 ### P4. Typography and export quality
 
