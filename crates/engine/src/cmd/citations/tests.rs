@@ -57,7 +57,7 @@ fn a_corporate_author_is_cited_and_listed_as_written() {
         let t = s.doc.plain_text(StoryRef::Body);
         let entry = t.lines().find(|l| l.contains("World report on hearing")).unwrap_or_default();
         assert!(entry.contains(who), "{style}: {entry}");
-        assert!(!entry.contains("Organization, W") && !entry.contains("ORGANIZATION, W"), "{style}: {entry}");
+        assert!(!entry.contains("Organization, W.") && !entry.contains("ORGANIZATION,"), "{style}: {entry}");
     }
 }
 
@@ -660,7 +660,7 @@ fn author_date_styles_cite_and_list() {
         let t = s.doc.plain_text(StoryRef::Body);
         assert!(t.starts_with(cites) && t.contains(list), "{style}: {t}");
     }
-    assert!(s.run("references.citationStyle", &json!({"style": "Vancouver"})).unwrap_err().to_string().contains("Turabian"));
+    assert!(s.run("references.citationStyle", &json!({"style": "Klingon"})).unwrap_err().to_string().contains("Turabian"));
     assert_eq!(s.bib_style, "Turabian", "an unknown style keeps the current one");
 }
 
@@ -779,7 +779,7 @@ fn numbered_styles_count_in_order_of_first_citation() {
         (
             "IEEE",
             "[1]Later [2]",
-            "[1] N. Okafor, “Kilns and Clay,” Studio Quarterly, 4, 10-20, 2019.\n[2] A. Rivera, M. Chen, “Shared Spaces,” Portland: Harbor Books, 2021.",
+            "[1] N. Okafor, “Kilns and Clay,” Studio Quarterly, vol. 4, pp. 10-20, 2019.\n[2] A. Rivera, M. Chen, Shared Spaces. Portland: Harbor Books, 2021.",
         ),
     ];
     for (style, cites, list) in cases {
@@ -809,7 +809,7 @@ fn gost_numbers_follow_its_name_or_title_sort() {
     assert!(t.starts_with("[1][2, p. 15]") && t.contains(&format!("1. {rivera}\n2. {okafor}")), "{t}");
     assert_eq!(find_style("ISO 690 - Numerical Reference").map(|x| x.name), Some("ISO 690 (numerical)"));
     assert_eq!(find_style("Harvard - Anglia 2008").map(|x| x.name), Some("Harvard (Anglia)"));
-    assert!(find_style("").is_none() && find_style("Vancouver").is_none());
+    assert!(find_style("").is_none() && find_style("Klingon").is_none());
 }
 
 fn lookup_session(tags: &[&str]) -> Session {
@@ -965,4 +965,108 @@ fn a_ref_bookmark_before_a_page_break_reads_the_heading_page() {
     assert_eq!(pageref(&s), ("PAGEREF _Ref000000003 \\h".to_string(), "2".to_string()));
     crate::cmd::references::update_fields_in(&mut s, true).unwrap();
     assert_eq!(pageref(&s).1, "2");
+}
+
+const BIB: &str = r#"@article{garcia2020,
+  author = {García, María and Pérez, Juan},
+  title = {Aprendizaje profundo},
+  journal = {Revista de Ingeniería},
+  year = {2020}, volume = {12}, number = {3}, pages = {10--20},
+  doi = {10.1234/abcd}
+}
+@book{knuth68, author = {Knuth, Donald}, title = {The Art of Computer Programming}, publisher = {Addison-Wesley}, year = {1968}}"#;
+
+#[test]
+fn pasted_bibtex_goes_into_the_document_once() {
+    let mut s = Session::new(letra_doc::Document::new());
+    let r = s.run("references.import", &json!({"text": BIB})).unwrap();
+    assert_eq!(r["format"], "bibtex");
+    assert_eq!(r["document"]["added"].as_array().unwrap().len(), 2, "{r}");
+    // The same text again adds nothing: same DOI, same title/author/year.
+    let r = s.run("references.import", &json!({"text": BIB})).unwrap();
+    assert_eq!(r["document"]["added"].as_array().unwrap().len(), 0, "{r}");
+    assert_eq!(r["document"]["duplicates"], 2);
+    assert_eq!(s.doc.sources.len(), 2);
+    assert!(s.run("references.import", &json!({"text": "not a bibliography"})).is_err());
+    assert!(s.run("references.import", &json!({"text": BIB, "to": "elsewhere"})).is_err());
+}
+
+#[test]
+fn the_library_is_shared_between_documents_and_survives_a_restart() {
+    let dir = std::env::temp_dir().join(format!("letra-lib-cmd-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let file = dir.join("library.json");
+    let mut s = Session::new(letra_doc::Document::new());
+    s.library.set_path(Some(file.clone()));
+    let r = s.run("references.import", &json!({"text": BIB, "to": "library"})).unwrap();
+    assert_eq!(r["library"]["added"].as_array().unwrap().len(), 2);
+    assert!(s.doc.sources.is_empty(), "only the library got them");
+    // A new document of the same session sees the library; a new session does after reading its file.
+    s.run("file.new", &json!({})).unwrap();
+    assert_eq!(s.library.items().len(), 2);
+    let mut again = Session::new(letra_doc::Document::new());
+    again.library.set_path(Some(file));
+    assert_eq!(again.library.items().len(), 2);
+    // Use one in the document, then cite it.
+    again.run("references.sources", &json!({"fromLibrary": "knuth68"})).unwrap();
+    assert_eq!(again.doc.sources.len(), 1);
+    again.run("references.citation", &json!({"tag": "knuth68"})).unwrap();
+    assert!(again.doc.plain_text(StoryRef::Body).contains("Knuth, 1968"), "{}", again.doc.plain_text(StoryRef::Body));
+    assert!(again.run("references.sources", &json!({"fromLibrary": "nope"})).is_err());
+    // Keep a document source in the library and take one out.
+    let r = again.run("references.library", &json!({"add": "knuth68"})).unwrap();
+    assert_eq!(r["new"], false, "the library has it already");
+    let r = again.run("references.library", &json!({"remove": "knuth68"})).unwrap();
+    assert_eq!(r["sources"].as_array().unwrap().len(), 1);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn export_gives_back_what_import_read() {
+    let mut s = Session::new(letra_doc::Document::new());
+    s.run("references.import", &json!({"text": BIB})).unwrap();
+    for f in ["bibtex", "ris", "csl-json"] {
+        let out = s.run("references.export", &json!({"format": f})).unwrap();
+        assert_eq!(out["count"], 2);
+        let mut t = Session::new(letra_doc::Document::new());
+        let r = t.run("references.import", &json!({"text": out["text"]})).unwrap();
+        assert_eq!(r["format"], f, "{out}");
+        assert_eq!(t.doc.sources.len(), 2, "{f}: {}", out["text"]);
+    }
+    let one = s.run("references.export", &json!({"tags": ["knuth68"], "format": "ris"})).unwrap();
+    assert_eq!(one["count"], 1);
+    assert!(s.run("references.export", &json!({"format": "docx"})).is_err());
+}
+
+#[test]
+fn journal_titles_are_italic_in_the_bibliography_and_stay_so_after_saving() {
+    let mut s = Session::new(letra_doc::Document::new());
+    s.run("references.import", &json!({"text": BIB})).unwrap();
+    s.run("references.citationStyle", &json!({"style": "APA"})).unwrap();
+    s.run("references.citation", &json!({"tag": "garcia2020"})).unwrap();
+    s.run("text.newParagraph", &json!({})).unwrap();
+    s.run("references.bibliography", &json!({})).unwrap();
+    let italic_text = |s: &Session| {
+        let mut out = String::new();
+        for p in s.doc.body.iter().filter_map(|b| b.as_para()) {
+            let mut chars = p.text.chars();
+            for r in &p.runs {
+                let piece: String = chars.by_ref().take(r.len).collect();
+                if r.props.italic == Some(true) {
+                    out.push_str(&piece);
+                    out.push('|');
+                }
+            }
+        }
+        out
+    };
+    let before = italic_text(&s);
+    assert!(before.contains("Revista de Ingeniería"), "{before}");
+    let bytes = crate::io::save_bytes("t.docx", &s.doc).unwrap();
+    let doc = crate::io::open_bytes("t.docx", &bytes).unwrap();
+    let mut t = Session::new(doc);
+    assert!(italic_text(&t).contains("Revista de Ingeniería"), "{}", italic_text(&t));
+    assert_eq!(t.doc.sources.len(), 2);
+    t.run("references.citationStyle", &json!({"style": "Vancouver"})).unwrap();
+    assert!(t.doc.plain_text(StoryRef::Body).contains("[1]"), "{}", t.doc.plain_text(StoryRef::Body));
 }

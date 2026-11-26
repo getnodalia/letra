@@ -32,9 +32,9 @@ pub use cross_ref::CrossRefForm;
 use cross_ref::ref_types;
 pub use index::{IndexForm, MarkForm};
 pub use shell::{body, open};
-pub use sources::SourceForm;
 #[cfg(test)]
 use sources::field_mut;
+pub use sources::{SourceForm, SourcesView};
 pub use toc::{FiguresForm, TocForm};
 
 #[derive(Clone, Debug, Serialize)]
@@ -65,9 +65,7 @@ pub enum RefsDialog {
         level: u8,
     },
     Figures(FiguresForm),
-    Sources {
-        selected: Option<usize>,
-    },
+    Sources(SourcesView),
     Source(Box<SourceForm>),
 }
 
@@ -84,7 +82,7 @@ impl RefsDialog {
             RefsDialog::TocOptions { .. } => "tocOptions",
             RefsDialog::TocStyles { .. } => "tocStyles",
             RefsDialog::Figures(_) => "tableOfFigures",
-            RefsDialog::Sources { .. } => "sourceManager",
+            RefsDialog::Sources(_) => "sourceManager",
             RefsDialog::Source(f) if f.edit => "editSource",
             RefsDialog::Source(_) => "createSource",
         }
@@ -103,7 +101,7 @@ impl RefsDialog {
             RefsDialog::TocOptions { .. } => "Table of Contents Options",
             RefsDialog::TocStyles { .. } => "Table of Contents Styles",
             RefsDialog::Figures(_) => "Table of Figures",
-            RefsDialog::Sources { .. } => "Source Manager",
+            RefsDialog::Sources(_) => "Source Manager",
             RefsDialog::Source(f) if f.edit => "Edit Source",
             RefsDialog::Source(_) => "Create Source",
         }

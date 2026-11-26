@@ -40,6 +40,9 @@ Windows, and works with `.docx` documents.
 - **Real pages:** headers and footers, page numbers, sections, footnotes, tables of contents and
   page breaks, in a faithful print layout.
 - **Tables, images and equations,** in line or beside the text.
+- **Sources and citations:** a Source Manager with My Library shared by every document, import and
+  export of BibTeX, RIS, CSL-JSON and Word sources, a dozen citation styles (APA, IEEE, Vancouver,
+  Chicago, Harvard, ACM, ISO 690…) and an automatic bibliography, built for theses and papers.
 - **Review:** spelling and grammar in several languages, comments, track changes and document
   comparison.
 - **Files:** `.docx` first, plus ODT, RTF, HTML, Markdown and plain text; exports to PDF.

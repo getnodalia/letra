@@ -1,5 +1,5 @@
-//! References: citations and bibliography (APA, MLA, Chicago, IEEE, Harvard, ISO 690, Turabian,
-//! GB/T 7714, GOST, SIST02), source manager, index, table of figures, cross-references, table
+//! References: citations and bibliography (APA, ACM, MLA, Chicago, IEEE, Vancouver, Harvard, ISO 690,
+//! Turabian, GB/T 7714, GOST, SIST02), source manager, source import and export, personal library, index, table of figures, cross-references, table
 //! of authorities, footnote options.
 
 use letra_doc::collate::{SortKey, heading_letter, sort_key};
@@ -14,9 +14,12 @@ use crate::{CmdError, CmdResult, CommandSpec, Selection, Session, p};
 
 mod cross_refs;
 mod generated;
+pub mod import;
+pub mod library;
 mod render;
 mod sources;
 mod styles;
+mod transfer;
 
 use cross_refs::cross_ref;
 pub(crate) use cross_refs::leading_breaks;
@@ -26,16 +29,25 @@ use generated::ENTRY_STYLE;
 pub(crate) use generated::generated_list;
 use generated::table_of_figures;
 pub use generated::{figures_instr, update_generated};
-pub use render::{cite, entry};
+pub use render::{bare_doi, cite, entry, entry_marked, split_marks};
 pub use sources::update_citations;
 use sources::{citation, sources};
 pub use styles::{Cite, CiteStyle, Name, Names, Order, STYLES, find_style, style};
+use transfer::{export_cmd, import_cmd, library_cmd};
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![
         CommandSpec::new("references.sources", "Manage Sources", "References › Citations & Bibliography", sources)
-            .params(r#"{"add"?: Source, "remove"?: tag, "import"?: path (a Word bibliography file, `b:Sources` / `Sources.xml`)} → list"#),
-        CommandSpec::new("references.citation", "Insert Citation", "References › Citations & Bibliography", citation).params(r#"{"tag"?: string, "source"?: Source (added if new), "pages"?: string}"#),
+            .params(r#"{"add"?: Source, "remove"?: tag, "import"?: path (BibTeX, RIS, CSL-JSON or a Word bibliography file), "fromLibrary"?: tag | [tag] (copy from My Library)} → list"#),
+        CommandSpec::new("references.import", "Import Sources", "References › Citations & Bibliography", import_cmd)
+            .params(r#"{"path"?: file, "text"?: pasted bibliography, "format"?: "bibtex|ris|csl-json" (else from the name or the text), "to"?: "document|library|both"} → {format, found, document?, library?}; a work already there is not added twice"#),
+        CommandSpec::new("references.export", "Export Sources", "References › Citations & Bibliography", export_cmd)
+            .params(r#"{"format"?: "bibtex|ris|csl-json", "scope"?: "document|library", "tags"?: [tag], "path"?: file} → {format, count, text}"#)
+            .pure(),
+        CommandSpec::new("references.library", "My Library", "References › Citations & Bibliography", library_cmd)
+            .params(r#"{"add"?: Source | tag of a document source, "edit"?: tag + "source": Source, "remove"?: tag} → {sources, tag?, new?}; the list is kept in the settings folder and shared by every document"#)
+            .pure(),
+        CommandSpec::new("references.citation", "Insert Citation", "References › Citations & Bibliography", citation).params(r#"{"tag"?: string, "source"?: Source (added if new), "fromLibrary"?: tag of a My Library source (added to the document if new), "pages"?: string}"#),
         CommandSpec::new("references.citationStyle", "Style", "References › Citations & Bibliography", |s, v| {
             let st = p::str(v, "style").unwrap_or("APA");
             let st = find_style(st).ok_or_else(|| {
@@ -48,7 +60,7 @@ pub fn specs() -> Vec<CommandSpec> {
             Ok(json!({"style": s.bib_style}))
         })
         .params(
-            r#"{"style": "APA|Chicago|GB/T 7714|GOST (name sort)|GOST (title sort)|Harvard (Anglia)|IEEE|ISO 690 (author-date)|ISO 690 (numerical)|MLA|SIST02|Turabian" (Word's style names work too)}"#,
+            r#"{"style": "APA|ACM|Chicago|GB/T 7714|GOST (name sort)|GOST (title sort)|Harvard (Anglia)|Harvard (Cite Them Right)|IEEE|ISO 690 (author-date)|ISO 690 (numerical)|MLA|SIST02|Turabian|Vancouver" (Word's style names work too)}"#,
         ),
         CommandSpec::new("references.bibliography", "Bibliography", "References › Citations & Bibliography", |s, v| {
             let title = p::str(v, "title").unwrap_or(style(&s.bib_style).bib_title).to_string();
