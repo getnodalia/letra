@@ -332,13 +332,11 @@ fn recovery_restore_opens_beside_unsaved_work_without_autosave_permission() {
 #[test]
 fn template_search_matches_labels_case_insensitively() {
     let ids = |q: &str| matching_templates(q).into_iter().map(|(_, id)| id).collect::<Vec<_>>();
-    assert_eq!(
-        ids(""),
-        ["blank", "sample", "letter", "resume", "cover-letter", "report", "minutes", "essay", "invoice", "newsletter", "proposal", "flyer", "recipe"]
-    );
+    assert_eq!(ids(""), letra_engine::sample::TEMPLATES.iter().map(|t| t.id).collect::<Vec<_>>());
     assert_eq!(ids("  LETTER "), ["letter", "cover-letter", "newsletter"]);
     assert_eq!(ids("re"), ["resume", "report", "recipe"]);
     assert_eq!(ids("résumé"), ["resume"]);
+    assert_eq!(ids("thesis"), ["thesis"]);
     assert!(ids("no such template").is_empty());
 }
 

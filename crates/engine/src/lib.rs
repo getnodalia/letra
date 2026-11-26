@@ -23,6 +23,7 @@ pub mod recovery;
 pub mod ribbon;
 pub mod sample;
 mod sample_design;
+mod sample_long;
 mod session;
 pub(crate) mod snapshot;
 pub mod speech;

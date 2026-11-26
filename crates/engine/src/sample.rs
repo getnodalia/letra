@@ -6,16 +6,16 @@ use letra_doc::props::{Align, Border, BorderStyle, Borders, CharProps, NumRef, R
 use letra_doc::{Block, Document, ListKind, Paragraph, PartKind, Table, para_block};
 use std::sync::Arc;
 
-fn para(text: &str) -> Paragraph {
+pub(crate) fn para(text: &str) -> Paragraph {
     Paragraph::with_text(text, CharProps::default())
 }
 
-fn styled(text: &str, style: &str) -> Paragraph {
+pub(crate) fn styled(text: &str, style: &str) -> Paragraph {
     para(text).styled(style)
 }
 
 /// Append text with formatting to a paragraph.
-fn add(p: &mut Paragraph, text: &str, props: CharProps) {
+pub(crate) fn add(p: &mut Paragraph, text: &str, props: CharProps) {
     let at = p.len();
     let _ = p.insert_text(at, text, &props);
 }
@@ -80,7 +80,7 @@ impl Template {
 }
 
 /// The built-in templates in gallery order. The first is the blank document.
-pub const TEMPLATES: [Template; 13] = [
+pub const TEMPLATES: [Template; 14] = [
     Template { id: "blank", en: "Blank document", es: "Documento en blanco" },
     Template { id: "sample", en: "Studio handbook (sample)", es: "Manual del taller (ejemplo)" },
     Template { id: "letter", en: "Letter", es: "Carta" },
@@ -94,6 +94,7 @@ pub const TEMPLATES: [Template; 13] = [
     Template { id: "proposal", en: "Project proposal", es: "Propuesta de proyecto" },
     Template { id: "flyer", en: "Event flyer", es: "Cartel de evento" },
     Template { id: "recipe", en: "Recipe", es: "Receta" },
+    Template { id: "thesis", en: "Thesis / final project", es: "Tesis / TFG" },
 ];
 
 /// The document a template id names, in `lang`. `blank` and unknown ids are not built here.
@@ -111,10 +112,12 @@ pub fn build(id: &str, lang: Lang) -> Option<Document> {
         "proposal" => proposal(lang),
         "flyer" => flyer(lang),
         "recipe" => recipe(lang),
+        "thesis" => crate::sample_long::thesis(lang),
         _ => return None,
     };
-    // The sample handbook has its own, richer design; every other template shares one look.
-    if id != "sample" {
+    // The sample handbook and the long templates have their own, richer design; every other
+    // template shares one look.
+    if id != "sample" && !crate::sample_long::is_long(id) {
         crate::sample_design::polish(id, &mut d);
     }
     Some(d)
@@ -122,7 +125,7 @@ pub fn build(id: &str, lang: Lang) -> Option<Document> {
 
 /// A table of text cells with a header row; the body cells from column `right_from` on are
 /// right-aligned (numbers).
-fn text_table(rows: &[&[&str]], widths: f32, right_from: usize) -> Table {
+pub(crate) fn text_table(rows: &[&[&str]], widths: f32, right_from: usize) -> Table {
     let cols = rows.iter().map(|r| r.len()).max().unwrap_or(1).max(1);
     let mut t = Table::new(rows.len().max(1), cols, widths);
     t.props.style = Some("GridTable4AccentBlue".into());
@@ -151,7 +154,7 @@ fn bullet(text: &str, list: u32) -> Block {
 }
 
 /// The document body from blocks.
-fn body(d: &mut Document, blocks: Vec<Block>) {
+pub(crate) fn body(d: &mut Document, blocks: Vec<Block>) {
     d.body = blocks.into_iter().map(std::sync::Arc::new).collect();
 }
 
@@ -901,8 +904,21 @@ mod tests {
     fn the_spanish_documents_are_spanish() {
         assert_eq!(Lang::parse("es-MX"), Lang::Es);
         assert_eq!(Lang::parse("en-GB"), Lang::En);
-        for id in ["sample", "letter", "cover-letter", "resume", "report", "minutes", "essay", "invoice", "newsletter", "proposal", "flyer", "recipe"]
-        {
+        for id in [
+            "sample",
+            "letter",
+            "cover-letter",
+            "resume",
+            "report",
+            "minutes",
+            "essay",
+            "invoice",
+            "newsletter",
+            "proposal",
+            "flyer",
+            "recipe",
+            "thesis",
+        ] {
             let en = build(id, Lang::En).unwrap();
             let es = build(id, Lang::Es).unwrap();
             assert_eq!(en.body.len(), es.body.len(), "{id}: same shape");
