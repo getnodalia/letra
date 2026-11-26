@@ -327,7 +327,7 @@ pub enum Dialog {
         /// "Don't show this again".
         dont_show: bool,
     },
-    /// Tabs: 0 About, 1 Contributors, 2 Models.
+    /// The shared About page; `tab` 1 is its Licences sub-page.
     About {
         tab: u8,
     },
