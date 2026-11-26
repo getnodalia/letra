@@ -460,7 +460,11 @@ impl Host for LetraHost<'_> {
                 }
             }
             "set_document_text" => {
-                if es { "Reemplazar todo el texto del documento".into() } else { "Replace all the text of the document".into() }
+                if es {
+                    "Reemplazar todo el texto del documento".into()
+                } else {
+                    "Replace all the text of the document".into()
+                }
             }
             _ => return None,
         })

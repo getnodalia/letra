@@ -49,7 +49,6 @@ fn typing_and_selecting_change_the_document_and_undo_takes_them_back() {
     h.call("type_text", &json!({"text": "Letra"})).unwrap();
     assert!(h.undo_depth() > start);
     let depth = h.undo_depth() - start;
-    drop(h);
     assert_eq!(text_of(&mut a), "Hello Letra");
     host(&mut a).undo(depth).unwrap();
     assert_eq!(text_of(&mut a), "");
@@ -67,7 +66,6 @@ fn an_edit_never_joins_the_typing_before_it() {
     let steps = h.undo_depth() - start;
     assert!(steps >= 1);
     h.undo(steps).unwrap();
-    drop(h);
     assert_eq!(text_of(&mut a), "mine ");
 }
 
