@@ -14,7 +14,12 @@ pub(super) fn cross_ref(s: &mut Session, v: &Value) -> CmdResult {
         // The page the target's text starts on (after its leading page breaks), as its footer
         // shows it.
         "page" => page_label(s, &Pos { off: leading_breaks(&s.doc, &pos), ..pos.clone() }),
-        "number" => text.split(':').next().unwrap_or(&text).trim().to_string(),
+        // A caption's label and number end at its colon; an equation's number is what follows
+        // its last tab.
+        "number" => match text.rsplit_once('\t') {
+            Some((_, n)) => n.trim().to_string(),
+            None => text.split(':').next().unwrap_or(&text).trim().to_string(),
+        },
         "aboveBelow" => {
             if pos < s.sel.focus {
                 "above".into()
@@ -182,7 +187,11 @@ fn ref_bookmark(s: &mut Session, pos: &Pos, number_only: bool, mut at: Pos) -> R
         para.len()
     };
     // The bookmark starts after the leading page breaks, so `PAGEREF` reads the page the text is on.
-    let start = leading_breaks(&s.doc, pos).min(end);
+    let mut start = leading_breaks(&s.doc, pos).min(end);
+    // A numbered equation's number is what follows its last tab, after the equation itself.
+    if number_only && let Some(t) = para.text.get(..end).and_then(|t| t.rfind('\t')) {
+        start = start.max(t.saturating_add(1));
+    }
     // Reuse one that starts there or at the paragraph's start (before the breaks): the field's
     // result still reads the page the text is on.
     for from in [start, 0] {
@@ -192,7 +201,9 @@ fn ref_bookmark(s: &mut Session, pos: &Pos, number_only: bool, mut at: Pos) -> R
             // Reuse it when it covers the same extent: up to the colon, or the whole paragraph.
             let same = para.object_offsets().into_iter().any(|o| {
                 matches!(para.object_at(o), Some(InlineObject::BookmarkEnd { name: n }) if n == name)
-                    && para.text.get(o.saturating_add(MARK)..).is_some_and(|rest| if number_only { rest.starts_with(':') } else { rest.is_empty() })
+                    // A number that ends at its `SEQ` field (a block without a colon) has its mark right after it.
+                    && (number_only && o == end
+                        || para.text.get(o.saturating_add(MARK)..).is_some_and(|rest| if number_only { rest.starts_with(':') } else { rest.is_empty() }))
             });
             if same {
                 return Ok((name.clone(), at));

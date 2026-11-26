@@ -10,6 +10,7 @@ use serde_json::{Value, json};
 use super::{delete_selection, sel_result};
 use crate::{CmdError, CmdResult, CommandSpec, Selection, Session, p};
 
+mod equation_numbers;
 mod fields;
 mod notes;
 mod numbers;
@@ -95,6 +96,8 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("references.theorem", "Insert Theorem", "References › Theorems", theorems::theorem).params(
             r#"{"kind"?: "theorem|lemma|proposition|corollary|definition|example|remark|proof", "label"?: string (the word shown, in the document's language), "title"?: string, "text"?: string, "chapter"?: heading level 1-9 (numbers like 2.1), "shared"?: bool (one count for every kind), "format"?: "ARABIC|alphabetic|ALPHABETIC|roman|ROMAN", "qed"?: bool (a proof ends with ∎)}"#,
         ),
+        CommandSpec::new("references.numberEquation", "Number Equation", "References › Equations", equation_numbers::number_equation)
+            .params(r#"{"label"?: string (the word of the sequence, default Equation), "chapter"?: heading level 1-9 (numbers like 2.3), "separator"?: "-|.|:|—|–", "format"?: "ARABIC|alphabetic|ALPHABETIC|roman|ROMAN"}"#),
         // F9: update fields; the selected ones that showed their code show their result again.
         CommandSpec::new("references.updateFields", "Update Field", "References", |s, v| {
             update_fields_in(s, v.get("all").and_then(Value::as_bool).unwrap_or(false))?;
