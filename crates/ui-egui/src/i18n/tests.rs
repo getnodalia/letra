@@ -129,6 +129,21 @@ fn current_language_is_per_thread() {
     assert_eq!(prefixed("Undo", "Typing"), "Undo Typing");
 }
 
+/// The counts the status bar and the missing-font download build with `tn` have Spanish plural
+/// rows: "2 fonts not installed" stayed in English in the Spanish interface.
+#[test]
+fn the_font_counts_of_the_status_bar_and_downloads_are_translated_in_spanish() {
+    needs_catalogs!();
+    set_current(lang("es"));
+    let (one, other) = ("{n} font not installed", "{n} fonts not installed");
+    assert_eq!(tn(1, one, other), "1 fuente no instalada");
+    assert_eq!(tn(2, one, other), "2 fuentes no instaladas");
+    assert_eq!(tn(3, "{n} missing font can be downloaded", "{n} missing fonts can be downloaded"), "Se pueden descargar 3 fuentes que faltan");
+    assert_eq!(tn(4, "…and {n} more", "…and {n} more"), "…y 4 más");
+    set_current(Lang::EN);
+    assert_eq!(tn(2, one, other), "2 fonts not installed");
+}
+
 #[test]
 fn placeholders_fill_without_reinterpreting_values() {
     let args = [("path", "a-{pages}.docx"), ("pages", "2")];

@@ -154,6 +154,25 @@ fn new_opens_a_second_window_and_each_keeps_its_state() {
     assert_eq!((text(&a), a.ui.tab.as_str(), prompt(&a)), ("Second".into(), crate::DEFAULT_TAB, None));
 }
 
+/// Each window's ribbon animates its own tab changes: the animation state egui keeps is shared by
+/// every viewport, so a second window on another tab used to restart the first's change on every
+/// frame and neither ribbon ever settled (the second stayed faded and shifted, its menus unusable).
+#[test]
+fn windows_on_different_ribbon_tabs_each_keep_their_own_tab_animation() {
+    let ctx = backend();
+    let mut a = app("First");
+    frames(&ctx, &mut a, 3);
+    a.ui.tab = "Insert".into();
+    a.run("file.new", json!({})).unwrap();
+    frames(&ctx, &mut a, 3);
+    let child = a.active_viewport();
+    assert_ne!(child, ViewportId::ROOT);
+    a.ui.tab = "Draw".into();
+    frames(&ctx, &mut a, 6);
+    assert_eq!(crate::ribbon::tab_change_of(&ctx, ViewportId::ROOT).as_deref(), Some("Insert"), "the first window's ribbon saw only its tab");
+    assert_eq!(crate::ribbon::tab_change_of(&ctx, child).as_deref(), Some("Draw"), "the second window's saw only its own");
+}
+
 fn docx_on_disk(name: &str, body: &str) -> std::path::PathBuf {
     let dir = std::env::temp_dir().join(format!("letra-windows-{name}-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
