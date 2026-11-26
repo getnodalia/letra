@@ -10,7 +10,7 @@
 |---|---|---|
 | macOS | universal `Letra.app` in a `.dmg`, universal CLI zip | Developer ID + notarization (`APPLE_*` secrets) |
 | Windows | x64, x86 and arm64 `.msi` (one dual-scope package: per-user by default, needs no admin rights; "Everyone on this computer" installs per machine) + portable `.zip` | Azure Trusted Signing (`AZURE_*` secrets) |
-| Linux | x86_64 and aarch64 `.AppImage` (+ `.zsync` for AppImageUpdate), `.flatpak` bundle, `.deb`, `.rpm`, `.tar.gz`; Flathub manifest | checksums |
+| Linux | x86_64 and aarch64 `.AppImage` (+ `.zsync` for AppImageUpdate), `.deb`, `.rpm`, `.tar.gz` | checksums |
 | Linux riscv64 | `.tar.gz` (cross-compiled on `ubuntu-24.04`, glibc >= 2.39; CLI smoke-tested under QEMU) | checksums |
 | FreeBSD | x86_64 `.tar.gz` | checksums |
 | Web | `letra-web-<version>.zip` (static site: `index.html`, wasm, glue) | none |
@@ -23,8 +23,8 @@ macOS and Windows jobs if their signing credentials are missing. Local packaging
 produce unsigned builds with a warning.
 
 Local packaging: `packaging/macos/package.sh --arch universal`, `packaging/windows/package.ps1`,
-`packaging/linux/package.sh` (then `packaging/linux/flatpak-bundle.sh` for the Flatpak), `packaging/web/package.sh`.
+`packaging/linux/package.sh`, `packaging/web/package.sh`.
 
 A scheduled dry run runs on `main` nightly at 03:00 UTC. It builds every release target except
-macOS, without signing, entering the `release` environment, pushing Flatpak images or making a
+macOS, without signing, entering the `release` environment or making a
 draft release. Manual dispatch uses the normal release path (`dry-run` is false).

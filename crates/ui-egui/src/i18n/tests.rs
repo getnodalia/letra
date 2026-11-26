@@ -1255,20 +1255,13 @@ fn the_languages_offered_are_the_embedded_ones_of_the_list() {
     assert!(Lang::from_code("pseudo").is_none(), "the pseudo locale is never a setting");
 }
 
-/// The flatpak manifest builds with the nodalia-i18n commit `nodalia-i18n.rev` pins (CI and releases
-/// read the file; the manifest has to name it itself).
+/// `nodalia-i18n.rev` pins one full commit of the translations (CI and releases read the file).
 #[test]
-fn the_flatpak_manifest_pins_the_craft_i18n_rev() {
+fn the_i18n_rev_is_one_full_sha() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let rev = std::fs::read_to_string(root.join("nodalia-i18n.rev")).unwrap();
     let rev = rev.trim();
     assert!(rev.len() == 40 && rev.bytes().all(|b| b.is_ascii_hexdigit()), "nodalia-i18n.rev holds one full SHA: {rev:?}");
-    let manifest = std::fs::read_to_string(root.join("packaging/linux/flatpak/dev.danielmiguelt.Letra.yml")).unwrap();
-    let source = manifest.split("url: https://github.com/getnodalia/foundation").nth(1).expect("a nodalia-i18n git source");
-    let source = source.split("- type:").next().unwrap_or(source);
-    let commit = source.lines().find_map(|l| l.trim().strip_prefix("commit:")).expect("the nodalia-i18n source pins a commit");
-    assert_eq!(commit.trim().trim_matches(['\'', '"']), rev);
-    assert!(manifest.contains("NODALIA_I18N_DIR: /run/build/letra/nodalia-i18n"), "the build embeds the catalogs");
 }
 
 /// A right-to-left test language whose catalog is `source`, selected as the current language.
