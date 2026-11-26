@@ -151,6 +151,7 @@ Ranked, to beta (detail and remaining milestones in [docs/roadmap.md](docs/roadm
 
 ## Progress log
 
+- 2026-11-26: AI assistant (0.4.0). A chat panel beside the document, opened from a title-bar button that shows the chosen provider, with the open document as context and tools that read, select, type, insert tables and run any ribbon command. Bring-your-own key (Claude, OpenAI, Gemini, Ollama) in the system keychain; every change waits for approval and a turn undoes in one click; files, windows and the interface stay out of reach. Parity scores unchanged.
 - 2026-11-17: File formats, codecs and protocols now come from the shared libraries (storytold/craft-libs#778): legacy code pages (nodalia-codepage, #6785), plain-text encoding detection (nodalia-mime, #6950), the ZIP entry-count guard (nodalia-zip, #6948), Read Aloud's Speech Dispatcher wire format (nodalia-ssip, #6951), picture probes for clipboard DIBs, JPEG memory, PNG and WebP (nodalia-image-codecs, #6949, #6955) and the MCP stdio server (nodalia-mcp-server, #6956), all with nodalia-libs pinned at main `93dac78c` (#6954, #6960). Opening documents and pictures behaves as before, except that large non-interleaved JPEGs are refused sooner (a 4:4:4 picture from about 60 Mpx, was 67 Mpx), invalid PNGs are refused more strictly, a lossless WebP's transparency is now seen, and MCP clients get tool errors for unknown or mistyped arguments and a 1,000-message batch cap (docs/mcp.md). The old code stays as test-only references the shared code is checked against.
 - 2026-11-15: Get the Missing Fonts. A document opened from a file that is missing fonts their publisher gives away (Microsoft's Aptos family, the default in recent Word documents; Cascadia Code and Mono) brings up a box naming each font, the font drawn instead, the publisher's download page and how to install the download, with Don't show this again. `font.missing` reports the same page, so agents get it without the box. Letra links to the page only; it downloads and bundles nothing.
 - 2026-10-30: Track Changes: a list item deleted whole, text and paragraph mark, shows its number as deleted text, in the deletion's colour and with its mark (struck through by default, or caret, #, bold, italic, underline), and hides it with No Markup or when Track Changes Options hide deletions (#4828). Readiness unchanged.
@@ -907,6 +908,8 @@ MATH glyphs that reference the same construction now share its immutable variant
 
 ## Revision history
 
+> 2026-11-26 · Progress log: AI assistant (0.4.0); parity scores unchanged.
+>
 > 2026-11-08 · Progress log: `convert --strict` refuses a PDF or PNG that would silently lack a character or a picture (#6005).
 >
 > 2026-11-08 · Progress log: turned inline pictures without a recorded effect extent keep their line to the frame, as in Word.

@@ -46,6 +46,10 @@ Windows, and works with `.docx` documents.
 - **Nodalia Design:** rounded islands, Letra's blue, NDL icons, round window controls on Linux
   (native ones on macOS and Windows), a light or dark theme chosen in Preferences, and its menus
   in the desktop's top bar on Linux desktops that have one.
+- **AI assistant:** a chat beside your document, with the whole document as context, that drafts,
+  proofreads, restructures and formats. You bring your own key (Claude, OpenAI, Gemini or a local
+  Ollama model), kept in the system keychain; every change waits for your approval and a turn
+  undoes in one click. Nodalia has no servers in between.
 - **Everything is a command:** every action can be scripted with `letra-cli` or driven by AI
   agents through MCP.
 
