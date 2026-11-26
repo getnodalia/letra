@@ -73,8 +73,9 @@ nodalia-image-codecs = { git = "https://github.com/getnodalia/foundation", rev =
 nodalia-tiff = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }
 nodalia-pdf = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0", default-features = false, features = ["write"] }
 # In-app updates from this app's GitHub releases, with the update windows for egui.
-nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "114848a2ff1a7c29c9a5432fb12e955fbe0aeef2", features = ["egui"] }
-nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "44bfd0a37e6bd2837c473b4e5607b70e8d169e61", features = ["egui", "creator"] }
+nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "b7ea838717230837581971995cbcaea4e2d845b5", features = ["egui"] }
+nodalia-assistant = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "b7ea838717230837581971995cbcaea4e2d845b5", features = ["egui"] }
+nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "b7ea838717230837581971995cbcaea4e2d845b5", features = ["egui", "creator"] }
 nodalia-wordmodel = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }
 nodalia-docx = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }
 nodalia-mcp-server = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }

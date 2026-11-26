@@ -272,6 +272,9 @@ impl WordApp {
             info_editing,
             shown_document,
             clipboard_published: _,
+            // One chat for the app, whichever window is shown: it works on the document in front.
+            #[cfg(not(target_arch = "wasm32"))]
+            assistant: _,
         } = self;
         let UiState {
             // App-wide: preferences, recent lists, and the settings the session owns while

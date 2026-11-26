@@ -154,6 +154,8 @@ impl WordApp {
             autosave: true,
             zotero: zotero::ZoteroLink::default(),
             ctx: None,
+            #[cfg(not(target_arch = "wasm32"))]
+            assistant: None,
             ime_origin: false,
             read_aloud_error: None,
             autosave_path: None,
@@ -273,6 +275,9 @@ impl WordApp {
         }
         options::sync(self);
         self.settle_async_saves();
+        // The assistant's answers and tool calls arrive between frames and run here, on this thread.
+        #[cfg(not(target_arch = "wasm32"))]
+        self.poll_assistant();
         // Chinese text wants the Chinese face before the Japanese one (one glyph style per line).
         // An installed CJK font is read only once CJK text is shown (#241): a CJK interface, the
         // language names in Options, or a file name the caption is drawing. A file opened later

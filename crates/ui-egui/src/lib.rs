@@ -20,6 +20,9 @@ macro_rules! tl {
 
 pub mod a11y;
 pub mod a11y_pane;
+/// The AI chat panel, shared by the Office apps (native only: it needs the network and the keychain).
+#[cfg(not(target_arch = "wasm32"))]
+pub mod assistant;
 pub mod async_saves;
 pub mod autoscroll;
 pub mod backstage;
@@ -847,6 +850,9 @@ pub struct WordApp {
     /// The built-in file browser, when it is open, and the folder it showed last (#576).
     #[cfg(not(target_arch = "wasm32"))]
     pub(crate) file_browser: file_browser::State,
+    /// The AI assistant, made the first time a window needs it ([`assistant`]).
+    #[cfg(not(target_arch = "wasm32"))]
+    pub(crate) assistant: Option<nodalia_assistant::Assistant>,
     /// File › Info: the property field being typed in and the document revision after its last
     /// keystroke, so one visit's keystrokes make a single undo step (and anything else in
     /// between, such as an Undo, starts a new one).
