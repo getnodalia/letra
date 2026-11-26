@@ -566,6 +566,14 @@ impl WordApp {
                 }
                 json!({"tab": self.ui.tab})
             }
+            // The AI assistant's chat: `{open?: bool}`, toggled without it. Not on the web.
+            #[cfg(not(target_arch = "wasm32"))]
+            "ui.assistant" => {
+                let want = p.get("open").and_then(Value::as_bool);
+                let Some(a) = self.assistant_mut() else { return Some(Err("the window is not ready yet".into())) };
+                a.open = want.unwrap_or(!a.open);
+                json!({"open": a.open})
+            }
             "ui.backstage" => {
                 self.ui.backstage = p.get("value").and_then(Value::as_bool).unwrap_or(!self.ui.backstage);
                 if let Some(pg) = s("page") {

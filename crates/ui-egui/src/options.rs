@@ -177,7 +177,7 @@ fn pane(app: &mut WordApp, ui: &mut Ui, id: &str) {
         "language" => language(app, ui),
         "accessibility" => accessibility(app, ui),
         "advanced" => advanced(app, ui),
-        "agents" => agents(ui),
+        "agents" => agents(app, ui),
         _ => general(app, ui),
     }
 }
@@ -719,7 +719,15 @@ fn templates_folder(app: &mut WordApp, ui: &mut Ui) {
     note(ui, "File › New lists the .dotx and .dotm templates here under Personal; Save as Word Template starts here.");
 }
 
-fn agents(ui: &mut Ui) {
+fn agents(app: &mut WordApp, ui: &mut Ui) {
+    // The chat assistant: provider, model, key and approval (not on the web, which has no keychain).
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        crate::assistant::preferences(app, ui);
+        ui.add_space(14.0);
+    }
+    #[cfg(target_arch = "wasm32")]
+    let _ = &app;
     section(ui, "Agents");
     ui.label(tl!("Every command is available to scripts and AI agents: run `letra-cli mcp` for an MCP server, or start the app with `--control <port>` for the JSON control channel."));
 }
