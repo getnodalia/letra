@@ -32,7 +32,6 @@ pub mod chrome;
 pub mod colors;
 pub mod content_controls;
 pub mod control;
-pub mod credits;
 pub mod crop;
 pub mod desktop_theme;
 pub mod dialogs;
