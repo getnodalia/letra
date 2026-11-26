@@ -33,7 +33,7 @@ publishers can still open it.
 Already there: Word's source manager (per document), 12 citation styles from a fixed table,
 `CITATION`/`BIBLIOGRAPHY` fields, Zotero over its desktop protocol, footnotes and endnotes,
 captions with `SEQ` fields and cross-references, tables of contents and figures, an equation
-editor with Unicode-math and LaTeX input and equation numbers, and 13 templates.
+editor with Unicode-math and LaTeX input and equation numbers, and 13 templates (14 with the thesis).
 
 What is missing, and why it hurts a writer:
 
@@ -86,7 +86,7 @@ Priority order; each ships as its own pull request with tests, screenshots and r
 
 ### P3. Document types and templates (0.5.0)
 
-- **Thesis / TFG**: cover, title page, declaration, abstract in two languages, acknowledgements,
+- **Thesis / TFG** (done, in File › New): cover, title page, declaration, abstract in two languages, acknowledgements,
   contents, lists of figures, tables and abbreviations, numbered chapters, bibliography,
   appendices, with roman front-matter numbering and arabic body numbering.
 - **Scientific paper**: single and two-column layouts, abstract, keywords, numbered sections,
