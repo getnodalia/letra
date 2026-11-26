@@ -1,5 +1,5 @@
 use super::cross_refs::{caption_label, is_caption};
-use super::render::entry;
+use super::render::{entry_marked, split_marks};
 use super::sources::bib_order;
 use super::styles::style;
 use super::{
@@ -300,7 +300,12 @@ pub fn update_generated(s: &mut Session) -> Result<(), CmdError> {
         let lines = entries_for(s, &kind);
         let width = crate::cmd::page::sect(s).text_width();
         for (k, (text, hanging)) in lines.into_iter().enumerate() {
+            // Italic spans (titles of books and journals) come marked from the style's template.
+            let (text, italics) = split_marks(&text);
             let mut para = Paragraph::with_text(&text, CharProps::default()).styled(ENTRY_STYLE);
+            for (a, b) in italics {
+                para.format(a, b, &|c| c.italic = Some(true))?;
+            }
             if hanging {
                 para.props.indent_left = Some(36.0);
                 para.props.indent_first = Some(-36.0);
@@ -347,7 +352,7 @@ fn entries_for(s: &mut Session, kind: &str) -> Vec<(String, bool)> {
         return bib_order(&s.doc, st, crate::cmd::default_lang(s))
             .into_iter()
             .enumerate()
-            .filter_map(|(k, i)| s.doc.sources.get(i).map(|x| (entry(x, st.name, k.saturating_add(1)), !st.numbered())))
+            .filter_map(|(k, i)| s.doc.sources.get(i).map(|x| (entry_marked(x, st.name, k.saturating_add(1)), !st.numbered())))
             .collect();
     }
     // Collect marks with positions.

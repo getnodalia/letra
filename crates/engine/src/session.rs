@@ -191,6 +191,8 @@ pub struct Session {
     pub autosave: bool,
     /// Citation style: APA, MLA, Chicago, IEEE.
     pub bib_style: String,
+    /// The user's own list of sources, shared by every document (References › My Library).
+    pub library: crate::cmd::citations::library::Library,
     /// Mail merge data source and preview.
     pub merge: crate::cmd::mailings::MergeState,
     /// Requests from commands to the UI (open a dialog, scroll…), drained by the front end.
@@ -260,4 +262,6 @@ pub struct Session {
 impl Session {
     /// File name of the persisted custom dictionary inside the settings folder.
     pub const USER_DICT_FILE: &str = "custom-dictionary.txt";
+    /// My Library (References › Source Manager) in the settings folder.
+    pub const LIBRARY_FILE: &str = "library.json";
 }

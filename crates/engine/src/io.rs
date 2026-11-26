@@ -808,6 +808,33 @@ fn only_case_differs(source: &std::path::Path, destination: &std::path::Path) ->
     std::fs::read_dir(dir).is_ok_and(|entries| entries.filter_map(Result::ok).all(|entry| entry.file_name() != to))
 }
 
+/// Read one of Letra's own files in the settings folder (My Library), at most `max` bytes. Not for
+/// paths an automation names: those go through [`read_file_capped`], which keeps them inside the
+/// read root.
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) fn read_own_file(path: &std::path::Path, max: u64) -> Result<Vec<u8>, String> {
+    let (file, meta) = open_regular_file(path)?;
+    if meta.len() > max {
+        return Err(format!("{}: larger than {} MB", path.display(), max >> 20));
+    }
+    let bytes = read_bounded(file, &meta, max).map_err(|e| format!("{}: {e}", path.display()))?;
+    if bytes.len() as u64 > max {
+        return Err(format!("{}: larger than {} MB", path.display(), max >> 20));
+    }
+    Ok(bytes)
+}
+
+/// Write `bytes` to one of Letra's own files in the settings folder (My Library), replacing the
+/// old file only once the new bytes are fully written. Not for paths an automation names: those
+/// go through [`write_file`], which keeps them inside the write root.
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) fn write_own_file(path: &std::path::Path, bytes: &[u8]) -> Result<(), String> {
+    if let Some(dir) = path.parent().filter(|d| !d.as_os_str().is_empty()) {
+        std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    }
+    safe_save::write(path, bytes).map_err(|e| format!("{}: {e}", path.display()))
+}
+
 /// Write `bytes` to the file at `path`, inside the automation write root when there is one.
 #[cfg(not(target_arch = "wasm32"))]
 pub fn write_file(path: &str, bytes: &[u8]) -> Result<(), String> {

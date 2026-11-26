@@ -31,6 +31,11 @@ fn initials(first: &str, dots: bool) -> String {
     out
 }
 
+/// "Alex Beth Mei" → "ABM": bare initials run together (Vancouver).
+fn compact_initials(first: &str) -> String {
+    first.split(|c: char| c.is_whitespace() || c == '-').filter_map(|w| w.chars().next()).flat_map(char::to_uppercase).collect()
+}
+
 fn name(form: Name, last: &str, first: &str) -> String {
     let join = |a: String, sep: &str, b: String| if a.is_empty() || b.is_empty() { format!("{a}{b}") } else { format!("{a}{sep}{b}") };
     match form {
@@ -41,6 +46,7 @@ fn name(form: Name, last: &str, first: &str) -> String {
         Name::LastSpaceInitials => join(last.to_string(), " ", initials(first, true)),
         Name::UpperLastFirst => join(last.to_uppercase(), ", ", first.to_string()),
         Name::UpperLastBareInitials => join(last.to_uppercase(), " ", initials(first, false)),
+        Name::LastCompactInitials => join(last.to_string(), " ", compact_initials(first)),
     }
 }
 
@@ -59,10 +65,43 @@ fn name_list(au: &[(String, String)], form: &Names) -> String {
     out
 }
 
+/// Starts and ends an italic span in a bibliography entry made by [`entry_marked`]: private-use
+/// characters no source text holds, taken out again by [`split_marks`].
+pub const ITALIC_ON: char = '\u{E000}';
+pub const ITALIC_OFF: char = '\u{E001}';
+
+/// The text of a marked entry without its marks, and the italic spans as character ranges of that
+/// text (what paragraph offsets count).
+pub fn split_marks(marked: &str) -> (String, Vec<(usize, usize)>) {
+    let mut text = String::with_capacity(marked.len());
+    let mut spans = Vec::new();
+    let mut open = None;
+    let mut len = 0;
+    for c in marked.chars() {
+        match c {
+            ITALIC_ON => open = Some(len),
+            ITALIC_OFF => {
+                if let Some(a) = open.take()
+                    && len > a
+                {
+                    spans.push((a, len));
+                }
+            }
+            _ => {
+                text.push(c);
+                len += 1;
+            }
+        }
+    }
+    (text, spans)
+}
+
 /// Append `s`, dropping its leading full stop when `out` already ends with one ("M." + ". ").
+/// An italic mark between them doesn't hide the full stop ("M.⟨/i⟩" + ". ").
 fn push_text(out: &mut String, s: &str) {
+    let ends_dot = out.trim_end_matches([ITALIC_ON, ITALIC_OFF]).ends_with('.');
     match s.strip_prefix('.') {
-        Some(rest) if out.ends_with('.') => out.push_str(rest),
+        Some(rest) if ends_dot => out.push_str(rest),
         _ => out.push_str(s),
     }
 }
@@ -77,11 +116,22 @@ fn fill_segment(seg: &str, field: &dyn Fn(&str) -> String, optional: bool) -> Op
             push_text(&mut out, after);
             return Some(out);
         };
+        // `{*field}` is the field in italics: its text between the two marks (see [`ITALIC_ON`]).
+        let (italic, key) = match key.strip_prefix('*') {
+            Some(k) => (true, k),
+            None => (false, key),
+        };
         let value = field(key);
         if value.is_empty() && optional {
             return None;
         }
-        push_text(&mut out, &value);
+        if italic && !value.is_empty() {
+            out.push(ITALIC_ON);
+            push_text(&mut out, &value);
+            out.push(ITALIC_OFF);
+        } else {
+            push_text(&mut out, &value);
+        }
         rest = after;
     }
     push_text(&mut out, rest);
@@ -148,14 +198,45 @@ fn gb_type(src: &Source) -> String {
     if src.url.is_empty() { code.into() } else { format!("{code}/OL") }
 }
 
-/// Bibliography entry for a style; `n` is the source's number in numbered styles.
+/// The DOI as it is written in a URL, whatever form it was typed in (`doi:10.1/x`, a
+/// `doi.org` link or the bare `10.1/x`); empty when there is none.
+pub fn bare_doi(doi: &str) -> String {
+    let d = doi.trim();
+    let lower = d.to_ascii_lowercase();
+    let start = ["https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "http://dx.doi.org/", "doi.org/", "doi:"]
+        .iter()
+        .find(|p| lower.starts_with(**p))
+        .map_or(0, |p| p.len());
+    d.get(start..).unwrap_or(d).trim().to_string()
+}
+
+/// The link an entry ends with: the source's URL, or the DOI as a `doi.org` link.
+fn link(src: &Source) -> String {
+    let url = src.url.trim();
+    if !url.is_empty() {
+        return url.to_string();
+    }
+    match bare_doi(&src.doi) {
+        d if d.is_empty() => String::new(),
+        d => format!("https://doi.org/{d}"),
+    }
+}
+
+/// Bibliography entry for a style, as plain text; `n` is the source's number in numbered styles.
 pub fn entry(src: &Source, style_name: &str, n: usize) -> String {
+    split_marks(&entry_marked(src, style_name, n)).0
+}
+
+/// Bibliography entry for a style with its italic spans marked ([`split_marks`] reads them).
+pub fn entry_marked(src: &Source, style_name: &str, n: usize) -> String {
     let st = style(style_name);
     let au = authors(&src.author);
+    let editors = authors(&src.editor);
     let field = |key: &str| -> String {
         match key {
             "n" => n.to_string(),
             "names" => corporate(src).map_or_else(|| name_list(&au, &st.names), str::to_string),
+            "editors" => name_list(&editors, &st.names),
             "year" if src.year.is_empty() => "n.d.".into(),
             "year" => src.year.clone(),
             "title" => src.title.clone(),
@@ -164,8 +245,14 @@ pub fn entry(src: &Source, style_name: &str, n: usize) -> String {
             "pub" => [src.city.as_str(), src.publisher.as_str()].into_iter().filter(|x| !x.is_empty()).collect::<Vec<_>>().join(": "),
             "journal" => src.journal.clone(),
             "volume" => src.volume.clone(),
+            "issue" => src.issue.clone(),
+            "edition" => src.edition.clone(),
+            "month" => src.month.clone(),
+            "accessed" => src.accessed.clone(),
             "pages" => src.pages.clone(),
             "url" => src.url.clone(),
+            "doi" => bare_doi(&src.doi),
+            "link" => link(src),
             "type" => gb_type(src),
             _ => String::new(),
         }
