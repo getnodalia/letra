@@ -1305,129 +1305,121 @@ pub fn textbook(lang: Lang) -> Document {
 
     // Unit 1.
     b.style(lang.pick("Fractions", "Fracciones"), "Heading1");
-    b.push(boxed(
-        lang.pick("In this unit", "En esta unidad"),
-        lang.pick(
+    b.note(
+        lang,
+        Tone::Goals,
+        ("In this unit", "En esta unidad"),
+        (
             "you will read a fraction as a part of a whole, compare two fractions, and add fractions with the same and with different denominators.",
             "leerás una fracción como parte de un todo, compararás dos fracciones y sumarás fracciones con el mismo y con distinto denominador.",
         ),
-        Tone::Goals,
-    ));
-    b.style(lang.pick("Parts of a whole", "Partes de un todo"), "Heading2");
-    b.text(lang.pick(
+    );
+    b.lesson(lang, ("Parts of a whole", "Partes de un todo"), (
         "A fraction tells how many equal parts of a whole you take. In 3/4, the whole is cut into four equal parts and you take three. The number below the line is the denominator; the number above it is the numerator.",
         "Una fracción dice cuántas partes iguales de un todo tomas. En 3/4, el todo se corta en cuatro partes iguales y tomas tres. El número de abajo es el denominador; el de arriba, el numerador.",
     ));
-    b.push(boxed(
-        lang.pick("Remember", "Recuerda"),
-        lang.pick(
+    b.note(
+        lang,
+        Tone::Remember,
+        REMEMBER,
+        (
             "the parts must be equal. Three unequal pieces of a pizza are not three quarters.",
             "las partes deben ser iguales. Tres trozos desiguales de una pizza no son tres cuartos.",
         ),
-        Tone::Remember,
-    ));
-    b.style(lang.pick("Adding fractions", "Sumar fracciones"), "Heading2");
-    b.text(lang.pick(
+    );
+    b.lesson(lang, ("Adding fractions", "Sumar fracciones"), (
         "When the denominators are the same, the parts are the same size, so you only count them. Add the numerators and keep the denominator:",
         "Cuando los denominadores son iguales, las partes son del mismo tamaño y solo hay que contarlas. Suma los numeradores y conserva el denominador:",
     ));
     b.make(Make::Equation { latex: r"\frac{a}{c} + \frac{b}{c} = \frac{a+b}{c}" });
-    b.push(boxed(
-        lang.pick("Worked example", "Ejemplo resuelto"),
-        lang.pick(
+    b.note(
+        lang,
+        Tone::Example,
+        EXAMPLE,
+        (
             "Lucía eats 2/8 of a tray of lasagne and Mateo eats 3/8. Together they eat 2/8 + 3/8 = 5/8 of the tray, so 3/8 is left.",
             "Lucía se come 2/8 de una bandeja de lasaña y Mateo, 3/8. Entre los dos se comen 2/8 + 3/8 = 5/8 de la bandeja, así que quedan 3/8.",
         ),
-        Tone::Example,
-    ));
+    );
     let fractions = match lang {
         Lang::En => [&["Fraction", "Decimal", "Percentage"][..], &["1/2", "0.5", "50 %"], &["1/4", "0.25", "25 %"]],
         Lang::Es => [&["Fracción", "Decimal", "Porcentaje"][..], &["1/2", "0,5", "50 %"], &["1/4", "0,25", "25 %"]],
     };
-    b.captioned(
-        Block::Table(numeric_table(&fractions, 300.0, 1)),
-        "Table",
-        lang.pick("The same quantity written three ways", "La misma cantidad escrita de tres maneras"),
-        true,
+    let caption = lang.pick("The same quantity written three ways", "La misma cantidad escrita de tres maneras");
+    b.captioned(Block::Table(numeric_table(&fractions, 300.0, 1)), "Table", caption, true);
+    b.exercises(
+        lang,
+        exercise_lists[0],
+        [
+            ("Colour 5/6 of a strip cut into six equal parts.", "Colorea 5/6 de una tira dividida en seis partes iguales."),
+            ("Which is larger, 3/5 or 4/5? Explain how you know.", "¿Cuál es mayor, 3/5 o 4/5? Explica cómo lo sabes."),
+            ("Calculate 2/9 + 4/9 and 1/7 + 5/7.", "Calcula 2/9 + 4/9 y 1/7 + 5/7."),
+        ],
     );
-    b.style(lang.pick("Exercises", "Ejercicios"), "ExerciseHeading");
-    for t in [
-        lang.pick("Colour 5/6 of a strip cut into six equal parts.", "Colorea 5/6 de una tira dividida en seis partes iguales."),
-        lang.pick("Which is larger, 3/5 or 4/5? Explain how you know.", "¿Cuál es mayor, 3/5 o 4/5? Explica cómo lo sabes."),
-        lang.pick("Calculate 2/9 + 4/9 and 1/7 + 5/7.", "Calcula 2/9 + 4/9 y 1/7 + 5/7."),
-    ] {
-        b.push(numbered(t, exercise_lists[0]));
-    }
-    b.push(boxed(
-        lang.pick("Summary", "Resumen"),
-        lang.pick(
-            "A fraction is parts of a whole. To add fractions with the same denominator, add the numerators and keep the denominator.",
-            "Una fracción son partes de un todo. Para sumar fracciones con el mismo denominador, se suman los numeradores y se conserva el denominador.",
-        ),
-        Tone::Goals,
+    b.note(lang, Tone::Goals, ("Summary", "Resumen"), (
+        "A fraction is parts of a whole. To add fractions with the same denominator, add the numerators and keep the denominator.",
+        "Una fracción son partes de un todo. Para sumar fracciones con el mismo denominador, se suman los numeradores y se conserva el denominador.",
     ));
 
     // Unit 2.
     b.style(lang.pick("Ratios and proportions", "Razones y proporciones"), "Heading1");
-    b.push(boxed(
-        lang.pick("In this unit", "En esta unidad"),
-        lang.pick(
+    b.note(
+        lang,
+        Tone::Goals,
+        ("In this unit", "En esta unidad"),
+        (
             "you will compare two quantities with a ratio, find equivalent ratios and use them to scale a recipe or a map.",
             "compararás dos cantidades con una razón, encontrarás razones equivalentes y las usarás para ampliar una receta o un mapa.",
         ),
-        Tone::Goals,
-    ));
-    b.style(lang.pick("Comparing quantities", "Comparar cantidades"), "Heading2");
-    b.text(lang.pick(
+    );
+    b.lesson(lang, ("Comparing quantities", "Comparar cantidades"), (
         "A ratio compares two quantities of the same kind. If a drink uses 2 cups of juice for every 3 cups of water, the ratio of juice to water is 2 to 3, written 2 : 3.",
         "Una razón compara dos cantidades de la misma clase. Si una bebida lleva 2 vasos de zumo por cada 3 de agua, la razón de zumo a agua es de 2 a 3, y se escribe 2 : 3.",
     ));
-    b.push(boxed(
-        lang.pick("Worked example", "Ejemplo resuelto"),
-        lang.pick(
-            "To make 10 cups of the same drink, keep the ratio: 2 : 3 = 4 : 6 = 6 : 9. Five groups of (2 + 3) cups make 10 cups, so you need 4 cups of juice and 6 of water.",
-            "Para hacer 10 vasos de la misma bebida, mantén la razón: 2 : 3 = 4 : 6 = 6 : 9. Dos grupos de (2 + 3) vasos hacen 10 vasos, así que necesitas 4 de zumo y 6 de agua.",
-        ),
-        Tone::Example,
+    b.note(lang, Tone::Example, EXAMPLE, (
+        "To make 10 cups of the same drink, keep the ratio: 2 : 3 = 4 : 6 = 6 : 9. Five groups of (2 + 3) cups make 10 cups, so you need 4 cups of juice and 6 of water.",
+        "Para hacer 10 vasos de la misma bebida, mantén la razón: 2 : 3 = 4 : 6 = 6 : 9. Dos grupos de (2 + 3) vasos hacen 10 vasos, así que necesitas 4 de zumo y 6 de agua.",
     ));
-    b.style(lang.pick("Scaling", "Ampliar y reducir"), "Heading2");
-    b.text(lang.pick(
+    b.lesson(lang, ("Scaling", "Ampliar y reducir"), (
         "A map drawn at 1 : 50 000 shows 1 cm for every 50 000 cm on the ground, which is 500 m. Multiply both parts of a ratio by the same number and it still says the same thing.",
         "Un mapa dibujado a escala 1 : 50 000 muestra 1 cm por cada 50 000 cm del terreno, es decir, 500 m. Si multiplicas las dos partes de una razón por el mismo número, sigue diciendo lo mismo.",
     ));
-    b.push(boxed(
-        lang.pick("Remember", "Recuerda"),
-        lang.pick(
+    b.note(
+        lang,
+        Tone::Remember,
+        REMEMBER,
+        (
             "equal ratios come from multiplying or dividing both parts by the same number.",
             "las razones iguales salen de multiplicar o dividir las dos partes por el mismo número.",
         ),
-        Tone::Remember,
-    ));
-    b.style(lang.pick("Exercises", "Ejercicios"), "ExerciseHeading");
-    for t in [
-        lang.pick(
-            "Write the ratio of boys to girls in a class of 12 boys and 18 girls, in its simplest form.",
-            "Escribe la razón de chicos a chicas en una clase de 12 chicos y 18 chicas, en su forma más simple.",
-        ),
-        lang.pick(
-            "A recipe for 4 people uses 300 g of rice. How much rice for 10 people?",
-            "Una receta para 4 personas lleva 300 g de arroz. ¿Cuánto arroz hace falta para 10 personas?",
-        ),
-        lang.pick(
-            "Two cities are 4 cm apart on a 1 : 250 000 map. How far apart are they in kilometres?",
-            "Dos ciudades están a 4 cm en un mapa 1 : 250 000. ¿A cuántos kilómetros están?",
-        ),
-    ] {
-        b.push(numbered(t, exercise_lists[1]));
-    }
-    b.push(boxed(
-        lang.pick("Summary", "Resumen"),
-        lang.pick(
+    );
+    b.exercises(
+        lang,
+        exercise_lists[1],
+        [
+            (
+                "Write the ratio of boys to girls in a class of 12 boys and 18 girls, in its simplest form.",
+                "Escribe la razón de chicos a chicas en una clase de 12 chicos y 18 chicas, en su forma más simple.",
+            ),
+            (
+                "A recipe for 4 people uses 300 g of rice. How much rice for 10 people?",
+                "Una receta para 4 personas lleva 300 g de arroz. ¿Cuánto arroz hace falta para 10 personas?",
+            ),
+            (
+                "Two cities are 4 cm apart on a 1 : 250 000 map. How far apart are they in kilometres?",
+                "Dos ciudades están a 4 cm en un mapa 1 : 250 000. ¿A cuántos kilómetros están?",
+            ),
+        ],
+    );
+    b.note(
+        lang,
+        Tone::Goals,
+        ("Summary", "Resumen"),
+        (
             "A ratio compares two quantities. Equal ratios keep the same relation when both parts are scaled together.",
             "Una razón compara dos cantidades. Las razones iguales mantienen la misma relación cuando las dos partes se escalan a la vez.",
         ),
-        Tone::Goals,
-    ));
+    );
 
     // Back matter.
     b.style(lang.pick("Glossary", "Glosario"), "FrontHeading");
@@ -1489,6 +1481,28 @@ const TEXTBOOK_LOOK: Look = Look {
     h3: 13.0,
     title: 38.0,
 };
+
+const EXAMPLE: (&str, &str) = ("Worked example", "Ejemplo resuelto");
+const REMEMBER: (&str, &str) = ("Remember", "Recuerda");
+
+impl Draft {
+    /// A box with a bold label, in the tone's colour.
+    fn note(&mut self, lang: Lang, tone: Tone, label: (&'static str, &'static str), text: (&'static str, &'static str)) {
+        self.push(boxed(lang.pick(label.0, label.1), lang.pick(text.0, text.1), tone));
+    }
+    /// A lesson heading and its first paragraph.
+    fn lesson(&mut self, lang: Lang, heading: (&'static str, &'static str), text: (&'static str, &'static str)) {
+        self.style(lang.pick(heading.0, heading.1), "Heading2");
+        self.text(lang.pick(text.0, text.1));
+    }
+    /// A set of exercises numbered from 1 in the list `list`.
+    fn exercises(&mut self, lang: Lang, list: u32, items: [(&'static str, &'static str); 3]) {
+        self.style(lang.pick("Exercises", "Ejercicios"), "ExerciseHeading");
+        for (en, es) in items {
+            self.push(numbered(lang.pick(en, es), list));
+        }
+    }
+}
 
 /// What a box in a textbook is for, which sets its colour.
 #[derive(Clone, Copy)]
