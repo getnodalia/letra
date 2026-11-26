@@ -174,7 +174,13 @@ pub(crate) fn leading_breaks(doc: &Document, pos: &Pos) -> usize {
 fn ref_bookmark(s: &mut Session, pos: &Pos, number_only: bool, mut at: Pos) -> Result<(String, Pos), CmdError> {
     const MARK: usize = letra_doc::para::OBJ.len_utf8();
     let para = s.doc.para(pos.story, &pos.path).ok_or_else(|| CmdError::Params("cross-reference target is gone".into()))?;
-    let end = if number_only { para.text.find(':').unwrap_or(para.len()) } else { para.len() };
+    // A caption's label and number end at its colon; a block without one (`Theorem 2.1 (Title).`)
+    // at the end of its number.
+    let end = if number_only {
+        para.text.find(':').or_else(|| para.object_offsets().into_iter().find(|o| matches!(para.object_at(*o), Some(InlineObject::Field { instr, .. }) if instr.trim_start().to_ascii_uppercase().starts_with("SEQ "))).map(|o| o.saturating_add(letra_doc::para::OBJ.len_utf8()))).unwrap_or(para.len())
+    } else {
+        para.len()
+    };
     // The bookmark starts after the leading page breaks, so `PAGEREF` reads the page the text is on.
     let start = leading_breaks(&s.doc, pos).min(end);
     // Reuse one that starts there or at the paragraph's start (before the breaks): the field's

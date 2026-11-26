@@ -1021,3 +1021,32 @@ fn output_gives_every_reference_its_bookmarks_text() {
     assert_eq!(results, expected);
     assert_eq!(results, ["First target", "Second target", "First target", REFERENCE_NOT_FOUND, "First target"]);
 }
+
+/// Theorem-like blocks are numbered by chapter, share Caption's cross-reference and list
+/// machinery, and a proof is unnumbered and ends with its mark.
+#[test]
+fn theorem_blocks_are_numbered_by_chapter_and_cross_referenceable() {
+    let mut s = Session::new(letra_doc::Document::from_text("Rivers\nintro\nLakes\nmore"));
+    for t in ["Rivers", "Lakes"] {
+        s.run("select.text", &json!({"text": t})).unwrap();
+        s.run("styles.apply", &json!({"style": "Heading 1"})).unwrap();
+    }
+    for (at, kind, title) in [("intro", "theorem", "Pythagoras"), ("more", "theorem", ""), ("more", "definition", "Lake")] {
+        s.run("select.text", &json!({"text": at})).unwrap();
+        s.run("caret.end", &json!({})).unwrap();
+        s.run("references.theorem", &json!({"kind": kind, "title": title, "text": "body", "chapter": 1})).unwrap();
+    }
+    let texts: Vec<String> = s.doc.body.iter().filter_map(|b| b.as_para()).map(|p| p.plain_text()).collect();
+    let results: Vec<String> = fields(&s).into_iter().filter(|f| f.0.starts_with("SEQ")).map(|f| f.1).collect();
+    assert_eq!(results, ["1", "1", "1"], "each kind counts on its own, restarting at each chapter: {results:?}");
+    assert!(texts.iter().any(|t| t.contains("Theorem") && t.contains("(Pythagoras). body")), "{texts:?}");
+    let labels = crate::cmd::citations::caption_labels(&s);
+    assert!(labels.contains(&"Theorem".to_string()) && labels.contains(&"Definition".to_string()), "{labels:?}");
+    assert_eq!(crate::cmd::citations::ref_targets(&s, "label:Theorem").len(), 2);
+
+    // A proof has no number and ends with its mark; the caret sits where its text goes.
+    s.run("references.theorem", &json!({"kind": "proof", "text": "Obvious."})).unwrap();
+    let proof = s.doc.para(StoryRef::Body, &s.sel.focus.path).unwrap().plain_text();
+    assert!(proof.starts_with("Proof. Obvious.") && proof.ends_with('\u{220E}'), "{proof:?}");
+    assert!(matches!(s.run("references.theorem", &json!({"kind": "axiom"})), Err(crate::CmdError::Params(_))));
+}

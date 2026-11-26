@@ -46,7 +46,7 @@ jobs:
         with:
           repository: getnodalia/foundation # kept at nodalia/i18n
           # The commit nodalia-i18n.rev pins.
-          ref: 022858dcea810b203d51bfbda45f7c076512d393
+          ref: e31041279236dcf3cb79653554d920c8bb9db7b9
           path: nodalia-i18n
           persist-credentials: false
 
