@@ -151,7 +151,7 @@ await init({ module_or_path: "./letra-web-<hash>_bg.wasm" });
   present it takes precedence, so a same-origin framed page uses the parent bridge, while an
   unframed or cross-origin page gets no bridge and keeps normal downloads.
 
-The messages and both transports are the shared contract of [`nodalia-web-host`](https://github.com/getnodalia/foundation/tree/nodalia/libs/crates/web-host) (storytold/craft-libs#420), the same for every Nodalia app: its README lists every message, including `saved`, with the compatibility notes. In `letra:ready`, `version` is the contract's (`"1"`) and `appVersion` is this app's release. Letra reads bytes, so a host sends `bytes`, not a `File`.
+The messages and both transports are the shared contract of [`nodalia-web-host`](https://github.com/getnodalia/foundation/tree/nodalia/libs/crates/web-host) (#420), the same for every Nodalia app: its README lists every message, including `saved`, with the compatibility notes. In `letra:ready`, `version` is the contract's (`"1"`) and `appVersion` is this app's release. Letra reads bytes, so a host sends `bytes`, not a `File`.
 
 ### Trust and limits
 
@@ -161,7 +161,7 @@ The messages and both transports are the shared contract of [`nodalia-web-host`]
 
 ### Driving it from the page (`window.letra`)
 
-Every Letra web build puts `window.letra` on the page, from [`nodalia-web-api`](https://github.com/getnodalia/foundation/tree/nodalia/libs/crates/web-api) (storytold/craft-libs#413), the same shape in every Nodalia app. `letra.request(method, params)` calls any method of the control channel the desktop app serves (`docs/control-protocol.md`), and `execute(command, params)`, `commands()`, `docInspect(params)`, `uiInspect(params)` and `screenshot(params)` are shortcuts for the common ones. Each returns a Promise that resolves with the method's result and rejects with an `Error`; a call the app does not answer within 30 seconds rejects. Letra's control requests cannot be withdrawn, so a call that times out in the page still runs when the app reaches it, as it does for a desktop client.
+Every Letra web build puts `window.letra` on the page, from [`nodalia-web-api`](https://github.com/getnodalia/foundation/tree/nodalia/libs/crates/web-api) (#413), the same shape in every Nodalia app. `letra.request(method, params)` calls any method of the control channel the desktop app serves (`docs/control-protocol.md`), and `execute(command, params)`, `commands()`, `docInspect(params)`, `uiInspect(params)` and `screenshot(params)` are shortcuts for the common ones. Each returns a Promise that resolves with the method's result and rejects with an `Error`; a call the app does not answer within 30 seconds rejects. Letra's control requests cannot be withdrawn, so a call that times out in the page still runs when the app reaches it, as it does for a desktop client.
 
 ```js
 const doc = await letra.docInspect();                  // a summary of the open document

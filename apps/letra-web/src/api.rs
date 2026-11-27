@@ -1,4 +1,4 @@
-//! `window.letra`: the page command API (`nodalia-web-api`, storytold/craft-libs#413) over the
+//! `window.letra`: the page command API (`nodalia-web-api`, #413) over the
 //! app's own control channel, the one the desktop control server drives (`docs/control-protocol.md`).
 //!
 //! The crate owns the JavaScript side (`request`, `execute`, `commands`, `docInspect`, `uiInspect`,

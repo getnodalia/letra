@@ -17,7 +17,7 @@ path = "src/main.rs"
 letra-engine = { workspace = true }
 letra-ui-egui = { workspace = true }
 # The host messages (getnodalia/foundation (vendor/nodalia-libs)): one contract and one bridge for the web builds.
-# The page command API (storytold/craft-libs#413): window.letra over the control channel.
+# The page command API (#413): window.letra over the control channel.
 nodalia-web-api = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "0.1.0" }
 nodalia-web-host = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "0.1.0" }
 egui = { workspace = true }

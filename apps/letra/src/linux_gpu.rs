@@ -4,9 +4,9 @@
 //! whose integrated GPU drives the panel, every frame drawn on the discrete one is copied across
 //! to it, and the discrete GPU leaves its idle state whenever the window redraws: on an Intel HD
 //! 530 + NVIDIA Quadro M4000M laptop, from 7 W at P8 to over 20 W at P0/P1. Forcing the integrated
-//! GPU instead breaks desktops whose screen is on the discrete card (storytold/pdfcraft#96), and a
-//! desktop with a monitor on each card needs the discrete one (storytold/pdfcraft#445). So the
-//! choice follows the connected displays, as in craft-anything (storytold/craft-anything#571):
+//! GPU instead breaks desktops whose screen is on the discrete card (#96), and a
+//! desktop with a monitor on each card needs the discrete one (#445). So the
+//! choice follows the connected displays, as in craft-anything (#571):
 //!
 //! 1. `WGPU_ADAPTER_NAME` (part of the adapter's name) or `WGPU_POWER_PREF` (`high`, `low`,
 //!    `none`), when set, decide;
