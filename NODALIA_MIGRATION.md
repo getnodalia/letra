@@ -18,16 +18,13 @@ format of its own, so there is no old extension to rename.
 
 ## Inherited dependencies still pending
 
-Resolved: craft-common-actions (release, contributors refresh, Windows ARM64) is gone; fonts,
-translations and the shared libraries come from getnodalia/foundation's vendor branches; the
-`[patch]` for `storytold/winprint.rs` in `Cargo.toml` only names the old home of crates fetched
-from getnodalia/foundation.
+Resolved: fonts, translations and the shared libraries come from getnodalia/foundation's vendor branches, and nothing in `Cargo.toml` names another organisation.
 
 ## Technical debt
 
 - Windows ARM64 is not packaged yet (the inherited workflow was removed); `release-windows.yml`
   builds x64.
-- The translation catalog in craft-i18n is still named `wordcraft.tsv`.
+- The translation catalog is still named `wordcraft.tsv`.
 
 ## Reusable Nodalia components
 

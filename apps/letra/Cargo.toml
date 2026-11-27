@@ -85,7 +85,7 @@ clipboard-win = { version = "5.4", features = ["std"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # At the same nodalia-libs commit as the workspace's crates: `printer_queues`, the printer list that
-# asks no driver (#5710, storytold/craft-libs#618), and `submit_cancellable` (storytold/craft-libs#622).
+# asks no driver (#5710, #618), and `submit_cancellable` (#622).
 nodalia-print = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad" }
 rfd = { workspace = true }
 # Waits for an `rfd::AsyncFileDialog` on a background thread (the dialogs don't block the UI, #94);
