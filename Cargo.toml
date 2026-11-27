@@ -4,7 +4,7 @@ members = ["crates/*", "apps/*", "xtask"]
 default-members = ["crates/*", "apps/letra", "apps/letra-cli", "xtask"]
 
 [workspace.package]
-version = "0.6.0"
+version = "0.6.1"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 rust-version = "1.95"
@@ -73,9 +73,9 @@ nodalia-image-codecs = { git = "https://github.com/getnodalia/foundation", rev =
 nodalia-tiff = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }
 nodalia-pdf = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0", default-features = false, features = ["write"] }
 # In-app updates from this app's GitHub releases, with the update windows for egui.
-nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "7966cac1e786a14ca7e58b201fa6dd084b39f0a7", features = ["egui"] }
-nodalia-assistant = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "7966cac1e786a14ca7e58b201fa6dd084b39f0a7", features = ["egui"] }
-nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "7966cac1e786a14ca7e58b201fa6dd084b39f0a7", features = ["egui", "creator"] }
+nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "55ef2eccee0ca0fda67bd1d31bfabb1a82ea098f", features = ["egui"] }
+nodalia-assistant = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "55ef2eccee0ca0fda67bd1d31bfabb1a82ea098f", features = ["egui"] }
+nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "55ef2eccee0ca0fda67bd1d31bfabb1a82ea098f", features = ["egui", "creator"] }
 nodalia-wordmodel = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }
 nodalia-docx = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }
 nodalia-mcp-server = { git = "https://github.com/getnodalia/foundation", rev = "cc4a0d8d7e54ccbc4de8858d813129011336eaad", version = "=0.1.0" }
